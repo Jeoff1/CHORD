@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{ member.full_name }} | CHORD{% endblock %}
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">{{ member.full_name }}</h1>
+    {% if perms.members.manage_members and perms.members.change_member and perms.members.view_sensitive_member_data %}
+      <a class="btn btn-primary" href="{% url 'members:edit' member.public_id %}">Edit member</a>
+    {% endif %}
+  </div>
+  <dl class="row card card-body shadow-sm">
+    <dt class="col-sm-4">Membership status</dt><dd class="col-sm-8">{{ member.get_membership_status_display }}</dd>
+    <dt class="col-sm-4">Joined</dt><dd class="col-sm-8">{{ member.joined_on|default:"—" }}</dd>
+    {% if can_view_sensitive %}
+      <dt class="col-sm-4">Email</dt><dd class="col-sm-8">{{ member.email|default:"—" }}</dd>
+      <dt class="col-sm-4">Phone</dt><dd class="col-sm-8">{{ member.phone_number|default:"—" }}</dd>
+      <dt class="col-sm-4">Address</dt><dd class="col-sm-8">{{ member.address|linebreaksbr|default:"—" }}</dd>
+      <dt class="col-sm-4">Date of birth</dt><dd class="col-sm-8">{{ member.date_of_birth|default:"—" }}</dd>
+    {% endif %}
+  </dl>
+{% endblock %}

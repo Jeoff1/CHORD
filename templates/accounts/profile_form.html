@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Profile | CHORD{% endblock %}
+{% block content %}
+  <h1 class="h3">Your profile</h1>
+  <form method="post" class="card card-body shadow-sm">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div>
+      <button class="btn btn-primary" type="submit">Save profile</button>
+      <a class="btn btn-link" href="{% url 'accounts:password-change' %}">Change password</a>
+    </div>
+  </form>
+{% endblock %}

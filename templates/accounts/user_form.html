@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}{% if object %}Edit{% else %}Create{% endif %} account | CHORD{% endblock %}
+{% block content %}
+  <h1 class="h3">{% if object %}Edit {{ object.username }}{% else %}Create account{% endif %}</h1>
+  <form method="post" class="card card-body shadow-sm">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div>
+      <button class="btn btn-primary" type="submit">Save account</button>
+      <a class="btn btn-link" href="{% url 'accounts:user-list' %}">Cancel</a>
+    </div>
+  </form>
+{% endblock %}

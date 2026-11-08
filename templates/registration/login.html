@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Log in | CHORD{% endblock %}
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+      <h1 class="h3">Log in to CHORD</h1>
+      <form method="post" class="card card-body shadow-sm">
+        {% csrf_token %}
+        {{ form.as_p }}
+        {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+        <button class="btn btn-primary" type="submit">Log in</button>
+      </form>
+    </div>
+  </div>
+{% endblock %}
