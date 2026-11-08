@@ -18,11 +18,12 @@ Status: **Completed — Phase 2 (2026-11-06)**
 
 ## Permission boundary
 
-The Church Administrator role receives the exact account and member permissions
-defined in code. It does not imply access to giving or other future confidential
-modules. Other roles receive permissions only when an implemented workflow
-requires them. All enforcement is server-side; template visibility is only a
-usability aid. Permission synchronization removes stale administrator grants.
+Each role receives the exact account, member, and implemented Phase 4
+permissions defined in code. Church Administrator access does not imply access
+to giving or other future confidential modules. Other roles receive permissions
+only when an implemented workflow requires them. All enforcement is server-side;
+template visibility is only a usability aid. Permission synchronization removes
+stale grants from every authoritative role mapping.
 
 ## Bootstrap procedure
 
@@ -36,8 +37,10 @@ recorded in documentation.
 
 ## Not included
 
-Password-reset email, member records, ministry/choir participation, and future
-domain permissions are outside Phase 2.
+Password-reset email, member records, ministry/choir participation, and later
+domain permissions were outside Phase 2. Member and choir/worship features were
+subsequently implemented in Phases 3 and 4 without changing the Phase 2 auth
+model.
 
 See [[../01-Project/User-Roles]], [[../02-Architecture/Database-Design]], and
 [[../04-Testing/Phase-2-Test-Results]].

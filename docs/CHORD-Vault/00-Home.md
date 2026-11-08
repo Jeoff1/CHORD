@@ -12,6 +12,7 @@ CHORD's source-of-truth development notes.
 - [[02-Architecture/Architecture-Decisions|Architecture Decisions]]
 - [[03-Modules/Authentication|Authentication and RBAC]]
 - [[03-Modules/Member-Management|Member Management]]
+- [[03-Modules/Choir-Worship-Management|Choir and Worship Management]]
 - [[03-Development/Development-Roadmap|Development Roadmap]]
 - [[03-Development/Task-Tracker|Task Tracker]]
 - [[03-Development/Development-Log|Development Log]]
@@ -20,8 +21,10 @@ CHORD's source-of-truth development notes.
 - [[04-Testing/Environment-Verification|Environment Verification]]
 - [[04-Testing/Phase-2-Test-Results|Phase 2 Test Results]]
 - [[04-Testing/Phase-3-Test-Results|Phase 3 Test Results]]
-- [[04-Testing/Phases-1-3-QA-Audit|Phases 1–3 QA Audit]]
+- [[04-Testing/Phases-1-3-QA-Audit|Phases 1-3 QA Audit]]
+- [[04-Testing/Phase-4-Test-Results|Phase 4 Test Results]]
 
-Current status: **READY FOR PHASE 4.** The 2026-11-07 audit verified Phases 1–3
-against source, PostgreSQL, migrations, security behavior, and 44 passing tests.
-No Phase 4 feature has been started.
+Current status: **PHASE 4 COMPLETE.** On 2026-11-08, choir management, the
+worship song library, and worship planning passed the 69-test full suite,
+PostgreSQL migration verification, Django checks, and Ruff. Phase 5 has not
+been started.

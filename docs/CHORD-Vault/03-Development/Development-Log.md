@@ -122,3 +122,35 @@ See [[../03-Modules/Authentication]], [[Refactoring-Log]], and
 
 See [[../04-Testing/Phases-1-3-QA-Audit]], [[Known-Issues]], and
 [[Refactoring-Log]].
+
+## 2026-11-08 - Phase 4 choir and worship management
+
+- **Phase:** 4
+- **Task:** Choir enrollment and activity, worship song library, and service
+  planning.
+- **Files:** Added `apps/worship/`, 18 worship templates, migration `0001`, 25
+  Phase 4 tests, protected-resource storage, scoped role mappings, navigation,
+  and vault documentation.
+- **Choir:** Added member enrollment, voice parts, status, rehearsals,
+  attendance, announcements, activity information, and member assignments.
+- **Songs:** Added searchable/filterable/sortable metadata, normalized themes,
+  categories, key/tempo, usage history, and authorization-tracked chord/lead
+  sheet resources.
+- **Planning:** Added service plans, preparation status, choir participation,
+  ordered setlists, transactional movement/removal, and member assignments.
+- **Security:** Enforced responsibility permissions and participant-level
+  querysets; protected attendance, assignments, plan usage, and licensed files.
+- **Database:** Applied `worship.0001_initial`; verified all 10 tables plus key
+  unique constraints and authoritative role permissions in PostgreSQL.
+- **Tests:** Added 25 Phase 4 tests. The complete 69-test suite passed along
+  with system checks, migration drift, dependency validation, Ruff lint, and
+  Ruff formatting.
+- **Refactoring:** Added concurrency row locks, protected file storage, generic
+  filter-preserving pagination, deferred protected-object lookup, and privacy
+  filtering after implementation review.
+- **Boundary:** No event module, Phase 5 feature, or ML engine was implemented.
+- **Next:** Review Phase 4 changes and explicitly authorize/scope Phase 5.
+
+See [[../03-Modules/Choir-Worship-Management]],
+[[../04-Testing/Phase-4-Test-Results]], [[Known-Issues]], and
+[[Refactoring-Log]].

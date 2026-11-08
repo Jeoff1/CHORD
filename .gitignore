@@ -14,6 +14,7 @@ __pycache__/
 staticfiles/
 media/*
 !media/.gitkeep
+protected_media/
 
 # Tool caches and coverage
 .pytest_cache/

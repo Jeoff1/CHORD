@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Choir activity | CHORD{% endblock %}
+{% block content %}
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h3 mb-0">Choir activity</h1>
+    <div>
+      {% if perms.worship.view_choir_roster %}<a class="btn btn-outline-primary" href="{% url 'worship:choir-roster' %}">Roster</a>{% endif %}
+      <a class="btn btn-outline-primary" href="{% url 'worship:rehearsal-list' %}">Rehearsals</a>
+      <a class="btn btn-outline-primary" href="{% url 'worship:announcement-list' %}">Announcements</a>
+    </div>
+  </div>
+  <div class="row g-4">
+    <section class="col-lg-6">
+      <div class="card shadow-sm h-100"><div class="card-body">
+        <h2 class="h5">Upcoming rehearsals</h2>
+        <ul class="list-group list-group-flush">
+          {% for rehearsal in rehearsals %}
+            <li class="list-group-item px-0"><a href="{% url 'worship:rehearsal-detail' rehearsal.public_id %}">{{ rehearsal.title }}</a><br><small class="text-muted">{{ rehearsal.starts_at }}{% if rehearsal.location %} · {{ rehearsal.location }}{% endif %}</small></li>
+          {% empty %}<li class="list-group-item px-0">No upcoming rehearsals.</li>{% endfor %}
+        </ul>
+      </div></div>
+    </section>
+    <section class="col-lg-6">
+      <div class="card shadow-sm h-100"><div class="card-body">
+        <h2 class="h5">Announcements</h2>
+        {% for announcement in announcements %}
+          <article class="border-bottom pb-2 mb-2"><h3 class="h6">{{ announcement.title }}</h3><div>{{ announcement.body|linebreaksbr }}</div><small class="text-muted">{{ announcement.published_at }}</small></article>
+        {% empty %}<p class="mb-0">No current announcements.</p>{% endfor %}
+      </div></div>
+    </section>
+  </div>
+  {% if assignments %}
+    <section class="card shadow-sm mt-4"><div class="card-body">
+      <h2 class="h5">My upcoming song assignments</h2>
+      <ul class="mb-0">{% for assignment in assignments %}<li><a href="{% url 'worship:plan-detail' assignment.plan_song.plan.public_id %}">{{ assignment.plan_song.song }}</a> — {{ assignment.plan_song.plan.title }} on {{ assignment.plan_song.plan.service_datetime }}</li>{% endfor %}</ul>
+    </div></section>
+  {% endif %}
+{% endblock %}

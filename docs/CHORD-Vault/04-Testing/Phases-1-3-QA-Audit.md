@@ -72,5 +72,9 @@ Result: **READY FOR PHASE 4**
 
 No critical issue remains. Phase 4 may begin after the user authorizes it.
 
+Historical note: the baseline-commit issue recorded above was resolved by commit
+`6686960` before Phase 4 completion. See [[Phase-4-Test-Results]] for the current
+verification state.
+
 See [[../03-Development/Known-Issues]], [[../03-Development/Task-Tracker]],
 [[../02-Architecture/Database-Design]], and [[../03-Development/Refactoring-Log]].

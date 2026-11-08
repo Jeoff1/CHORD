@@ -1,0 +1,3 @@
+{% extends "base.html" %}
+{% block title %}{% if object %}Edit worship plan{% else %}Create worship plan{% endif %} | CHORD{% endblock %}
+{% block content %}<h1 class="h3">{% if object %}Edit {{ object.title }}{% else %}Create worship plan{% endif %}</h1><form method="post" class="card card-body shadow-sm">{% csrf_token %}{{ form.as_p }}<div><button class="btn btn-primary" type="submit">Save plan</button><a class="btn btn-link" href="{% url 'worship:plan-list' %}">Cancel</a></div></form>{% endblock %}

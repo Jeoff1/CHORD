@@ -1,11 +1,12 @@
 # Project Overview
 
 CHORD is a Django church management system with future ML-powered worship song
-recommendations. The development foundation, authentication/RBAC, and member
-management are implemented. Later functional modules have not been started.
+recommendations. The development foundation, authentication/RBAC, member
+management, choir management, worship song library, and worship planning are
+implemented.
 
-Later phases may introduce members, attendance, giving, ministries, events,
-choir and worship workflows, songs, recommendations, resources, dashboards,
-integration tests, and deployment work.
+Later phases may introduce ministries, church-wide events and attendance,
+giving, recommendations, reporting, deeper integrations, and deployment work.
+No ML recommendation behavior is implemented yet.
 
 See [[Technology-Stack]] and [[../03-Development/Development-Roadmap]].

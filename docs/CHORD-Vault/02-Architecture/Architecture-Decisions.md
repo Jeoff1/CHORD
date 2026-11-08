@@ -46,3 +46,31 @@ See [[../03-Modules/Member-Management]] and [[Database-Design]].
 - Preserve list performance with role prefetching and avoid unused joins.
 
 See [[../04-Testing/Phases-1-3-QA-Audit]].
+
+## 2026-11-08 - Phase 4 choir and worship domain
+
+- Use one cohesive `worship` app because choir preparation, song resources,
+  setlists, and service plans share permissions and relationships.
+- Keep `ChoirEnrollment` separate from the Choir Member role: enrollment is
+  domain participation, while roles authorize application capabilities.
+- Reuse `members.Member` for choir identity rather than duplicating personal or
+  contact data.
+- Grant authoritative, responsibility-scoped permissions to Church
+  Administrator, Worship Leader, Choir Leader, and Choir Member roles.
+- Filter worship plans, song assignments, song usage, and rehearsal attendance
+  at the queryset level for participant accounts.
+- Store normalized worship themes as a bounded JSON string list. This supports
+  future recommendation inputs without implementing an ML engine or premature
+  taxonomy tables.
+- Store licensed uploads outside public media, require an authorization
+  reference, validate extension and size, and stream files only through a
+  permission-protected view.
+- Use explicit through models for ordered setlists, choir participation, and
+  song assignments. Database constraints protect ordering and uniqueness.
+- Keep service scheduling on `WorshipPlan` because no event module exists.
+  Introduce an event foreign key only in the later event phase.
+- Lock parent/setlist rows during synchronization and reordering to prevent
+  concurrent edits from producing stale positions.
+
+See [[../03-Modules/Choir-Worship-Management]], [[Database-Design]], and
+[[../04-Testing/Phase-4-Test-Results]].

@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "apps.accounts.apps.AccountsConfig",
     "apps.members.apps.MembersConfig",
+    "apps.worship.apps.WorshipConfig",
 ]
 
 MIDDLEWARE = [
@@ -119,5 +120,6 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
+PROTECTED_MEDIA_ROOT = BASE_DIR / "protected_media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

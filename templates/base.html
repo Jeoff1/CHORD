@@ -19,6 +19,15 @@
           {% if perms.members.view_member_directory %}
             <a class="nav-link" href="{% url 'members:list' %}">Members</a>
           {% endif %}
+          {% if perms.worship.view_choir_schedule and perms.worship.view_choir_announcements %}
+            <a class="nav-link" href="{% url 'worship:choir-activity' %}">Choir</a>
+          {% endif %}
+          {% if perms.worship.view_song_library %}
+            <a class="nav-link" href="{% url 'worship:song-list' %}">Songs</a>
+          {% endif %}
+          {% if perms.worship.view_worship_plans %}
+            <a class="nav-link" href="{% url 'worship:plan-list' %}">Worship plans</a>
+          {% endif %}
           <form method="post" action="{% url 'accounts:logout' %}" class="ms-lg-2">
             {% csrf_token %}
             <button class="btn btn-outline-light btn-sm" type="submit">Log out</button>

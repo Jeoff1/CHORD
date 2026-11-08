@@ -41,6 +41,9 @@ class MemberListView(AuthenticatedPermissionRequiredMixin, ListView):
         context["status_choices"] = Member.Status.choices
         context["selected_status"] = self.request.GET.get("status", "")
         context["query"] = self.request.GET.get("q", "")
+        params = self.request.GET.copy()
+        params.pop("page", None)
+        context["pagination_query"] = params.urlencode()
         return context
 
 

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Choir roster | CHORD{% endblock %}
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Choir roster</h1>
+    {% if perms.worship.manage_choir and perms.worship.add_choirenrollment %}<a class="btn btn-primary" href="{% url 'worship:choir-enroll' %}">Enroll member</a>{% endif %}
+  </div>
+  <form method="get" class="row g-2 mb-3">
+    <div class="col-md-5"><label class="visually-hidden" for="roster-search">Search</label><input id="roster-search" class="form-control" type="search" name="q" value="{{ query }}" placeholder="Search by member name"></div>
+    <div class="col-md-3"><label class="visually-hidden" for="roster-status">Status</label><select id="roster-status" class="form-select" name="status"><option value="">All statuses</option>{% for value, label in status_choices %}<option value="{{ value }}"{% if selected_status == value %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+    <div class="col-md-3"><label class="visually-hidden" for="voice-part">Voice part</label><select id="voice-part" class="form-select" name="voice_part"><option value="">All voice parts</option>{% for value, label in voice_choices %}<option value="{{ value }}"{% if selected_voice == value %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+    <div class="col-md-1"><button class="btn btn-outline-primary w-100" type="submit">Go</button></div>
+  </form>
+  <div class="table-responsive"><table class="table table-striped align-middle"><thead><tr><th>Member</th><th>Voice part</th><th>Status</th><th>Joined</th><th></th></tr></thead><tbody>
+    {% for enrollment in enrollments %}<tr><td>{{ enrollment.member.full_name }}</td><td>{{ enrollment.get_voice_part_display }}</td><td>{{ enrollment.get_status_display }}</td><td>{{ enrollment.joined_on }}</td><td class="text-end">{% if perms.worship.manage_choir and perms.worship.change_choirenrollment %}<a class="btn btn-sm btn-outline-primary" href="{% url 'worship:choir-enrollment-edit' enrollment.public_id %}">Edit</a>{% endif %}</td></tr>
+    {% empty %}<tr><td colspan="5">No choir enrollments found.</td></tr>{% endfor %}
+  </tbody></table></div>
+  {% include "includes/pagination.html" %}
+{% endblock %}

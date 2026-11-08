@@ -38,3 +38,24 @@ See [[Development-Log]] and [[../04-Testing/Phase-2-Test-Results]].
   account/role prefetch assertion.
 
 No unrelated application module was introduced.
+
+## 2026-11-08 - Phase 4 review and refactoring
+
+- Reused `members.Member` instead of introducing duplicate choir identity data.
+- Kept choir participation separate from RBAC roles.
+- Centralized plan participant, setlist, assignment, and attendance mutations in
+  transactional services.
+- Added row locking around synchronization and ordering so concurrent edits do
+  not create stale setlist positions.
+- Reused the shared pagination partial and generalized its preserved query
+  string support for additional Phase 4 filters.
+- Prevented member accounts from seeing other singers' attendance, assignments,
+  or non-participating worship-plan usage history.
+- Deferred object lookup until after permission checks on resource/setlist
+  creation endpoints, reducing identifier probing.
+- Moved licensed uploads from public media to protected storage and retained a
+  single authenticated download path.
+- Disabled changing the member identity of an existing choir enrollment to
+  preserve rehearsal and assignment history.
+
+See [[../04-Testing/Phase-4-Test-Results]].

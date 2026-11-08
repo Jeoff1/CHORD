@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}{% if object %}Edit choir enrollment{% else %}Enroll choir member{% endif %} | CHORD{% endblock %}
+{% block content %}
+  <h1 class="h3">{% if object %}Edit {{ object.member.full_name }}{% else %}Enroll choir member{% endif %}</h1>
+  <form method="post" class="card card-body shadow-sm">{% csrf_token %}{{ form.as_p }}<div><button class="btn btn-primary" type="submit">Save enrollment</button><a class="btn btn-link" href="{% url 'worship:choir-roster' %}">Cancel</a></div></form>
+{% endblock %}

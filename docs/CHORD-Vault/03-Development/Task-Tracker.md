@@ -25,7 +25,8 @@
 - [x] Phase 2 — authentication and multi-role RBAC
 - [x] Phase 3 — member management
 - [ ] Later church-management modules
-- [ ] Worship planning, song library, and recommendations
+- [x] Phase 4 choir management, worship planning, and song library
+- [ ] ML song recommendations (not part of Phase 4)
 - [ ] Integrations, reporting, and deployment preparation
 
 See [[Known-Issues]] and [[../04-Testing/Environment-Verification]].
@@ -72,3 +73,26 @@ See [[Known-Issues]] and [[../04-Testing/Environment-Verification]].
 - [x] Apply migration `accounts.0003_alter_profile_phone_number`
 - [x] Pass 44 tests and all final automated checks
 - [x] Verify live server redirects and secure deployment-settings simulation
+
+## Phase 4 completed
+
+- [x] Reuse existing members for unique choir enrollment
+- [x] Add leader-managed roster with voice part and participation status
+- [x] Add rehearsal scheduling, status, and attendance recording
+- [x] Add audience-scoped choir announcements and activity dashboard
+- [x] Add searchable/filterable/sortable worship song metadata
+- [x] Add bounded structured themes for future recommendation inputs
+- [x] Add authorization-tracked resources in protected storage
+- [x] Add worship plans with service schedule and preparation status
+- [x] Add ordered setlists with transactional reordering and removal
+- [x] Add choir participation and member-level song assignments
+- [x] Enforce role and participant object boundaries server-side
+- [x] Apply and introspect `worship.0001_initial` in PostgreSQL
+- [x] Pass 69 full-suite tests, checks, Ruff lint, and formatting
+- [x] Update module, schema, architecture, test, and development notes
+
+## Not started
+
+- [ ] Phase 5 (scope requires explicit authorization)
+- [ ] ML recommendation engine
+- [ ] Church-wide event model and plan/event foreign key

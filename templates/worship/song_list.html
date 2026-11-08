@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Song library | CHORD{% endblock %}
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-3"><h1 class="h3 mb-0">Worship song library</h1>{% if perms.worship.manage_song_library and perms.worship.add_song %}<a class="btn btn-primary" href="{% url 'worship:song-add' %}">Add song</a>{% endif %}</div>
+  <form method="get" class="row g-2 mb-3" role="search">
+    <div class="col-lg-4"><label class="visually-hidden" for="song-search">Search</label><input id="song-search" class="form-control" type="search" name="q" value="{{ query }}" placeholder="Title or artist"></div>
+    <div class="col-lg-3"><label class="visually-hidden" for="song-category">Category</label><select id="song-category" class="form-select" name="category"><option value="">All categories</option>{% for value, label in category_choices %}<option value="{{ value }}"{% if selected_category == value %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+    <div class="col-lg-2"><label class="visually-hidden" for="song-theme">Theme</label><input id="song-theme" class="form-control" name="theme" value="{{ selected_theme }}" placeholder="Theme"></div>
+    <div class="col-lg-2"><label class="visually-hidden" for="song-sort">Sort</label><select id="song-sort" class="form-select" name="sort">{% for option in sort_options %}<option value="{{ option }}"{% if selected_sort == option %} selected{% endif %}>{{ option|capfirst }}</option>{% endfor %}</select></div>
+    <div class="col-lg-1"><button class="btn btn-outline-primary w-100" type="submit">Go</button></div>
+  </form>
+  <div class="table-responsive"><table class="table table-striped align-middle"><thead><tr><th>Title</th><th>Artist</th><th>Category</th><th>Key</th><th>Tempo</th><th>Themes</th></tr></thead><tbody>{% for song in songs %}<tr><td><a href="{% url 'worship:song-detail' song.public_id %}">{{ song.title }}</a></td><td>{{ song.artist|default:"—" }}</td><td>{{ song.get_category_display }}</td><td>{{ song.default_key|default:"—" }}</td><td>{% if song.tempo_bpm %}{{ song.tempo_bpm }} BPM{% else %}—{% endif %}</td><td>{{ song.theme_text|default:"—" }}</td></tr>{% empty %}<tr><td colspan="6">No songs found.</td></tr>{% endfor %}</tbody></table></div>
+  {% include "includes/pagination.html" %}
+{% endblock %}

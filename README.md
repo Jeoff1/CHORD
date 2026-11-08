@@ -2,8 +2,10 @@
 
 CHORD is a Django-based church management system. Completed phases provide
 secure authentication, responsibility-based access control, and privacy-aware
-member management. Future phases will add ministries, attendance, giving,
-worship planning, reporting, and ML-assisted song recommendations.
+member management. Phase 4 also provides choir management, a worship song
+library, and worship service planning. Future phases may add ministries,
+church-wide attendance/events, giving, reporting, and ML-assisted song
+recommendations.
 
 ## Technology stack
 
@@ -65,7 +67,7 @@ The six CHORD roles are seeded by migrations. To create the first trusted local
 operator, run `python manage.py createsuperuser`, sign in at `/admin/`, and add a
 Church Administrator role assignment. Django superuser status is an emergency
 framework-level capability; the ordinary Church Administrator role only grants
-the scoped account-management permissions documented for Phase 2.
+the scoped permissions documented for implemented modules.
 
 Application users sign in at `/login/`. Authenticated users can update their own
 small account profile and password. Church Administrators can create, activate,
@@ -74,6 +76,12 @@ for future confidential modules.
 
 Member management is available at `/members/` to authorized users. Linked
 accounts can open `/members/me/` to view only their own member record.
+
+Phase 4 routes live under `/worship/`: choir activity at `/worship/choir/`, the
+song library at `/worship/songs/`, and service plans at `/worship/plans/`.
+Licensed song files are stored outside public media and downloaded through a
+permission-checked application route. The ML recommendation engine is not
+implemented.
 
 ## Production security switches
 

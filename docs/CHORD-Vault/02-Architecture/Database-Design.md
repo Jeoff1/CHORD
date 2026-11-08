@@ -41,3 +41,33 @@ constraint, one-to-one member/user constraint, unique member UUID, composite
 name index, and membership-status index. Migration
 `accounts.0003_alter_profile_phone_number` added consistent profile phone
 validation without changing stored data.
+
+## Phase 4 choir and worship schema
+
+- `worship_choirenrollment` - one-to-one link to an existing member with voice
+  part, participation status, joined date, and UUID.
+- `worship_rehearsal` - scheduled rehearsal time, location, status, notes, and
+  creator.
+- `worship_rehearsalattendance` - one attendance state per rehearsal and choir
+  enrollment.
+- `worship_choirannouncement` - audience-scoped, publishable choir activity
+  information with optional expiry.
+- `worship_song` - UUID-addressed song metadata: title, artist, default key,
+  tempo, category, bounded normalized theme list, and notes.
+- `worship_songresource` - one licensed uploaded file or external URL with a
+  required authorization reference. Files use protected storage.
+- `worship_worshipplan` - service date/time, location, preparation status,
+  notes, creator, setlist, and choir participation.
+- `worship_plansong` - ordered setlist through model with planned key and notes.
+- `worship_planchoirparticipation` - unique plan/enrollment participation.
+- `worship_songassignment` - unique plan-song/enrollment responsibility with
+  assignment metadata.
+
+Constraints prevent duplicate attendance, setlist positions, songs within a
+plan, plan participation, and song assignments. Check constraints validate song
+tempo, positive setlist positions, and exactly one resource source. Composite
+indexes support choir filtering, rehearsal schedules, song lookups, and plan
+status/date queries. Migration `worship.0001_initial` is applied.
+
+See [[../03-Modules/Choir-Worship-Management]] and
+[[../04-Testing/Phase-4-Test-Results]].
