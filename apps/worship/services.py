@@ -7,8 +7,35 @@ from .models import (
     Rehearsal,
     RehearsalAttendance,
     SongAssignment,
+    SongResource,
     WorshipPlan,
 )
+
+
+@transaction.atomic
+def save_song_resource(*, form, song, actor):
+    """Save a resource and remove a replaced private file after commit."""
+    previous_name = ""
+    if form.instance.pk:
+        previous = (
+            SongResource.objects.select_for_update()
+            .only("file")
+            .get(pk=form.instance.pk)
+        )
+        previous_name = previous.file.name if previous.file else ""
+
+    resource = form.save(commit=False)
+    resource.song = song
+    if not resource.added_by_id:
+        resource.added_by = actor
+    resource.updated_by = actor
+    resource.save()
+
+    current_name = resource.file.name if resource.file else ""
+    if previous_name and previous_name != current_name:
+        storage = SongResource._meta.get_field("file").storage
+        transaction.on_commit(lambda: storage.delete(previous_name))
+    return resource
 
 
 @transaction.atomic

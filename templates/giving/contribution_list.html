@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Contributions | CHORD{% endblock %}
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Contributions</h1>
+    <div>
+      <a class="btn btn-outline-secondary" href="{% url 'giving:fund-list' %}">Funds</a>
+      {% if perms.giving.record_contributions and perms.giving.add_contribution %}<a class="btn btn-primary" href="{% url 'giving:contribution-add' %}">Record contribution</a>{% endif %}
+    </div>
+  </div>
+  <form method="get" class="row g-2 mb-3">
+    <div class="col-md-5">
+      <label class="form-label" for="fund-filter">Fund</label>
+      <select id="fund-filter" class="form-select" name="fund">
+        <option value="">All funds</option>
+        {% for fund in funds %}<option value="{{ fund.pk }}"{% if selected_fund == fund.pk|stringformat:'s' %} selected{% endif %}>{{ fund.name }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="col-md-5">
+      <label class="form-label" for="method-filter">Method</label>
+      <select id="method-filter" class="form-select" name="method">
+        <option value="">All methods</option>
+        {% for value, label in method_choices %}<option value="{{ value }}"{% if selected_method == value %} selected{% endif %}>{{ label }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2 d-flex align-items-end"><button class="btn btn-outline-primary w-100" type="submit">Filter</button></div>
+  </form>
+  <div class="table-responsive">
+    <table class="table table-striped align-middle">
+      <thead><tr><th>Date</th><th>Donor</th><th>Fund</th><th>Amount</th><th>Method</th><th></th></tr></thead>
+      <tbody>
+        {% for contribution in contributions %}
+          <tr>
+            <td>{{ contribution.contributed_on }}</td>
+            <td>{% if contribution.anonymous_donor %}Anonymous{% else %}{{ contribution.member.full_name }}{% endif %}</td>
+            <td>{{ contribution.fund }}</td><td>{{ contribution.amount }}</td><td>{{ contribution.get_method_display }}</td>
+            <td class="text-end"><a class="btn btn-sm btn-outline-primary" href="{% url 'giving:contribution-edit' contribution.public_id %}">Edit</a></td>
+          </tr>
+        {% empty %}<tr><td colspan="6">No contributions found.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "includes/pagination.html" %}
+{% endblock %}

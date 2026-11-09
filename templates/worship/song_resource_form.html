@@ -1,3 +1,11 @@
 {% extends "base.html" %}
-{% block title %}Add authorized resource | CHORD{% endblock %}
-{% block content %}<h1 class="h3">Add authorized resource for {{ song.title }}</h1><div class="alert alert-info">Upload only material the church is authorized to use. Record the license, permission, or authorized source below. Provide exactly one file or external URL.</div><form method="post" enctype="multipart/form-data" class="card card-body shadow-sm">{% csrf_token %}{{ form.as_p }}<div><button class="btn btn-primary" type="submit">Add resource</button><a class="btn btn-link" href="{% url 'worship:song-detail' song.public_id %}">Cancel</a></div></form>{% endblock %}
+{% block title %}{% if object %}Edit{% else %}Add{% endif %} authorized resource | CHORD{% endblock %}
+{% block content %}
+  <h1 class="h3">{% if object %}Edit{% else %}Add{% endif %} authorized resource for {{ song.title }}</h1>
+  <div class="alert alert-info">Upload only material the church is authorized to use. Record the license, permission, or authorized source below. Provide exactly one file or external URL. When editing, uploading a new file replaces the existing private file after the database update succeeds.</div>
+  <form method="post" enctype="multipart/form-data" class="card card-body shadow-sm">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div><button class="btn btn-primary" type="submit">Save resource</button><a class="btn btn-link" href="{% url 'worship:song-detail' song.public_id %}">Cancel</a></div>
+  </form>
+{% endblock %}

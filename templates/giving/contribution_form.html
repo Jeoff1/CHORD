@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Contribution | CHORD{% endblock %}
+{% block content %}
+  <h1 class="h3">{% if object %}Edit{% else %}Record{% endif %} contribution</h1>
+  <div class="alert alert-info">Donor and amount information is restricted to authorized giving administrators. Use the anonymous option only when no member should be linked.</div>
+  <form method="post" class="card card-body">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div><button class="btn btn-primary" type="submit">Save contribution</button> <a class="btn btn-outline-secondary" href="{% url 'giving:contribution-list' %}">Cancel</a></div>
+  </form>
+{% endblock %}

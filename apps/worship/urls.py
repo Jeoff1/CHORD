@@ -22,6 +22,8 @@ from .views import (
     SongListView,
     SongResourceCreateView,
     SongResourceDownloadView,
+    SongResourcePreviewView,
+    SongResourceUpdateView,
     SongUpdateView,
     WorshipPlanCreateView,
     WorshipPlanDetailView,
@@ -78,6 +80,16 @@ urlpatterns = [
         "songs/<uuid:public_id>/resources/add/",
         SongResourceCreateView.as_view(),
         name="song-resource-add",
+    ),
+    path(
+        "song-resources/<int:pk>/edit/",
+        SongResourceUpdateView.as_view(),
+        name="song-resource-edit",
+    ),
+    path(
+        "song-resources/<int:pk>/view/",
+        SongResourcePreviewView.as_view(),
+        name="song-resource-preview",
     ),
     path(
         "song-resources/<int:pk>/download/",

@@ -37,6 +37,42 @@ ROLE_PERMISSIONS = {
             "view_sensitive_member_data",
             "view_memberauditevent",
         },
+        "ministries": {
+            "add_ministry",
+            "add_ministrymembership",
+            "change_ministry",
+            "change_ministrymembership",
+            "manage_assigned_ministries",
+            "manage_ministries",
+            "view_ministry",
+            "view_ministry_directory",
+            "view_ministrymembership",
+        },
+        "events": {
+            "add_event",
+            "add_eventparticipant",
+            "change_event",
+            "change_eventparticipant",
+            "manage_events",
+            "manage_ministry_events",
+            "record_event_attendance",
+            "register_for_events",
+            "view_event",
+            "view_event_calendar",
+            "view_eventparticipant",
+        },
+        "giving": {
+            "add_contribution",
+            "add_fund",
+            "change_contribution",
+            "change_fund",
+            "manage_giving",
+            "record_contributions",
+            "view_contribution",
+            "view_contributionauditevent",
+            "view_fund",
+            "view_own_contributions",
+        },
         "worship": {
             "add_choirannouncement",
             "add_choirenrollment",
@@ -54,6 +90,7 @@ ROLE_PERMISSIONS = {
             "change_rehearsal",
             "change_rehearsalattendance",
             "change_song",
+            "change_songresource",
             "change_songassignment",
             "change_worshipplan",
             "delete_planchoirparticipation",
@@ -85,6 +122,16 @@ ROLE_PERMISSIONS = {
         },
     },
     Role.Code.WORSHIP_LEADER: {
+        "ministries": {
+            "view_ministry",
+            "view_ministry_directory",
+        },
+        "events": {
+            "register_for_events",
+            "view_event",
+            "view_event_calendar",
+        },
+        "giving": {"view_own_contributions"},
         "worship": {
             "add_planchoirparticipation",
             "add_plansong",
@@ -94,6 +141,7 @@ ROLE_PERMISSIONS = {
             "add_worshipplan",
             "change_plansong",
             "change_song",
+            "change_songresource",
             "change_songassignment",
             "change_worshipplan",
             "delete_planchoirparticipation",
@@ -115,9 +163,19 @@ ROLE_PERMISSIONS = {
             "view_songresource",
             "view_worship_plans",
             "view_worshipplan",
-        }
+        },
     },
     Role.Code.CHOIR_LEADER: {
+        "ministries": {
+            "view_ministry",
+            "view_ministry_directory",
+        },
+        "events": {
+            "register_for_events",
+            "view_event",
+            "view_event_calendar",
+        },
+        "giving": {"view_own_contributions"},
         "worship": {
             "add_choirannouncement",
             "add_choirenrollment",
@@ -151,9 +209,19 @@ ROLE_PERMISSIONS = {
             "view_songresource",
             "view_worship_plans",
             "view_worshipplan",
-        }
+        },
     },
     Role.Code.CHOIR_MEMBER: {
+        "ministries": {
+            "view_ministry",
+            "view_ministry_directory",
+        },
+        "events": {
+            "register_for_events",
+            "view_event",
+            "view_event_calendar",
+        },
+        "giving": {"view_own_contributions"},
         "worship": {
             "view_choir_announcements",
             "view_choir_schedule",
@@ -167,10 +235,44 @@ ROLE_PERMISSIONS = {
             "view_songresource",
             "view_worship_plans",
             "view_worshipplan",
-        }
+        },
     },
-    Role.Code.MINISTRY_LEADER: {},
-    Role.Code.CHURCH_MEMBER: {},
+    Role.Code.MINISTRY_LEADER: {
+        "ministries": {
+            "add_ministrymembership",
+            "change_ministry",
+            "change_ministrymembership",
+            "manage_assigned_ministries",
+            "view_ministry",
+            "view_ministry_directory",
+            "view_ministrymembership",
+        },
+        "events": {
+            "add_event",
+            "add_eventparticipant",
+            "change_event",
+            "change_eventparticipant",
+            "manage_ministry_events",
+            "record_event_attendance",
+            "register_for_events",
+            "view_event",
+            "view_event_calendar",
+            "view_eventparticipant",
+        },
+        "giving": {"view_own_contributions"},
+    },
+    Role.Code.CHURCH_MEMBER: {
+        "ministries": {
+            "view_ministry",
+            "view_ministry_directory",
+        },
+        "events": {
+            "register_for_events",
+            "view_event",
+            "view_event_calendar",
+        },
+        "giving": {"view_own_contributions"},
+    },
 }
 
 

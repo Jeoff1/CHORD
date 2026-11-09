@@ -2,6 +2,8 @@ from django import forms
 from django.db import transaction
 from django.db.models import Q
 
+from apps.events.models import Event
+from apps.events.services import visible_events_for
 from apps.members.models import Member
 
 from .models import (
@@ -15,6 +17,7 @@ from .models import (
     WorshipPlan,
 )
 from .services import sync_plan_participants, sync_song_assignments
+from .spotify import normalize_spotify_track
 
 
 class DateTimeLocalInput(forms.DateTimeInput):
@@ -47,12 +50,50 @@ class ChoirEnrollmentForm(forms.ModelForm):
 class RehearsalForm(forms.ModelForm):
     class Meta:
         model = Rehearsal
-        fields = ("title", "starts_at", "ends_at", "location", "status", "notes")
+        fields = (
+            "event",
+            "title",
+            "starts_at",
+            "ends_at",
+            "location",
+            "status",
+            "notes",
+            "songs",
+        )
         widgets = {
             "starts_at": DateTimeLocalInput(),
             "ends_at": DateTimeLocalInput(),
             "notes": forms.Textarea(attrs={"rows": 4}),
+            "songs": forms.SelectMultiple(attrs={"size": 8}),
         }
+
+    def __init__(self, *args, actor, **kwargs):
+        super().__init__(*args, **kwargs)
+        events = visible_events_for(actor).filter(event_type=Event.Type.REHEARSAL)
+        available_events = Q(rehearsal__isnull=True)
+        if self.instance.pk:
+            available_events |= Q(rehearsal=self.instance)
+        events = events.filter(available_events)
+        self.fields["event"].queryset = events
+        self.fields["starts_at"].required = False
+        self.fields["ends_at"].required = False
+        self.fields[
+            "songs"
+        ].help_text = "Select songs whose playback and authorized resources are needed for rehearsal."
+
+    def clean(self):
+        cleaned_data = super().clean()
+        event = cleaned_data.get("event")
+        if event:
+            cleaned_data["starts_at"] = event.starts_at
+            cleaned_data["ends_at"] = event.ends_at
+            cleaned_data["location"] = event.location
+        else:
+            if not cleaned_data.get("starts_at"):
+                self.add_error("starts_at", "Enter a start time or select an event.")
+            if not cleaned_data.get("ends_at"):
+                self.add_error("ends_at", "Enter an end time or select an event.")
+        return cleaned_data
 
 
 class AttendanceEntryForm(forms.Form):
@@ -84,6 +125,14 @@ class ChoirAnnouncementForm(forms.ModelForm):
 
 
 class SongForm(forms.ModelForm):
+    spotify_track = forms.CharField(
+        required=False,
+        label="Spotify track",
+        help_text=(
+            "Paste an official Spotify track link, spotify:track URI, or "
+            "22-character track ID."
+        ),
+    )
     theme_list = forms.CharField(
         required=False,
         label="Worship themes",
@@ -99,6 +148,7 @@ class SongForm(forms.ModelForm):
             "tempo_bpm",
             "category",
             "theme_list",
+            "spotify_track",
             "notes",
         )
         widgets = {"notes": forms.Textarea(attrs={"rows": 4})}
@@ -107,6 +157,7 @@ class SongForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if self.instance.pk:
             self.fields["theme_list"].initial = self.instance.theme_text
+            self.fields["spotify_track"].initial = self.instance.spotify_url
 
     def clean_theme_list(self):
         raw_themes = self.cleaned_data["theme_list"]
@@ -123,9 +174,13 @@ class SongForm(forms.ModelForm):
             )
         return themes
 
+    def clean_spotify_track(self):
+        return normalize_spotify_track(self.cleaned_data["spotify_track"])
+
     def save(self, commit=True):
         song = super().save(commit=False)
         song.themes = self.cleaned_data["theme_list"]
+        song.spotify_track_id = self.cleaned_data["spotify_track"]
         if commit:
             song.save()
         return song
@@ -142,6 +197,13 @@ class SongResourceForm(forms.ModelForm):
             "authorization_reference",
         )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["file"].help_text = (
+            "PDF, text, ChordPro, Word, or image; maximum 10 MiB. "
+            "PDF, UTF-8 text, ChordPro, and images can be viewed in CHORD."
+        )
+
 
 class WorshipPlanForm(forms.ModelForm):
     choir_participants = forms.ModelMultipleChoiceField(
@@ -153,6 +215,7 @@ class WorshipPlanForm(forms.ModelForm):
     class Meta:
         model = WorshipPlan
         fields = (
+            "event",
             "title",
             "service_datetime",
             "location",
@@ -165,8 +228,15 @@ class WorshipPlanForm(forms.ModelForm):
             "preparation_notes": forms.Textarea(attrs={"rows": 5}),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, actor, **kwargs):
         super().__init__(*args, **kwargs)
+        events = visible_events_for(actor).filter(event_type=Event.Type.WORSHIP_SERVICE)
+        available_events = Q(worship_plan__isnull=True)
+        if self.instance.pk:
+            available_events |= Q(worship_plan=self.instance)
+        events = events.filter(available_events)
+        self.fields["event"].queryset = events
+        self.fields["service_datetime"].required = False
         available_filter = Q(status=ChoirEnrollment.Status.ACTIVE)
         if self.instance.pk:
             available_filter |= Q(plan_participations__plan=self.instance)
@@ -180,6 +250,19 @@ class WorshipPlanForm(forms.ModelForm):
             self.fields[
                 "choir_participants"
             ].initial = self.instance.choir_participants.all()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        event = cleaned_data.get("event")
+        if event:
+            cleaned_data["service_datetime"] = event.starts_at
+            cleaned_data["location"] = event.location
+        elif not cleaned_data.get("service_datetime"):
+            self.add_error(
+                "service_datetime",
+                "Enter a service time or select a church event.",
+            )
+        return cleaned_data
 
     @transaction.atomic
     def save(self, commit=True):

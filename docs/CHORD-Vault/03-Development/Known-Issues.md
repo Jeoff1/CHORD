@@ -1,6 +1,6 @@
 # Known Issues
 
-No critical or high-severity blocker remains after Phase 4.
+No critical or high-severity blocker remains after Phase 5.
 
 ## Medium
 
@@ -20,9 +20,18 @@ No critical or high-severity blocker remains after Phase 4.
    disk and are not used by the configured project.
 2. Python 3.12 is not installed; the project uses compatible Python 3.14.7.
 3. Bootstrap CSS is loaded from a CDN without an offline/static asset strategy.
-4. Worship plans carry their own service date, location, and status because no
-   church-wide event module exists. Add an explicit event relationship only
-   when that later module is implemented; do not duplicate event records now.
+4. Existing Phase 4 worship plans and rehearsals are not automatically matched
+   to newly created events. Administrators may link them explicitly; unlinked
+   schedules remain supported by design.
+5. Recurrence and outbound event notifications are not implemented. Current
+   events represent individual occurrences.
+6. Giving totals and exports are intentionally deferred to Phase 7 reporting.
+7. Spotify playback depends on Spotify, the browser, location, account state,
+   and third-party cookie/media policies. CHORD provides an ordinary Spotify
+   link when embedded playback is unavailable.
+8. Browser preview intentionally excludes `.doc` and `.docx`; authorized users
+   must download those files. ChordPro support is a safe display subset rather
+   than a complete implementation of every directive.
 
 ## Resolved
 
@@ -33,9 +42,9 @@ No critical or high-severity blocker remains after Phase 4.
 
 - Account profiles and member records intentionally have separate contact
   fields. No automatic synchronization exists.
-- The JSON theme list is structured recommendation input, but the future ML
-  feature still needs an approved taxonomy and evaluation plan.
+- The JSON theme list is structured future input, but taxonomy, recommendation
+  behavior, and evaluation belong exclusively to the reserved Phase 8.
 
 No SQLite fallback is configured. See [[Task-Tracker]],
-[[../04-Testing/Phase-4-Test-Results]], and
+[[../04-Testing/Phase-5-Test-Results]], and
 [[../02-Architecture/Architecture-Decisions]].

@@ -22,5 +22,11 @@ class ProtectedResourceStorage(FileSystemStorage):
     def base_url(self):
         return None
 
+    def _clear_cached_properties(self, setting, **kwargs):
+        super()._clear_cached_properties(setting, **kwargs)
+        if setting == "PROTECTED_MEDIA_ROOT":
+            self.__dict__.pop("base_location", None)
+            self.__dict__.pop("location", None)
+
 
 protected_resource_storage = ProtectedResourceStorage()

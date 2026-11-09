@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Giving fund | CHORD{% endblock %}
+{% block content %}
+  <h1 class="h3">{% if object %}Edit{% else %}Add{% endif %} giving fund</h1>
+  <form method="post" class="card card-body">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div><button class="btn btn-primary" type="submit">Save fund</button> <a class="btn btn-outline-secondary" href="{% url 'giving:fund-list' %}">Cancel</a></div>
+  </form>
+{% endblock %}

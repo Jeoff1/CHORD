@@ -36,6 +36,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "apps.accounts.apps.AccountsConfig",
     "apps.members.apps.MembersConfig",
+    "apps.ministries.apps.MinistriesConfig",
+    "apps.events.apps.EventsConfig",
+    "apps.giving.apps.GivingConfig",
     "apps.worship.apps.WorshipConfig",
 ]
 

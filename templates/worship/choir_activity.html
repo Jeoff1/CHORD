@@ -32,7 +32,7 @@
   {% if assignments %}
     <section class="card shadow-sm mt-4"><div class="card-body">
       <h2 class="h5">My upcoming song assignments</h2>
-      <ul class="mb-0">{% for assignment in assignments %}<li><a href="{% url 'worship:plan-detail' assignment.plan_song.plan.public_id %}">{{ assignment.plan_song.song }}</a> — {{ assignment.plan_song.plan.title }} on {{ assignment.plan_song.plan.service_datetime }}</li>{% endfor %}</ul>
+      <div class="vstack gap-3">{% for assignment in assignments %}<div><a href="{% url 'worship:plan-detail' assignment.plan_song.plan.public_id %}">{{ assignment.plan_song.song }}</a> — {{ assignment.plan_song.plan.title }} on {{ assignment.plan_song.plan.service_datetime }}{% if assignment.plan_song.song.spotify_url %}<br><a class="small" href="{{ assignment.plan_song.song.spotify_url }}" target="_blank" rel="noopener noreferrer">Open on Spotify</a>{% endif %}<div class="mt-1">{% include "worship/includes/song_resources.html" with song=assignment.plan_song.song %}</div></div>{% endfor %}</div>
     </div></section>
   {% endif %}
 {% endblock %}

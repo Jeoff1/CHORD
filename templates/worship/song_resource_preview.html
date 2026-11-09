@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}{{ resource.title }} | CHORD{% endblock %}
+{% block content %}
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div><h1 class="h3 mb-1">{{ resource.title }}</h1><a href="{% url 'worship:song-detail' resource.song.public_id %}">{{ resource.song }}</a></div>
+    <a class="btn btn-outline-secondary" href="{% url 'worship:song-resource-download' resource.pk %}">Download original</a>
+  </div>
+  <p class="text-muted">Authorized use: {{ resource.authorization_reference }}</p>
+  {% if preview_unavailable %}
+    <div class="alert alert-warning">This file cannot be displayed safely in the browser. Download the original to open it with an appropriate application.</div>
+  {% elif chordpro %}
+    <section class="card shadow-sm"><div class="card-body">
+      {% if chordpro.metadata %}<dl class="row mb-4">{% for label, value in chordpro.metadata %}<dt class="col-sm-3">{{ label }}</dt><dd class="col-sm-9">{{ value }}</dd>{% endfor %}</dl>{% endif %}
+      <div class="font-monospace overflow-x-auto" aria-label="ChordPro chord sheet">
+        {% for block in chordpro.blocks %}
+          {% if block.kind == "section" %}<h2 class="h6 mt-4 text-uppercase">{{ block.text }}</h2>
+          {% elif block.kind == "comment" %}<p class="text-muted fst-italic mb-2">{{ block.text }}</p>
+          {% elif block.kind == "chord_line" %}<div class="mb-2 text-nowrap">{% for segment in block.segments %}<span class="d-inline-flex flex-column align-items-start"><strong class="text-primary" style="min-height: 1.5em">{{ segment.chord|default:" " }}</strong><span style="white-space: pre">{{ segment.lyric|default:" " }}</span></span>{% endfor %}</div>
+          {% else %}<div style="white-space: pre-wrap; min-height: 1.5em">{{ block.text }}</div>{% endif %}
+        {% empty %}<p class="text-muted">This ChordPro file is empty.</p>{% endfor %}
+      </div>
+    </div></section>
+  {% else %}
+    <section class="card shadow-sm"><div class="card-body"><pre class="mb-0 text-wrap">{{ text_content }}</pre></div></section>
+  {% endif %}
+{% endblock %}

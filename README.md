@@ -3,9 +3,11 @@
 CHORD is a Django-based church management system. Completed phases provide
 secure authentication, responsibility-based access control, and privacy-aware
 member management. Phase 4 also provides choir management, a worship song
-library, and worship service planning. Future phases may add ministries,
-church-wide attendance/events, giving, reporting, and ML-assisted song
-recommendations.
+library, and worship service planning. Phase 5 adds ministries, church-wide
+events/attendance, worship schedule integration, and giving. Phase 6 adds
+official Spotify track embeds plus protected PDF, text, image, and ChordPro
+resource viewing and secure replacement. Phase 8 is the reserved ML
+recommendation phase and has not started.
 
 ## Technology stack
 
@@ -80,8 +82,9 @@ accounts can open `/members/me/` to view only their own member record.
 Phase 4 routes live under `/worship/`: choir activity at `/worship/choir/`, the
 song library at `/worship/songs/`, and service plans at `/worship/plans/`.
 Licensed song files are stored outside public media and downloaded through a
-permission-checked application route. The ML recommendation engine is not
-implemented.
+permission-checked application route. Phase 5 routes live under `/ministries/`,
+`/events/`, and `/giving/`. Song resource preview and management remain under
+`/worship/`. The ML recommendation engine is not implemented.
 
 ## Production security switches
 

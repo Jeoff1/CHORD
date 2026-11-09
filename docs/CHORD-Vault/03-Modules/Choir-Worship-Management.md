@@ -42,9 +42,9 @@ recommendation algorithm, embedding, model, score, or ML dependency.
 - Assignment cleanup when a participant is removed
 - Song usage history linked to plans
 
-No church-wide event module existed at implementation time. The plan owns the
-service schedule and exposes the correct future integration boundary; Phase 4
-does not create duplicate or speculative event records.
+Phase 5 added optional one-to-one church-event links for worship plans and
+rehearsals. When linked, event time/location is canonical and synchronized;
+existing standalone Phase 4 schedules remain supported without duplication.
 
 ## Access rules
 
@@ -66,3 +66,11 @@ operations.
 See [[../02-Architecture/Database-Design]],
 [[../02-Architecture/Architecture-Decisions]], and
 [[../04-Testing/Phase-4-Test-Results]].
+
+The song title, artist, key, tempo, themes, category, plan associations, and
+usage history remain ordinary structured domain data for future Phase 8 use.
+No recommendation algorithm, score, endpoint, UI, or ML dependency exists.
+
+Phase 6 extends this module with official Spotify track embeds, protected
+resource previews and updates, ChordPro display, and rehearsal-song preparation.
+See [[Song-Resources-Chord-Sheets]].

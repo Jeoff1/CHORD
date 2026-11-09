@@ -1,8 +1,44 @@
 {% extends "base.html" %}
 {% block title %}{{ song.title }} | CHORD{% endblock %}
 {% block content %}
-  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"><h1 class="h3 mb-0">{{ song.title }}</h1><div>{% if perms.worship.manage_song_library and perms.worship.change_song %}<a class="btn btn-outline-primary" href="{% url 'worship:song-edit' song.public_id %}">Edit song</a>{% endif %}{% if perms.worship.manage_song_library and perms.worship.add_songresource %}<a class="btn btn-primary" href="{% url 'worship:song-resource-add' song.public_id %}">Add authorized resource</a>{% endif %}</div></div>
-  <dl class="row card card-body shadow-sm"><dt class="col-sm-3">Artist</dt><dd class="col-sm-9">{{ song.artist|default:"—" }}</dd><dt class="col-sm-3">Default key</dt><dd class="col-sm-9">{{ song.default_key|default:"—" }}</dd><dt class="col-sm-3">Tempo</dt><dd class="col-sm-9">{% if song.tempo_bpm %}{{ song.tempo_bpm }} BPM{% else %}—{% endif %}</dd><dt class="col-sm-3">Category</dt><dd class="col-sm-9">{{ song.get_category_display }}</dd><dt class="col-sm-3">Themes</dt><dd class="col-sm-9">{{ song.theme_text|default:"—" }}</dd><dt class="col-sm-3">Notes</dt><dd class="col-sm-9">{{ song.notes|linebreaksbr|default:"—" }}</dd></dl>
-  {% if perms.worship.view_song_resources %}<section class="card shadow-sm mt-4"><div class="card-body"><h2 class="h5">Authorized resources</h2><ul class="list-group list-group-flush">{% for resource in song.resources.all %}<li class="list-group-item px-0"><strong>{{ resource.title }}</strong> <span class="badge text-bg-secondary">{{ resource.get_resource_type_display }}</span><br>{% if resource.file %}<a href="{% url 'worship:song-resource-download' resource.pk %}">Download protected file</a>{% else %}<a href="{{ resource.external_url }}" target="_blank" rel="noopener noreferrer">Open authorized source</a>{% endif %}<br><small class="text-muted">Authorization: {{ resource.authorization_reference }}</small></li>{% empty %}<li class="list-group-item px-0">No authorized resources recorded.</li>{% endfor %}</ul></div></section>{% endif %}
-  <section class="card shadow-sm mt-4"><div class="card-body"><h2 class="h5">Usage history</h2><ul class="mb-0">{% for item in song.plan_items.all %}<li><a href="{% url 'worship:plan-detail' item.plan.public_id %}">{{ item.plan.title }}</a> — {{ item.plan.service_datetime }} ({{ item.plan.get_status_display }})</li>{% empty %}<li>This song has not been used in a worship plan.</li>{% endfor %}</ul></div></section>
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h3 mb-0">{{ song.title }}</h1>
+    <div class="d-flex gap-2">
+      {% if perms.worship.manage_song_library and perms.worship.change_song %}<a class="btn btn-outline-primary" href="{% url 'worship:song-edit' song.public_id %}">Edit song</a>{% endif %}
+      {% if perms.worship.manage_song_library and perms.worship.add_songresource %}<a class="btn btn-primary" href="{% url 'worship:song-resource-add' song.public_id %}">Add authorized resource</a>{% endif %}
+    </div>
+  </div>
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <dl class="row card card-body shadow-sm mb-0">
+        <dt class="col-sm-4">Artist</dt><dd class="col-sm-8">{{ song.artist|default:"—" }}</dd>
+        <dt class="col-sm-4">Default key</dt><dd class="col-sm-8">{{ song.default_key|default:"—" }}</dd>
+        <dt class="col-sm-4">Tempo</dt><dd class="col-sm-8">{% if song.tempo_bpm %}{{ song.tempo_bpm }} BPM{% else %}—{% endif %}</dd>
+        <dt class="col-sm-4">Category</dt><dd class="col-sm-8">{{ song.get_category_display }}</dd>
+        <dt class="col-sm-4">Themes</dt><dd class="col-sm-8">{{ song.theme_text|default:"—" }}</dd>
+        <dt class="col-sm-4">Notes</dt><dd class="col-sm-8">{{ song.notes|linebreaksbr|default:"—" }}</dd>
+      </dl>
+    </div>
+    <div class="col-lg-5">
+      <section class="card shadow-sm h-100"><div class="card-body">
+        <h2 class="h5">Spotify playback</h2>
+        {% if song.spotify_embed_url %}
+          <iframe style="border-radius: 12px" src="{{ song.spotify_embed_url }}" width="100%" height="152" frameborder="0" allowfullscreen allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" title="Spotify player for {{ song.title }}"></iframe>
+          <p class="small text-muted mb-0">Playback availability, previews, and sign-in requirements are controlled by Spotify. The embedded player is a Spotify service and may use cookies or process usage data under Spotify's terms. <a href="{{ song.spotify_url }}" target="_blank" rel="noopener noreferrer">Open this track on Spotify</a>.</p>
+        {% else %}
+          <p class="text-muted mb-0">No Spotify track is linked to this song.</p>
+        {% endif %}
+      </div></section>
+    </div>
+  </div>
+  {% if perms.worship.view_song_resources %}
+    <section class="card shadow-sm mt-4"><div class="card-body">
+      <h2 class="h5">Authorized chord and song resources</h2>
+      {% include "worship/includes/song_resources.html" with song=song show_authorization=True %}
+    </div></section>
+  {% endif %}
+  <section class="card shadow-sm mt-4"><div class="card-body">
+    <h2 class="h5">Usage history</h2>
+    <ul class="mb-0">{% for item in song.plan_items.all %}<li><a href="{% url 'worship:plan-detail' item.plan.public_id %}">{{ item.plan.title }}</a> — {{ item.plan.service_datetime }} ({{ item.plan.get_status_display }})</li>{% empty %}<li>This song has not been used in a worship plan.</li>{% endfor %}</ul>
+  </div></section>
 {% endblock %}

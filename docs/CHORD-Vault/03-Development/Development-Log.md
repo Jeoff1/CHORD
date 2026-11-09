@@ -154,3 +154,59 @@ See [[../04-Testing/Phases-1-3-QA-Audit]], [[Known-Issues]], and
 See [[../03-Modules/Choir-Worship-Management]],
 [[../04-Testing/Phase-4-Test-Results]], [[Known-Issues]], and
 [[Refactoring-Log]].
+
+## 2026-11-09 - Phase 5 core modules and integration
+
+- **Audit:** Compared the implemented Phase 1-4 source and vault against the
+  documented requirements. Confirmed ministry, church-wide events/attendance,
+  and giving were the remaining core gaps; Phase 4 song metadata was already
+  suitably structured for future use.
+- **Roadmap:** Adopted the nine-phase sequence. Machine learning is reserved
+  exclusively for Phase 8 and remains unimplemented.
+- **Ministries:** Added ministry lifecycle, memberships, leadership, directory,
+  and role-plus-object authorization.
+- **Events:** Added audience-aware schedules, registration, capacity/waitlist,
+  attendance, and assigned-ministry management.
+- **Integration:** Added optional event links to worship plans/rehearsals and
+  canonical schedule synchronization without changing existing records.
+- **Giving:** Added funds, confidential contribution recording, audit metadata,
+  and linked-member self-history.
+- **Database:** Applied `ministries.0001`, `events.0001`, `events.0002`,
+  `giving.0001`, and `worship.0002` to PostgreSQL.
+- **Security:** Added authoritative permissions for all six roles, queryset
+  audience filtering, object-level leadership checks, scoped attendance forms,
+  and giving isolation.
+- **Tests:** Added 25 tests; all 94 tests passed. Django checks, migration drift,
+  Ruff lint/format, and server verification passed.
+- **Refactoring:** Fixed unsaved-instance filtering in optional Phase 4 event
+  selectors and promoted waitlisted registrants transactionally on cancellation.
+- **Boundary:** Phase 6 was not started. No ML dependency, model, algorithm,
+  endpoint, ranking, or interface was added.
+
+See [[../03-Modules/Ministry-Management]],
+[[../03-Modules/Events-Attendance]], [[../03-Modules/Giving]], and
+[[../04-Testing/Phase-5-Test-Results]].
+
+## 2026-11-09 - Phase 6 song resources and chord sheets
+
+- **Audit:** Reused the Phase 4 `Song`, `SongResource`, private storage,
+  resource permissions, setlists, assignments, and rehearsal workflows.
+- **Spotify:** Added strict track URL/URI/ID normalization and the official
+  Spotify track iframe with a normal-link and availability fallback.
+- **Viewing:** Added permission-checked PDF/image streaming, escaped UTF-8 text,
+  safe basic ChordPro display, and unsupported-format download guidance.
+- **Management:** Added resource editing/replacement, post-commit old-file
+  cleanup, latest-updater metadata, and ChordPro file extensions.
+- **Integration:** Added resources to setlists, assignments, and rehearsal
+  preparation; rehearsals now select existing songs.
+- **Security:** Kept files outside public media, enforced the existing view
+  permission, fixed response content types, added `nosniff`, and never renders
+  uploaded text as trusted HTML.
+- **Database:** Applied and introspected `worship.0003`; confirmed the song ID,
+  resource audit columns, rehearsal-song table, and update permissions.
+- **Tests:** Added 13 tests; all 107 tests passed in 57.301 seconds. Checks,
+  migration drift, dependencies, Ruff, and server smoke passed.
+- **Boundary:** Phase 7 was not started. No ML behavior or dependency was added.
+
+See [[../03-Modules/Song-Resources-Chord-Sheets]] and
+[[../04-Testing/Phase-6-Test-Results]].

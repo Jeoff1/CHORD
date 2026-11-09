@@ -13,6 +13,7 @@ from django.utils import timezone
 from apps.members.models import Member
 from apps.validators import validate_resource_file_size
 
+from .spotify import validate_spotify_track_id
 from .storage import protected_resource_storage
 
 
@@ -84,11 +85,23 @@ class Rehearsal(models.Model):
         CANCELLED = "cancelled", "Cancelled"
 
     public_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    event = models.OneToOneField(
+        "events.Event",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="rehearsal",
+    )
     title = models.CharField(max_length=150)
     starts_at = models.DateTimeField()
     ends_at = models.DateTimeField()
     location = models.CharField(max_length=200, blank=True)
     notes = models.TextField(blank=True)
+    songs = models.ManyToManyField(
+        "Song",
+        blank=True,
+        related_name="rehearsals",
+    )
     status = models.CharField(
         max_length=16,
         choices=Status.choices,
@@ -222,6 +235,12 @@ class Song(models.Model):
     category = models.CharField(max_length=24, choices=Category.choices)
     themes = models.JSONField(default=list, blank=True)
     notes = models.TextField(blank=True)
+    spotify_track_id = models.CharField(
+        max_length=22,
+        blank=True,
+        validators=(validate_spotify_track_id,),
+        help_text="Normalized Spotify track identifier used by the official embed.",
+    )
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         null=True,
@@ -256,6 +275,18 @@ class Song(models.Model):
     def theme_text(self):
         return ", ".join(self.themes)
 
+    @property
+    def spotify_url(self):
+        if not self.spotify_track_id:
+            return ""
+        return f"https://open.spotify.com/track/{self.spotify_track_id}"
+
+    @property
+    def spotify_embed_url(self):
+        if not self.spotify_track_id:
+            return ""
+        return f"https://open.spotify.com/embed/track/{self.spotify_track_id}"
+
     def __str__(self):
         return f"{self.title} - {self.artist}" if self.artist else self.title
 
@@ -277,7 +308,18 @@ class SongResource(models.Model):
         storage=protected_resource_storage,
         validators=(
             FileExtensionValidator(
-                allowed_extensions=("pdf", "doc", "docx", "txt", "png", "jpg", "jpeg")
+                allowed_extensions=(
+                    "pdf",
+                    "doc",
+                    "docx",
+                    "txt",
+                    "cho",
+                    "chordpro",
+                    "crd",
+                    "png",
+                    "jpg",
+                    "jpeg",
+                )
             ),
             validate_resource_file_size,
         ),
@@ -294,6 +336,14 @@ class SongResource(models.Model):
         related_name="song_resources_added",
     )
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="song_resources_updated",
+    )
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ("resource_type", "title", "id")
@@ -313,6 +363,30 @@ class SongResource(models.Model):
                 "Provide either one uploaded file or one external URL."
             )
 
+    @property
+    def file_extension(self):
+        if not self.file:
+            return ""
+        return (
+            self.file.name.rsplit(".", 1)[-1].lower() if "." in self.file.name else ""
+        )
+
+    @property
+    def preview_kind(self):
+        if self.file_extension == "pdf":
+            return "pdf"
+        if self.file_extension in {"txt"}:
+            return "text"
+        if self.file_extension in {"cho", "chordpro", "crd"}:
+            return "chordpro"
+        if self.file_extension in {"png", "jpg", "jpeg"}:
+            return "image"
+        return ""
+
+    @property
+    def is_previewable(self):
+        return bool(self.preview_kind)
+
     def __str__(self):
         return f"{self.song}: {self.title}"
 
@@ -326,6 +400,13 @@ class WorshipPlan(models.Model):
         CANCELLED = "cancelled", "Cancelled"
 
     public_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    event = models.OneToOneField(
+        "events.Event",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="worship_plan",
+    )
     title = models.CharField(max_length=200)
     service_datetime = models.DateTimeField()
     location = models.CharField(max_length=200, blank=True)

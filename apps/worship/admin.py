@@ -12,6 +12,7 @@ from .models import (
     SongResource,
     WorshipPlan,
 )
+from .services import save_song_resource
 
 
 @admin.register(ChoirEnrollment)
@@ -35,6 +36,7 @@ class RehearsalAdmin(admin.ModelAdmin):
     list_filter = ("status",)
     search_fields = ("title", "location")
     readonly_fields = ("public_id", "created_at", "updated_at")
+    autocomplete_fields = ("event",)
     inlines = (RehearsalAttendanceInline,)
 
 
@@ -58,6 +60,19 @@ class ChoirAnnouncementAdmin(admin.ModelAdmin):
 class SongResourceInline(admin.TabularInline):
     model = SongResource
     extra = 0
+    can_delete = False
+    fields = (
+        "title",
+        "resource_type",
+        "authorization_reference",
+        "added_by",
+        "updated_by",
+        "updated_at",
+    )
+    readonly_fields = fields
+
+    def has_add_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(Song)
@@ -71,10 +86,21 @@ class SongAdmin(admin.ModelAdmin):
 
 @admin.register(SongResource)
 class SongResourceAdmin(admin.ModelAdmin):
-    list_display = ("title", "song", "resource_type", "added_by", "created_at")
+    list_display = (
+        "title",
+        "song",
+        "resource_type",
+        "added_by",
+        "updated_by",
+        "updated_at",
+    )
     list_filter = ("resource_type",)
     search_fields = ("title", "song__title", "authorization_reference")
-    autocomplete_fields = ("song", "added_by")
+    autocomplete_fields = ("song", "added_by", "updated_by")
+    readonly_fields = ("created_at", "updated_at")
+
+    def save_model(self, request, obj, form, change):
+        save_song_resource(form=form, song=obj.song, actor=request.user)
 
 
 class PlanSongInline(admin.TabularInline):
@@ -95,6 +121,7 @@ class WorshipPlanAdmin(admin.ModelAdmin):
     list_filter = ("status",)
     search_fields = ("title", "location")
     readonly_fields = ("public_id", "created_at", "updated_at")
+    autocomplete_fields = ("event",)
     inlines = (PlanSongInline, PlanChoirParticipationInline)
 
 

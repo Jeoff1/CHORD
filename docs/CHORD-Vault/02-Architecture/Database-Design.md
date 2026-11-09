@@ -71,3 +71,41 @@ status/date queries. Migration `worship.0001_initial` is applied.
 
 See [[../03-Modules/Choir-Worship-Management]] and
 [[../04-Testing/Phase-4-Test-Results]].
+
+## Phase 5 core integration schema
+
+- `ministries_ministry` - UUID-addressed ministry, lifecycle status, creator,
+  and timestamps.
+- `ministries_ministrymembership` - one ministry/member assignment with
+  leader/member role, status, joined date, notes, and assigning user.
+- `events_event` - typed schedule, ministry, lifecycle status, visibility,
+  registration controls, capacity, creator, and timestamps.
+- `events_eventparticipant` - one event/member registration and attendance
+  record with actor/timestamp metadata.
+- `giving_fund` - named active/inactive contribution destination.
+- `giving_contribution` - UUID-addressed identified or anonymous contribution,
+  positive amount, date, method, reference, notes, and recording user.
+- `giving_contributionauditevent` - immutable application audit metadata with
+  changed field names only.
+- `worship_rehearsal.event` and `worship_worshipplan.event` - nullable unique
+  event links added by `worship.0002`.
+
+Migrations `ministries.0001`, `events.0001`, `events.0002`, `giving.0001`, and
+`worship.0002` are applied. Constraints prevent duplicate ministry membership,
+duplicate event participation, non-positive contributions, and inconsistent
+anonymous/member donors. Composite indexes support status/schedule, ministry/
+schedule, participation state, attendance state, fund/date, and member/date
+queries.
+
+## Phase 6 resource schema changes
+
+Migration `worship.0003_rehearsal_songs_song_spotify_track_id_and_more` adds:
+
+- `worship_song.spotify_track_id` - optional validated 22-character normalized
+  Spotify track ID.
+- `worship_rehearsal_songs` - standard many-to-many table connecting rehearsal
+  preparation to existing songs.
+- `worship_songresource.updated_by_id` and `updated_at` - latest update metadata.
+- ChordPro extensions in the existing protected resource file allowlist.
+
+No ML table, feature vector, recommendation score, or playback data was added.

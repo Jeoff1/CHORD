@@ -1,15 +1,28 @@
 # Development Roadmap
 
-1. Completed - PostgreSQL environment and foundation verification.
-2. Completed - authentication, profiles, and multi-role RBAC.
-3. Completed - privacy-aware member management and audit trail.
-4. Completed - choir management, worship song library, and worship planning.
-5. Next phase must be explicitly authorized and scoped; ministry, church-wide
-   events/attendance, or another master-roadmap module may follow.
-6. Introduce and evaluate ML recommendations only in the specifically
-   authorized ML phase.
-7. Complete integration, security, reporting, and deployment preparation.
+1. **Phase 1: Environment and Django Foundation - Completed**
+2. **Phase 2: Authentication and Role-Based Access Control - Completed**
+3. **Phase 3: Core Church Administration - Reported completed and verified by
+   the Phases 1-3 audit**
+4. **Phase 4: Choir and Worship Management - Completed**
+5. **Phase 5: Remaining Core Modules and System Integration - Completed**
+   - Ministry structure and membership
+   - Church-wide events, scheduling, registration, and attendance
+   - Integration of events with rehearsals and worship plans
+   - Confidential contribution recording and self-history
+6. **Phase 6: Song Resources and Chord Sheet Integration - Completed**
+7. **Phase 7: Dashboard, Reports, and UI/UX Refinement - Planned**
+8. **Phase 8: Machine Learning Song Recommendation - Reserved; not started**
+9. **Phase 9: Final Testing, Security, and Deployment - Planned**
 
-Phase 4 is complete. Phase 5 and the ML engine are not started.
+Phase 8 is the only approved ML implementation phase. Until the user explicitly
+authorizes it, CHORD must not add recommendation algorithms, ranking, TF-IDF,
+cosine similarity, ML endpoints or interfaces, model evaluation, ML-only
+tables, or ML-only dependencies. Existing structured song metadata and usage
+history must remain intact for future integration.
 
-See [[Task-Tracker]] and [[Development-Log]].
+Completed phase numbers remain unchanged. Work stops at every phase boundary
+until the next phase is explicitly authorized.
+
+See [[Task-Tracker]], [[Development-Log]], and
+[[../01-Project/Project-Requirements]].

@@ -74,3 +74,43 @@ See [[../04-Testing/Phases-1-3-QA-Audit]].
 
 See [[../03-Modules/Choir-Worship-Management]], [[Database-Design]], and
 [[../04-Testing/Phase-4-Test-Results]].
+
+## 2026-11-09 - Phase 5 integration domains
+
+- Reuse `Member` identity for ministries, event participation, and giving.
+- Require both the Ministry Leader role and an active leader membership for
+  object-level ministry/event management.
+- Use one event domain for church-wide scheduling, visibility, registration,
+  capacity/waitlisting, and attendance.
+- Preserve Phase 4 records with nullable one-to-one event links. A linked event
+  becomes canonical for time/location; unlinked records keep their own schedule.
+- Keep giving administration separate and confidential. Store audit field names
+  rather than old/new financial values and expose only member-linked self-history.
+- Use database constraints for membership uniqueness, event participation
+  uniqueness, positive contributions, and donor consistency.
+- Keep aggregate reports in Phase 7 rather than adding premature reporting
+  abstractions during core workflow implementation.
+- Reserve all recommendation behavior for Phase 8. Phase 5 only preserves the
+  existing normalized song metadata and plan usage relationships.
+
+See [[../03-Modules/Ministry-Management]],
+[[../03-Modules/Events-Attendance]], [[../03-Modules/Giving]], and
+[[../04-Testing/Phase-5-Test-Results]].
+
+## 2026-11-09 - Phase 6 resource integration
+
+- Store only a validated Spotify track ID and derive the official link/embed
+  URLs locally. Do not add Spotify credentials, Web API calls, or custom audio.
+- Keep `SongResource` and protected file storage as the single resource source
+  of truth. Extend it rather than introduce a chord-sheet subsystem.
+- Stream PDF/images with fixed content types; autoescape decoded text; parse a
+  deliberately small ChordPro subset into plain data rather than trusted HTML.
+- Retain downloads for formats that cannot be safely viewed in the browser.
+- Remove replaced private files only with `transaction.on_commit()` so a failed
+  database update does not discard the current resource.
+- Reuse `Song` for rehearsal preparation through a simple many-to-many link.
+- Use server-side permissions for both preview and download. Template controls
+  are presentation only.
+
+See [[../03-Modules/Song-Resources-Chord-Sheets]] and
+[[../04-Testing/Phase-6-Test-Results]].

@@ -59,3 +59,27 @@ No unrelated application module was introduced.
   preserve rehearsal and assignment history.
 
 See [[../04-Testing/Phase-4-Test-Results]].
+
+## 2026-11-09 - Phase 5 implementation review
+
+- Centralized ministry and event object checks in small domain services.
+- Used filtered/select-related querysets for calendars, rosters, participants,
+  and contribution registers to avoid row-by-row relationship loading.
+- Kept registration capacity decisions and waitlist promotion transactional.
+- Corrected create-form event filtering so unsaved rehearsal/worship-plan
+  instances are never passed to related lookups.
+- Preserved Phase 4 standalone schedules through nullable links instead of a
+  destructive data rewrite.
+- Stored financial audit field names without duplicating confidential values.
+
+## 2026-11-09 - Phase 6 resource review
+
+- Centralized Spotify normalization instead of repeating URL parsing in forms
+  and templates.
+- Centralized resource save/replacement so private-file cleanup follows commit.
+- Added a reusable song-resource template for song, plan, assignment, and
+  rehearsal contexts.
+- Prefetched song resources in all integrated workflows to avoid N+1 queries.
+- Reset custom protected-storage cached paths when tests/settings override the
+  private root.
+- Kept the ChordPro parser data-only so Django autoescaping remains effective.

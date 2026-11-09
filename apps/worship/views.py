@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.db.models import Prefetch, Q
 from django.http import FileResponse, Http404, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views import View
@@ -15,6 +15,7 @@ from django.views.generic import (
 
 from apps.accounts.mixins import AuthenticatedPermissionRequiredMixin
 
+from .chordpro import parse_chordpro
 from .forms import (
     AttendanceFormSet,
     ChoirAnnouncementForm,
@@ -42,6 +43,7 @@ from .services import (
     move_plan_song,
     record_rehearsal_attendance,
     remove_plan_song,
+    save_song_resource,
 )
 
 
@@ -76,6 +78,7 @@ class ChoirActivityView(AuthenticatedPermissionRequiredMixin, TemplateView):
                 plan_song__plan__service_datetime__gte=now,
             )
             .select_related("plan_song__song", "plan_song__plan")
+            .prefetch_related("plan_song__song__resources")
             .order_by("plan_song__plan__service_datetime", "plan_song__position")[:20]
         )
         return context
@@ -196,7 +199,8 @@ class RehearsalDetailView(AuthenticatedPermissionRequiredMixin, DetailView):
             Prefetch(
                 "attendance_records",
                 queryset=attendance_queryset,
-            )
+            ),
+            "songs__resources",
         )
 
 
@@ -206,6 +210,11 @@ class RehearsalManageMixin(AuthenticatedPermissionRequiredMixin):
     template_name = "worship/rehearsal_form.html"
     slug_field = "public_id"
     slug_url_kwarg = "public_id"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["actor"] = self.request.user
+        return kwargs
 
     def get_success_url(self):
         return reverse("worship:rehearsal-detail", args=(self.object.public_id,))
@@ -491,10 +500,13 @@ class SongResourceCreateView(AuthenticatedPermissionRequiredMixin, CreateView):
         return self.song
 
     def form_valid(self, form):
-        form.instance.song = self.get_song()
-        form.instance.added_by = self.request.user
+        self.object = save_song_resource(
+            form=form,
+            song=self.get_song(),
+            actor=self.request.user,
+        )
         messages.success(self.request, "The authorized song resource was added.")
-        return super().form_valid(form)
+        return HttpResponseRedirect(self.get_success_url())
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -505,6 +517,36 @@ class SongResourceCreateView(AuthenticatedPermissionRequiredMixin, CreateView):
         return reverse("worship:song-detail", args=(self.get_song().public_id,))
 
 
+class SongResourceUpdateView(AuthenticatedPermissionRequiredMixin, UpdateView):
+    permission_required = (
+        "worship.manage_song_library",
+        "worship.change_songresource",
+    )
+    model = SongResource
+    form_class = SongResourceForm
+    template_name = "worship/song_resource_form.html"
+
+    def get_queryset(self):
+        return SongResource.objects.select_related("song")
+
+    def form_valid(self, form):
+        self.object = save_song_resource(
+            form=form,
+            song=self.object.song,
+            actor=self.request.user,
+        )
+        messages.success(self.request, "The authorized song resource was updated.")
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["song"] = self.object.song
+        return context
+
+    def get_success_url(self):
+        return reverse("worship:song-detail", args=(self.object.song.public_id,))
+
+
 class SongResourceDownloadView(AuthenticatedPermissionRequiredMixin, View):
     permission_required = "worship.view_song_resources"
 
@@ -512,11 +554,61 @@ class SongResourceDownloadView(AuthenticatedPermissionRequiredMixin, View):
         resource = get_object_or_404(SongResource, pk=kwargs["pk"])
         if not resource.file:
             raise Http404("This resource is an external link.")
-        return FileResponse(
+        response = FileResponse(
             resource.file.open("rb"),
             as_attachment=True,
             filename=resource.file.name.rsplit("/", 1)[-1],
         )
+        response["X-Content-Type-Options"] = "nosniff"
+        return response
+
+
+class SongResourcePreviewView(AuthenticatedPermissionRequiredMixin, View):
+    permission_required = "worship.view_song_resources"
+    template_name = "worship/song_resource_preview.html"
+
+    CONTENT_TYPES = {
+        "pdf": "application/pdf",
+        "png": "image/png",
+        "jpg": "image/jpeg",
+        "jpeg": "image/jpeg",
+    }
+
+    def get(self, request, *args, **kwargs):
+        resource = get_object_or_404(
+            SongResource.objects.select_related("song"),
+            pk=kwargs["pk"],
+        )
+        if not resource.file:
+            raise Http404("This resource is an external link.")
+
+        if resource.preview_kind in {"pdf", "image"}:
+            response = FileResponse(
+                resource.file.open("rb"),
+                as_attachment=False,
+                filename=resource.file.name.rsplit("/", 1)[-1],
+                content_type=self.CONTENT_TYPES[resource.file_extension],
+            )
+            response["X-Content-Type-Options"] = "nosniff"
+            return response
+
+        context = {"resource": resource, "preview_unavailable": False}
+        if resource.preview_kind in {"text", "chordpro"}:
+            resource.file.open("rb")
+            try:
+                content = resource.file.read().decode("utf-8-sig")
+            except UnicodeDecodeError:
+                context["preview_unavailable"] = True
+            finally:
+                resource.file.close()
+            if not context["preview_unavailable"]:
+                if resource.preview_kind == "chordpro":
+                    context["chordpro"] = parse_chordpro(content)
+                else:
+                    context["text_content"] = content
+        else:
+            context["preview_unavailable"] = True
+        return render(request, self.template_name, context)
 
 
 class WorshipPlanQuerysetMixin:
@@ -598,7 +690,8 @@ class WorshipPlanDetailView(
                 Prefetch(
                     "setlist_items",
                     queryset=PlanSong.objects.select_related("song").prefetch_related(
-                        Prefetch("assignments", queryset=assignment_queryset)
+                        Prefetch("assignments", queryset=assignment_queryset),
+                        "song__resources",
                     ),
                 ),
                 "choir_participations__enrollment__member",
@@ -612,6 +705,11 @@ class WorshipPlanManageMixin(AuthenticatedPermissionRequiredMixin):
     template_name = "worship/plan_form.html"
     slug_field = "public_id"
     slug_url_kwarg = "public_id"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["actor"] = self.request.user
+        return kwargs
 
     def get_success_url(self):
         return reverse("worship:plan-detail", args=(self.object.public_id,))
