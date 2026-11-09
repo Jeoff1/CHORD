@@ -32,6 +32,10 @@ No critical or high-severity blocker remains after Phase 5.
 8. Browser preview intentionally excludes `.doc` and `.docx`; authorized users
    must download those files. ChordPro support is a safe display subset rather
    than a complete implementation of every directive.
+9. The visually matching CHORD logo files exist under `static/assets/branding/`,
+   but the local `static/` directory is currently untracked by Git. Review and
+   commit the approved branding files before Phase 7 or deployment depends on
+   them.
 
 ## Resolved
 
@@ -44,7 +48,20 @@ No critical or high-severity blocker remains after Phase 5.
   fields. No automatic synchronization exists.
 - The JSON theme list is structured future input, but taxonomy, recommendation
   behavior, and evaluation belong exclusively to the reserved Phase 8.
+- The Phase 7 Figma design includes booking/payment/receipt workflows, unified
+  notifications, volunteer availability, post-service feedback, multi-church
+  selection, and advanced practice controls that do not have supporting Django
+  domains. They require explicit scope and must not be shipped as static or
+  misleading UI.
+- The Figma file exposes no design variables for the inspected nodes and uses
+  Lato on desktop but Inter in the mobile practice view. Phase 7 must decide
+  whether the mobile experience is intentionally a separate focused visual
+  mode and codify local tokens accordingly.
+- Only the practice screen has a mobile frame. The desktop sidebar, dense
+  tables, and reports need responsive and accessibility specifications before
+  implementation.
 
 No SQLite fallback is configured. See [[Task-Tracker]],
 [[../04-Testing/Phase-5-Test-Results]], and
-[[../02-Architecture/Architecture-Decisions]].
+[[../02-Architecture/Architecture-Decisions]], and
+[[Phase-7-Figma-Design-Audit]].

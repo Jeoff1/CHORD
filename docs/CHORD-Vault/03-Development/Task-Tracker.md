@@ -49,5 +49,19 @@
 Phase 8 is reserved and not in progress. Do not implement ML behavior until it
 is explicitly authorized. Do not proceed to Phase 7 automatically.
 
+## Phase 7 pre-implementation audit
+
+- [x] Verify read-only authenticated Figma MCP access
+- [x] Inventory all 19 top-level Figma screens
+- [x] Analyze the desktop and mobile visual systems, logo, shell, navigation,
+  components, and layouts
+- [x] Map every Figma screen to existing Django modules and routes
+- [x] Separate existing capabilities from backend gaps and design-only concepts
+- [x] Preserve Recommendations as Phase 8-only scope
+- [ ] Implement the Phase 7 dashboard, reports, or UI/UX changes
+
+The audit does not start or complete Phase 7 implementation. See
+[[Phase-7-Figma-Design-Audit]].
+
 See [[Development-Roadmap]], [[Known-Issues]], and
 [[../04-Testing/Phase-6-Test-Results]].

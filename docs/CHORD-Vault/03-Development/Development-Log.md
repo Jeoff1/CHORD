@@ -210,3 +210,33 @@ See [[../03-Modules/Ministry-Management]],
 
 See [[../03-Modules/Song-Resources-Chord-Sheets]] and
 [[../04-Testing/Phase-6-Test-Results]].
+
+## 2026-11-09 - Phase 7 Figma design audit
+
+- **Scope:** Performed a read-only pre-implementation audit of the CHORD Initial
+  Design through the authenticated Figma MCP server. No Figma or frontend
+  changes were made.
+- **Inventory:** Identified 19 top-level frames covering administration,
+  members, attendance, giving, ministries, events/calendar, bookings, songs,
+  service plans, reports, member experience, access/profile, and a mobile song
+  practice experience.
+- **Design system:** Documented the Lato/forest-green desktop system, the
+  distinct Inter/amber mobile practice system, the repeated sidebar/workspace
+  shell, component patterns, and the visually matching local CHORD logo assets.
+- **Source comparison:** Mapped all screens to actual Django apps, URLs, models,
+  permissions, and templates. Confirmed strong reuse opportunities for members,
+  ministries, events, giving, choir, songs, resources, and worship plans.
+- **Gaps:** Documented that bookings/payments/receipts, unified notifications,
+  volunteer availability, guest/full-roster attendance, plan approval/version
+  history, post-service feedback, multi-church behavior, and advanced practice
+  controls are not implemented backend capabilities.
+- **ML boundary:** The Figma Recommendations screen is reference only. Phase 8
+  remains reserved and no recommendation UI, endpoint, ranking, or algorithm
+  was implemented.
+- **Verification note:** Metadata covered all 19 frames and screenshots/design
+  context covered 18; the Figma Starter MCP call cap prevented the final Member
+  Directory screenshot, whose structure and source mapping were still verified.
+- **Status:** Phase 7 implementation has not started. No tests or automated code
+  checks were run because this task changed documentation only.
+
+See [[Phase-7-Figma-Design-Audit]], [[Task-Tracker]], and [[Known-Issues]].
