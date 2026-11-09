@@ -1,0 +1,27 @@
+<article class="chord-calendar-card">
+  <div class="chord-calendar-card__date" aria-hidden="true">
+    <span>{{ event.starts_at|date:"M" }}</span><strong>{{ event.starts_at|date:"d" }}</strong><small>{{ event.starts_at|date:"D" }}</small>
+  </div>
+  <div class="chord-calendar-card__body">
+    <div class="chord-calendar-card__heading">
+      <div>
+        <p class="chord-calendar-card__meta">{{ event.starts_at|date:"g:i A" }}–{{ event.ends_at|date:"g:i A" }} · {{ event.get_event_type_display }}</p>
+        <h2><a href="{% url 'events:detail' event.public_id %}">{{ event.title }}</a></h2>
+      </div>
+      <span class="chord-status {% if event.status == 'published' %}chord-status--success{% elif event.status == 'draft' %}chord-status--warning{% elif event.status == 'cancelled' %}chord-status--danger{% else %}chord-status--info{% endif %}">{{ event.get_status_display }}</span>
+    </div>
+    <p>{{ event.description|truncatewords:24|default:"No event description has been added." }}</p>
+    <div class="chord-calendar-card__details">
+      <span><strong>Location</strong>{{ event.location|default:"To be confirmed" }}</span>
+      <span><strong>Ministry</strong>{% if event.ministry %}{{ event.ministry.name }}{% else %}Church-wide{% endif %}</span>
+      <span><strong>Audience</strong>{{ event.get_visibility_display }}</span>
+    </div>
+    {% if event.registration_required %}
+      <div class="chord-capacity-summary">
+        <span><strong>{{ event.registered_count }}</strong>{% if event.capacity %} of {{ event.capacity }} places registered{% else %} registered{% endif %}</span>
+        {% if event.waitlisted_count %}<span class="chord-status chord-status--warning">{{ event.waitlisted_count }} waitlisted</span>{% endif %}
+        {% if event.capacity %}<progress max="{{ event.capacity }}" value="{{ event.registered_count }}">{{ event.registered_count }} of {{ event.capacity }}</progress>{% endif %}
+      </div>
+    {% else %}<p class="chord-calendar-card__registration">No registration required</p>{% endif %}
+  </div>
+</article>

@@ -3,7 +3,9 @@
 **Audit date:** 2026-11-09  
 **Figma file:** [CHORD Initial Design](https://www.figma.com/design/Y6D6hKzHPoK3zDvDypCgg5/CHORD-Initial-Design?node-id=0-1)  
 **Scope:** Read-only pre-implementation design audit and screen-to-module mapping  
-**Implementation status:** Phase 7 frontend work has not started
+**Implementation status:** Historical audit complete; Phase 7.2 and Phase 7.3
+milestones 1-3 have since been implemented and are tracked in
+[[Screen-Implementation-Tracker]].
 
 ## Boundary and evidence
 

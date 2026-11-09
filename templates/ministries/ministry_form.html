@@ -1,3 +1,19 @@
 {% extends "base.html" %}
-{% block title %}{% if object %}Edit ministry{% else %}Add ministry{% endif %} | CHORD{% endblock %}
-{% block content %}<h1 class="h3">{% if object %}Edit {{ object.name }}{% else %}Add ministry{% endif %}</h1><form method="post" class="card card-body shadow-sm">{% csrf_token %}{{ form.as_p }}<div><button class="btn btn-primary" type="submit">Save ministry</button><a class="btn btn-link" href="{% url 'ministries:list' %}">Cancel</a></div></form>{% endblock %}
+{% block title %}{% if object %}Edit {{ object.name }}{% else %}Add ministry{% endif %} | CHORD{% endblock %}
+{% block content %}
+  <div class="chord-page-heading">
+    <div><p class="chord-eyebrow">Ministry management</p><h1>{% if object %}Edit {{ object.name }}{% else %}Add ministry{% endif %}</h1><p>Maintain a clear purpose and operating status for this ministry.</p></div>
+    <div class="chord-page-actions"><a class="btn btn-outline-primary" href="{% if object %}{% url 'ministries:detail' object.public_id %}{% else %}{% url 'ministries:list' %}{% endif %}">Cancel</a><button class="btn btn-primary" type="submit" form="ministry-form">Save ministry</button></div>
+  </div>
+  <form id="ministry-form" method="post" class="chord-panel chord-form-panel">
+    {% csrf_token %}
+    <div class="chord-panel__header"><div><h2>Ministry details</h2><p class="chord-panel__note">Describe the ministry for members browsing the directory.</p></div></div>
+    {% if form.non_field_errors %}<div class="errorlist">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="chord-form-grid">
+      {% include "includes/form_field.html" with field=form.name %}
+      {% include "includes/form_field.html" with field=form.status %}
+      <div class="chord-form-field chord-form-field--full">{% include "includes/form_field.html" with field=form.description %}</div>
+    </div>
+    <div class="chord-form-actions"><button class="btn btn-primary" type="submit">Save ministry</button><a class="btn btn-link" href="{% if object %}{% url 'ministries:detail' object.public_id %}{% else %}{% url 'ministries:list' %}{% endif %}">Cancel</a></div>
+  </form>
+{% endblock %}

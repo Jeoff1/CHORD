@@ -615,6 +615,500 @@ h6 {
   padding: var(--chord-space-2) 0 0;
 }
 
+/* Member directory and profile */
+.chord-section-tabs {
+  border-bottom: 1px solid var(--chord-color-border);
+  display: flex;
+  gap: var(--chord-space-5);
+  margin-bottom: var(--chord-space-5);
+  overflow-x: auto;
+}
+
+.chord-section-tabs a {
+  border-bottom: 2px solid transparent;
+  color: var(--chord-color-muted);
+  flex: 0 0 auto;
+  font-size: var(--chord-text-sm);
+  padding: 0 0 var(--chord-space-3);
+  text-decoration: none;
+}
+
+.chord-section-tabs a:hover,
+.chord-section-tabs a.is-active {
+  border-bottom-color: var(--chord-color-primary);
+  color: var(--chord-color-primary);
+  font-weight: 700;
+}
+
+.chord-directory-filters {
+  display: grid;
+  gap: var(--chord-space-3);
+  grid-template-columns: minmax(16rem, 2fr) minmax(10rem, 1fr) minmax(10rem, 1fr) auto auto;
+  margin-bottom: var(--chord-space-5);
+}
+
+.chord-directory-panel {
+  padding-bottom: var(--chord-space-3);
+}
+
+.chord-member-table-wrap {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.chord-member-table a:not(.btn) {
+  color: var(--chord-color-text);
+  text-decoration: none;
+}
+
+.chord-member-table a:not(.btn):hover {
+  color: var(--chord-color-primary);
+}
+
+.chord-member-identity {
+  align-items: center;
+  display: flex;
+  gap: var(--chord-space-3);
+  min-width: 12rem;
+}
+
+.chord-member-identity small,
+.chord-summary-identity small,
+.chord-affiliation-list small {
+  color: var(--chord-color-muted);
+  display: block;
+  font-size: var(--chord-text-xs);
+  margin-top: var(--chord-space-1);
+}
+
+.chord-directory-privacy {
+  margin-bottom: 0;
+  margin-top: var(--chord-space-5);
+}
+
+.chord-member-heading {
+  margin-bottom: var(--chord-space-5);
+}
+
+.chord-member-heading p a {
+  color: var(--chord-color-muted);
+}
+
+.chord-profile-layout {
+  align-items: start;
+  display: grid;
+  gap: var(--chord-space-5);
+  grid-template-columns: minmax(0, 2fr) minmax(17rem, 1fr);
+}
+
+.chord-profile-main,
+.chord-profile-aside {
+  display: grid;
+  gap: var(--chord-space-5);
+}
+
+.chord-definition-grid {
+  display: grid;
+  gap: var(--chord-space-5) var(--chord-space-4);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: var(--chord-space-5) 0 0;
+}
+
+.chord-definition-grid > div {
+  border-bottom: 1px solid var(--chord-color-border);
+  min-width: 0;
+  padding-bottom: var(--chord-space-3);
+}
+
+.chord-definition-grid__full {
+  grid-column: 1 / -1;
+}
+
+.chord-definition-grid dt,
+.chord-summary-list dt {
+  color: var(--chord-color-muted);
+  font-size: var(--chord-text-xs);
+  font-weight: 700;
+  margin-bottom: var(--chord-space-2);
+}
+
+.chord-definition-grid dd,
+.chord-summary-list dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.chord-inline-notice {
+  background: var(--chord-color-info-bg);
+  border-radius: var(--chord-radius-control);
+  color: var(--chord-color-info-text);
+  font-size: var(--chord-text-sm);
+  margin-top: var(--chord-space-5);
+  padding: var(--chord-space-3) var(--chord-space-4);
+}
+
+.chord-summary-identity {
+  align-items: center;
+  display: flex;
+  gap: var(--chord-space-3);
+  margin: var(--chord-space-4) 0;
+}
+
+.chord-summary-list {
+  margin: 0;
+}
+
+.chord-summary-list > div {
+  align-items: baseline;
+  border-top: 1px solid var(--chord-color-border);
+  display: flex;
+  gap: var(--chord-space-3);
+  justify-content: space-between;
+  padding: var(--chord-space-3) 0;
+}
+
+.chord-summary-list dt {
+  margin: 0;
+}
+
+.chord-summary-list dd {
+  font-size: var(--chord-text-sm);
+  font-weight: 700;
+  text-align: right;
+}
+
+.chord-affiliation-list > div {
+  border-top: 1px solid var(--chord-color-border);
+  padding: var(--chord-space-3) 0;
+}
+
+.chord-affiliation-list a {
+  color: var(--chord-color-text);
+  text-decoration: none;
+}
+
+.chord-affiliation-list a:hover {
+  color: var(--chord-color-primary);
+}
+
+.chord-form-grid {
+  display: grid;
+  gap: var(--chord-space-4);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: var(--chord-space-5);
+}
+
+.chord-form-field--full {
+  grid-column: 1 / -1;
+}
+
+.chord-form-field label {
+  display: block;
+  font-size: var(--chord-text-sm);
+  font-weight: 700;
+  margin-bottom: var(--chord-space-2);
+}
+
+.chord-form-field textarea {
+  min-height: 5.5rem;
+}
+
+.chord-field-error {
+  color: var(--chord-color-danger-text);
+  display: block;
+  font-size: var(--chord-text-xs);
+  margin-top: var(--chord-space-1);
+}
+
+.chord-form-actions {
+  border-top: 1px solid var(--chord-color-border);
+  display: flex;
+  gap: var(--chord-space-2);
+  margin-top: var(--chord-space-5);
+  padding-top: var(--chord-space-4);
+}
+
+/* Ministry and church event screens */
+.chord-ministry-filters {
+  grid-template-columns: minmax(16rem, 2fr) minmax(10rem, 1fr) auto auto;
+}
+
+.chord-ministry-grid {
+  display: grid;
+  gap: var(--chord-space-4);
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+}
+
+.chord-ministry-card {
+  background: var(--chord-color-surface);
+  border: 1px solid var(--chord-color-border);
+  border-radius: var(--chord-radius-card);
+  box-shadow: var(--chord-shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: var(--chord-space-4);
+  min-height: 19rem;
+  padding: var(--chord-space-5);
+}
+
+.chord-ministry-card__top,
+.chord-calendar-card__heading,
+.chord-linked-resources {
+  align-items: flex-start;
+  display: flex;
+  gap: var(--chord-space-3);
+  justify-content: space-between;
+}
+
+.chord-ministry-mark {
+  align-items: center;
+  background: var(--chord-color-primary-soft);
+  border-radius: var(--chord-radius-control);
+  color: var(--chord-color-primary);
+  display: inline-flex;
+  font-size: var(--chord-text-lg);
+  font-weight: 700;
+  height: 2.75rem;
+  justify-content: center;
+  text-transform: uppercase;
+  width: 2.75rem;
+}
+
+.chord-ministry-card h2,
+.chord-calendar-card h2 {
+  font-size: var(--chord-text-lg);
+  margin: 0 0 var(--chord-space-2);
+}
+
+.chord-ministry-card h2 a,
+.chord-calendar-card h2 a,
+.chord-text-link {
+  color: var(--chord-color-text);
+  text-decoration: none;
+}
+
+.chord-ministry-card h2 a:hover,
+.chord-calendar-card h2 a:hover,
+.chord-text-link:hover {
+  color: var(--chord-color-primary);
+}
+
+.chord-ministry-card p,
+.chord-calendar-card__body > p,
+.chord-long-copy {
+  color: var(--chord-color-muted);
+  font-size: var(--chord-text-sm);
+  margin: 0;
+}
+
+.chord-ministry-card__facts {
+  border-top: 1px solid var(--chord-color-border);
+  margin: auto 0 0;
+}
+
+.chord-ministry-card__facts > div {
+  align-items: baseline;
+  border-bottom: 1px solid var(--chord-color-border);
+  display: flex;
+  gap: var(--chord-space-3);
+  justify-content: space-between;
+  padding: var(--chord-space-3) 0;
+}
+
+.chord-ministry-card__facts dt {
+  color: var(--chord-color-muted);
+  font-size: var(--chord-text-xs);
+}
+
+.chord-ministry-card__facts dd {
+  font-size: var(--chord-text-sm);
+  font-weight: 700;
+  margin: 0;
+  max-width: 65%;
+  text-align: right;
+}
+
+.chord-text-link {
+  font-size: var(--chord-text-sm);
+  font-weight: 700;
+}
+
+.chord-empty-state--panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--chord-space-1);
+  grid-column: 1 / -1;
+}
+
+.chord-pagination-wrap:empty {
+  display: none;
+}
+
+.chord-table-wrap {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.chord-roster-table strong {
+  color: var(--chord-color-text);
+}
+
+.chord-event-tabs a span {
+  background: var(--chord-color-surface);
+  border: 1px solid var(--chord-color-border);
+  border-radius: var(--chord-radius-pill);
+  font-size: 0.625rem;
+  margin-left: var(--chord-space-1);
+  padding: 0.15rem 0.4rem;
+}
+
+.chord-event-filters {
+  grid-template-columns: minmax(16rem, 2fr) minmax(10rem, 1fr) minmax(10rem, 1fr) auto auto;
+}
+
+.chord-event-directory {
+  display: grid;
+  gap: var(--chord-space-4);
+}
+
+.chord-calendar-card {
+  background: var(--chord-color-surface);
+  border: 1px solid var(--chord-color-border);
+  border-radius: var(--chord-radius-card);
+  box-shadow: var(--chord-shadow-card);
+  display: grid;
+  grid-template-columns: 6rem minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.chord-calendar-card__date {
+  align-items: center;
+  background: var(--chord-color-primary-soft);
+  color: var(--chord-color-primary);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--chord-space-5) var(--chord-space-3);
+  text-transform: uppercase;
+}
+
+.chord-calendar-card__date span,
+.chord-calendar-card__date small {
+  font-size: var(--chord-text-xs);
+  font-weight: 700;
+}
+
+.chord-calendar-card__date strong {
+  font-size: 2rem;
+  line-height: 1.1;
+  margin: var(--chord-space-1) 0;
+}
+
+.chord-calendar-card__body {
+  min-width: 0;
+  padding: var(--chord-space-5);
+}
+
+.chord-calendar-card__meta,
+.chord-calendar-card__registration {
+  color: var(--chord-color-muted);
+  font-size: var(--chord-text-xs);
+  margin: 0 0 var(--chord-space-1);
+}
+
+.chord-calendar-card__details {
+  display: grid;
+  gap: var(--chord-space-3);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: var(--chord-space-4);
+}
+
+.chord-calendar-card__details span {
+  color: var(--chord-color-muted);
+  font-size: var(--chord-text-xs);
+}
+
+.chord-calendar-card__details strong {
+  color: var(--chord-color-text);
+  display: block;
+  margin-bottom: var(--chord-space-1);
+}
+
+.chord-capacity-summary {
+  align-items: center;
+  border-top: 1px solid var(--chord-color-border);
+  display: grid;
+  gap: var(--chord-space-3);
+  grid-template-columns: auto auto minmax(8rem, 1fr);
+  margin-top: var(--chord-space-4);
+  padding-top: var(--chord-space-3);
+}
+
+.chord-capacity-summary > span:first-child {
+  color: var(--chord-color-muted);
+  font-size: var(--chord-text-xs);
+}
+
+.chord-capacity-summary progress,
+.chord-capacity-progress {
+  accent-color: var(--chord-color-primary);
+  height: 0.65rem;
+  width: 100%;
+}
+
+.chord-calendar-boundary {
+  margin-bottom: 0;
+  margin-top: var(--chord-space-5);
+}
+
+.chord-linked-resources {
+  border-top: 1px solid var(--chord-color-border);
+  justify-content: flex-start;
+  margin-top: var(--chord-space-5);
+  padding-top: var(--chord-space-4);
+}
+
+.chord-linked-resources a {
+  font-size: var(--chord-text-sm);
+  font-weight: 700;
+}
+
+.chord-form-panel {
+  max-width: 58rem;
+}
+
+.chord-form-section {
+  border: 0;
+  border-top: 1px solid var(--chord-color-border);
+  margin-top: var(--chord-space-5);
+  padding: var(--chord-space-5) 0 0;
+}
+
+.chord-form-section legend {
+  float: none;
+  font-size: var(--chord-text-lg);
+  font-weight: 700;
+  margin-bottom: var(--chord-space-3);
+  width: auto;
+}
+
+.chord-registration-toggle {
+  align-items: center;
+  display: flex;
+  gap: var(--chord-space-2);
+}
+
+.chord-registration-toggle label {
+  font-size: var(--chord-text-sm);
+  font-weight: 700;
+}
+
+.chord-attendance-panel .form-select {
+  min-width: 10rem;
+}
+
 .chord-sidebar-backdrop {
   background: rgba(35, 58, 50, 0.38);
   border: 0;
@@ -787,6 +1281,11 @@ form p > small {
   color: var(--chord-color-info-text);
 }
 
+.chord-status--muted {
+  background: var(--chord-color-sidebar);
+  color: var(--chord-color-muted);
+}
+
 .alert {
   border: 0;
   border-radius: var(--chord-radius-control);
@@ -925,6 +1424,23 @@ form p > small {
   .chord-page-actions {
     justify-content: flex-start;
   }
+
+  .chord-directory-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .chord-directory-filters__search {
+    grid-column: 1 / -1;
+  }
+
+  .chord-profile-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .chord-event-filters,
+  .chord-ministry-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 575.98px) {
@@ -965,6 +1481,50 @@ form p > small {
 
   .chord-event-row .chord-status {
     display: none;
+  }
+
+  .chord-directory-filters,
+  .chord-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chord-directory-filters__search,
+  .chord-form-field--full {
+    grid-column: auto;
+  }
+
+  .chord-member-table .chord-member-contact,
+  .chord-member-table .chord-member-affiliations,
+  .chord-member-table .chord-member-since {
+    display: none;
+  }
+
+  .chord-definition-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chord-definition-grid__full {
+    grid-column: auto;
+  }
+
+  .chord-calendar-card {
+    grid-template-columns: 4.25rem minmax(0, 1fr);
+  }
+
+  .chord-calendar-card__body,
+  .chord-ministry-card {
+    padding: var(--chord-space-4);
+  }
+
+  .chord-calendar-card__details,
+  .chord-capacity-summary,
+  .chord-event-filters,
+  .chord-ministry-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .chord-calendar-card__heading {
+    flex-direction: column-reverse;
   }
 
   .table > :not(caption) > * > * {

@@ -1,8 +1,9 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.db.models import Count, Q
+from django.db.models import Count, Prefetch, Q
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.utils import timezone
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
 from apps.accounts.mixins import AuthenticatedPermissionRequiredMixin
@@ -20,11 +21,17 @@ class MinistryListView(AuthenticatedPermissionRequiredMixin, ListView):
     paginate_by = 25
 
     def get_queryset(self):
+        active_leaders = MinistryMembership.objects.filter(
+            status=MinistryMembership.Status.ACTIVE,
+            role=MinistryMembership.Role.LEADER,
+        ).select_related("member")
         queryset = Ministry.objects.annotate(
             active_member_count=Count(
                 "memberships",
                 filter=Q(memberships__status=MinistryMembership.Status.ACTIVE),
-            )
+            ),
+        ).prefetch_related(
+            Prefetch("memberships", queryset=active_leaders, to_attr="active_leaders")
         )
         if not self.request.user.has_perm("ministries.manage_ministries"):
             queryset = queryset.filter(status=Ministry.Status.ACTIVE)
@@ -33,13 +40,27 @@ class MinistryListView(AuthenticatedPermissionRequiredMixin, ListView):
             queryset = queryset.filter(
                 Q(name__icontains=query) | Q(description__icontains=query)
             )
-        return queryset
+        status = self.request.GET.get("status", "").strip()
+        if (
+            self.request.user.has_perm("ministries.manage_ministries")
+            and status in Ministry.Status.values
+        ):
+            queryset = queryset.filter(status=status)
+        return queryset.order_by("name", "id")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         params = self.request.GET.copy()
         params.pop("page", None)
         context["query"] = self.request.GET.get("q", "")
+        selected_status = self.request.GET.get("status", "")
+        if (
+            not self.request.user.has_perm("ministries.manage_ministries")
+            or selected_status not in Ministry.Status.values
+        ):
+            selected_status = ""
+        context["selected_status"] = selected_status
+        context["status_choices"] = Ministry.Status.choices
         context["pagination_query"] = params.urlencode()
         return context
 
@@ -53,7 +74,13 @@ class MinistryDetailView(AuthenticatedPermissionRequiredMixin, DetailView):
     slug_url_kwarg = "public_id"
 
     def get_queryset(self):
-        queryset = Ministry.objects.all()
+        active_leaders = MinistryMembership.objects.filter(
+            status=MinistryMembership.Status.ACTIVE,
+            role=MinistryMembership.Role.LEADER,
+        ).select_related("member")
+        queryset = Ministry.objects.prefetch_related(
+            Prefetch("memberships", queryset=active_leaders, to_attr="active_leaders")
+        )
         if not self.request.user.has_perm("ministries.manage_ministries"):
             queryset = queryset.filter(status=Ministry.Status.ACTIVE)
         return queryset
@@ -61,10 +88,17 @@ class MinistryDetailView(AuthenticatedPermissionRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["can_manage"] = can_manage_ministry(self.request.user, self.object)
+        context["leaders"] = self.object.active_leaders
         if context["can_manage"]:
             context["memberships"] = self.object.memberships.select_related(
                 "member", "assigned_by"
             )
+        from apps.events.services import visible_events_for
+
+        context["upcoming_events"] = visible_events_for(self.request.user).filter(
+            ministry=self.object,
+            ends_at__gte=timezone.now(),
+        )[:5]
         return context
 
 

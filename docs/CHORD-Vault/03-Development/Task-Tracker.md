@@ -47,7 +47,8 @@
 - [ ] Phase 9: Final Testing, Security, and Deployment
 
 Phase 8 is reserved and not in progress. Do not implement ML behavior until it
-is explicitly authorized. Do not proceed to Phase 7 automatically.
+is explicitly authorized. Continue Phase 7 only through explicitly authorized
+screen groups.
 
 ## Phase 7 pre-implementation audit
 
@@ -58,7 +59,8 @@ is explicitly authorized. Do not proceed to Phase 7 automatically.
 - [x] Map every Figma screen to existing Django modules and routes
 - [x] Separate existing capabilities from backend gaps and design-only concepts
 - [x] Preserve Recommendations as Phase 8-only scope
-- [ ] Implement the Phase 7 dashboard, reports, or UI/UX changes
+- [x] Implement the Phase 7 dashboard and first two UI screen groups
+- [ ] Implement later screen groups and privacy-aware reports
 
 The audit does not start or complete Phase 7 implementation. See
 [[Phase-7-Figma-Design-Audit]].
@@ -89,11 +91,20 @@ Phase 7.2 is complete. Its shell is the foundation for the incremental Phase
 - [x] Use existing permission-scoped data and omit unsupported Figma features
 - [x] Add dashboard visibility, content, and empty-state tests
 - [x] Pass the 116-test suite, Django checks, migration drift, and Ruff checks
-- [ ] Milestone 2: Member Directory and Member Profile refinement
+- [x] Milestone 2: Member Directory and Member Profile refinement
+- [x] Add ministry/status filtering, segments, affiliations, and responsive table
+- [x] Add privacy-aware profile, attendance, and create/edit presentation
+- [x] Pass 26 member tests, 9 dashboard/shell regressions, and 123 full tests
+- [x] Milestone 3: Ministry Management and Church Events refinement
+- [x] Add ministry cards, leaders, protected roster, forms, and visible activities
+- [x] Add upcoming/past event segments, capacity/waitlist presentation,
+  registration, participant, event-form, and attendance refinements
+- [x] Preserve ministry object scope and event audience/direct-URL restrictions
+- [x] Pass 23 ministry/event tests, 58 milestone regressions, and 129 full tests
 - [ ] Remaining mapped screen groups
 
-Phase 7.3 milestone 1 is complete. Do not begin milestone 2 or Phase 8 without
-explicit authorization.
+Phase 7.3 milestone 3 is complete. Do not begin the next screen group or Phase 8
+without explicit authorization.
 
 See [[Development-Roadmap]], [[Known-Issues]], and
 [[../04-Testing/Phase-7-Test-Results]].

@@ -1,0 +1,17 @@
+<section class="chord-panel" aria-labelledby="member-overview-heading">
+  <div class="chord-panel__header">
+    <h2 id="member-overview-heading">Member overview</h2>
+  </div>
+  <div class="chord-summary-identity">
+    <span class="chord-person-row__avatar" aria-hidden="true">{{ member.first_name|slice:":1" }}{{ member.last_name|slice:":1" }}</span>
+    <span>
+      <strong>{{ member.full_name }}</strong>
+      <small>Record {{ member.public_id|stringformat:"s"|slice:":8"|upper }}</small>
+    </span>
+  </div>
+  <dl class="chord-summary-list">
+    <div><dt>Status</dt><dd>{{ member.get_membership_status_display }}</dd></div>
+    <div><dt>Account</dt><dd>{% if member.user_id %}Linked{% else %}Not linked{% endif %}</dd></div>
+    <div><dt>Last updated</dt><dd>{{ member.updated_at|date:"d M Y" }}</dd></div>
+  </dl>
+</section>

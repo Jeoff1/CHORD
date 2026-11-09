@@ -1,6 +1,6 @@
 # Known Issues
 
-No critical or high-severity blocker remains after Phase 7.2.
+No critical or high-severity blocker remains after Phase 7.3 Milestone 3.
 
 ## Medium
 
@@ -33,15 +33,19 @@ No critical or high-severity blocker remains after Phase 7.2.
 8. Browser preview intentionally excludes `.doc` and `.docx`; authorized users
    must download those files. ChordPro support is a safe display subset rather
    than a complete implementation of every directive.
-9. The approved logo, CSS, and JavaScript are intentionally version-controllable
-   source assets, but `static/` remains untracked until the user reviews and
-   authorizes staging/commit.
+9. The combined exported `static/assets/CHORD.svg` visual reference is about
+   32 MiB and remains untracked. If it is to be retained in Git, review ordinary
+   Git versus Git LFS rather than committing it accidentally.
 10. Exact Figma navigation icons are not available as durable local assets after
     the Starter MCP limit. Phase 7.2 uses accessible text navigation rather than
     substituting an unapproved icon set.
-11. Headless Chrome screenshot rendering fails in the managed Windows session
-    because its GPU process is unavailable. Automated template/static checks
-    pass, but a manual or browser-enabled visual pass remains recommended.
+11. Headless Chrome rendered the exported SVG reference crops with GPU disabled,
+    but no automated authenticated application screenshot comparison was run.
+    A manual desktop/mobile browser pass remains recommended.
+12. The event interface represents existing events as a responsive directory,
+    not the Figma week-grid calendar. Resource availability, church service
+    requests, and room booking require backend domains before that composition
+    can be implemented truthfully.
 
 ## Resolved
 

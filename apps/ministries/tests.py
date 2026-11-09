@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from apps.accounts.models import Role, UserRole
+from apps.events.models import Event
 from apps.members.models import Member
 
 from .models import Ministry, MinistryMembership
@@ -167,3 +168,75 @@ class MinistryWorkflowTests(TestCase):
         self.assertFalse(
             MinistryMembership.objects.filter(member=second_candidate).exists()
         )
+
+
+class MinistryUIRefinementTests(TestCase):
+    def test_administrator_can_filter_inactive_ministries(self):
+        administrator = create_role_user(
+            "directory-admin", Role.Code.CHURCH_ADMINISTRATOR
+        )
+        Ministry.objects.create(name="Active Directory Team")
+        Ministry.objects.create(
+            name="Archived Directory Team",
+            status=Ministry.Status.INACTIVE,
+        )
+        self.client.force_login(administrator)
+
+        response = self.client.get(
+            reverse("ministries:list"),
+            {"status": Ministry.Status.INACTIVE},
+        )
+
+        self.assertContains(response, "Archived Directory Team")
+        self.assertNotContains(response, "Active Directory Team")
+
+    def test_directory_shows_leader_but_hides_roster_from_regular_member(self):
+        user = create_role_user("directory-member", Role.Code.CHURCH_MEMBER)
+        leader = Member.objects.create(first_name="Visible", last_name="Leader")
+        ministry = Ministry.objects.create(name="Community Care")
+        MinistryMembership.objects.create(
+            ministry=ministry,
+            member=leader,
+            role=MinistryMembership.Role.LEADER,
+        )
+        self.client.force_login(user)
+
+        directory = self.client.get(reverse("ministries:list"))
+        detail = self.client.get(
+            reverse("ministries:detail", args=(ministry.public_id,))
+        )
+
+        self.assertContains(directory, "Visible Leader")
+        self.assertContains(detail, "Visible Leader")
+        self.assertNotContains(detail, "Membership roster")
+
+    def test_ministry_detail_lists_only_visible_upcoming_events(self):
+        user = create_role_user("event-directory-member", Role.Code.CHURCH_MEMBER)
+        ministry = Ministry.objects.create(name="Event Ministry")
+        other_ministry = Ministry.objects.create(name="Private Event Ministry")
+        starts_at = timezone.now() + timedelta(days=2)
+        Event.objects.create(
+            title="Visible Ministry Gathering",
+            event_type=Event.Type.MINISTRY,
+            ministry=ministry,
+            starts_at=starts_at,
+            ends_at=starts_at + timedelta(hours=1),
+            status=Event.Status.PUBLISHED,
+        )
+        Event.objects.create(
+            title="Hidden Ministry Gathering",
+            event_type=Event.Type.MINISTRY,
+            ministry=other_ministry,
+            starts_at=starts_at,
+            ends_at=starts_at + timedelta(hours=1),
+            status=Event.Status.PUBLISHED,
+            visibility=Event.Visibility.MINISTRY,
+        )
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse("ministries:detail", args=(ministry.public_id,))
+        )
+
+        self.assertContains(response, "Visible Ministry Gathering")
+        self.assertNotContains(response, "Hidden Ministry Gathering")

@@ -237,6 +237,102 @@ class EventRegistrationTests(TestCase):
         )
         self.assertEqual(response.status_code, 403)
 
+    def test_registration_views_show_waitlist_and_promote_after_cancellation(self):
+        self.client.force_login(self.first_user)
+        first_response = self.client.post(
+            reverse("events:registration", args=(self.event.public_id,))
+        )
+        self.assertRedirects(
+            first_response,
+            reverse("events:detail", args=(self.event.public_id,)),
+        )
+
+        self.client.force_login(self.second_user)
+        second_response = self.client.post(
+            reverse("events:registration", args=(self.event.public_id,))
+        )
+        self.assertRedirects(
+            second_response,
+            reverse("events:detail", args=(self.event.public_id,)),
+        )
+        detail = self.client.get(reverse("events:detail", args=(self.event.public_id,)))
+        self.assertContains(detail, "Waitlisted")
+
+        self.client.force_login(self.first_user)
+        self.client.post(
+            reverse("events:registration", args=(self.event.public_id,)),
+            {"action": "cancel"},
+        )
+        second_participation = EventParticipant.objects.get(
+            event=self.event,
+            member=self.second,
+        )
+        self.assertEqual(
+            second_participation.registration_status,
+            EventParticipant.RegistrationStatus.REGISTERED,
+        )
+
+
+class EventUIRefinementTests(TestCase):
+    def test_event_directory_segments_and_capacity_counts(self):
+        administrator = create_role_user(
+            "calendar-admin", Role.Code.CHURCH_ADMINISTRATOR
+        )
+        upcoming = create_event(
+            title="Capacity Gathering",
+            registration_required=True,
+            capacity=1,
+        )
+        registered = Member.objects.create(first_name="Registered", last_name="Person")
+        waitlisted = Member.objects.create(first_name="Waiting", last_name="Person")
+        EventParticipant.objects.create(
+            event=upcoming,
+            member=registered,
+            registration_status=EventParticipant.RegistrationStatus.REGISTERED,
+        )
+        EventParticipant.objects.create(
+            event=upcoming,
+            member=waitlisted,
+            registration_status=EventParticipant.RegistrationStatus.WAITLISTED,
+        )
+        past_start = timezone.now() - timedelta(days=3)
+        create_event(
+            title="Past Gathering",
+            starts_at=past_start,
+            ends_at=past_start + timedelta(hours=1),
+        )
+        self.client.force_login(administrator)
+
+        upcoming_response = self.client.get(reverse("events:list"))
+        past_response = self.client.get(reverse("events:list"), {"timing": "past"})
+
+        self.assertEqual(upcoming_response.context["timing_counts"]["upcoming"], 1)
+        self.assertEqual(upcoming_response.context["timing_counts"]["past"], 1)
+        self.assertContains(upcoming_response, "Capacity Gathering")
+        self.assertContains(upcoming_response, "1 waitlisted")
+        self.assertNotContains(upcoming_response, "Past Gathering")
+        self.assertContains(past_response, "Past Gathering")
+        self.assertNotContains(past_response, "Capacity Gathering")
+
+    def test_member_does_not_see_event_management_actions(self):
+        user = create_role_user("calendar-member", Role.Code.CHURCH_MEMBER)
+        Member.objects.create(
+            user=user,
+            first_name="Calendar",
+            last_name="Member",
+        )
+        event = create_event(title="Member Visible Event")
+        self.client.force_login(user)
+
+        list_response = self.client.get(reverse("events:list"))
+        detail_response = self.client.get(
+            reverse("events:detail", args=(event.public_id,))
+        )
+
+        self.assertNotContains(list_response, "Create event")
+        self.assertNotContains(detail_response, "Edit event")
+        self.assertNotContains(detail_response, "Add participant")
+
 
 class EventWorshipIntegrationTests(TestCase):
     def test_event_update_synchronizes_linked_worship_plan(self):

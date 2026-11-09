@@ -1,8 +1,57 @@
 {% extends "base.html" %}
 {% block title %}{{ event.title }} | CHORD{% endblock %}
 {% block content %}
-  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"><h1 class="h3 mb-0">{{ event.title }}</h1><div>{% if can_manage and perms.events.change_event %}<a class="btn btn-outline-primary" href="{% url 'events:edit' event.public_id %}">Edit event</a>{% endif %}{% if can_manage and perms.events.add_eventparticipant %}<a class="btn btn-primary" href="{% url 'events:participant-add' event.public_id %}">Add participant</a>{% endif %}</div></div>
-  <dl class="row card card-body shadow-sm"><dt class="col-sm-3">Schedule</dt><dd class="col-sm-9">{{ event.starts_at }} &ndash; {{ event.ends_at }}</dd><dt class="col-sm-3">Type</dt><dd class="col-sm-9">{{ event.get_event_type_display }}</dd><dt class="col-sm-3">Location</dt><dd class="col-sm-9">{{ event.location|default:"—" }}</dd><dt class="col-sm-3">Ministry</dt><dd class="col-sm-9">{% if event.ministry %}<a href="{% url 'ministries:detail' event.ministry.public_id %}">{{ event.ministry.name }}</a>{% else %}—{% endif %}</dd><dt class="col-sm-3">Status</dt><dd class="col-sm-9">{{ event.get_status_display }}</dd><dt class="col-sm-3">Description</dt><dd class="col-sm-9">{{ event.description|linebreaksbr|default:"—" }}</dd>{% if event.worship_plan %}<dt class="col-sm-3">Worship plan</dt><dd class="col-sm-9"><a href="{% url 'worship:plan-detail' event.worship_plan.public_id %}">{{ event.worship_plan.title }}</a></dd>{% endif %}{% if event.rehearsal %}<dt class="col-sm-3">Choir rehearsal</dt><dd class="col-sm-9"><a href="{% url 'worship:rehearsal-edit' event.rehearsal.public_id %}">{{ event.rehearsal.title }}</a></dd>{% endif %}</dl>
-  {% if event.registration_required and member %}<section class="card shadow-sm mt-4"><div class="card-body"><h2 class="h5">Registration</h2>{% if own_participation and own_participation.registration_status != "cancelled" %}<p>Your status: <strong>{{ own_participation.get_registration_status_display }}</strong></p><form method="post" action="{% url 'events:registration' event.public_id %}">{% csrf_token %}<input type="hidden" name="action" value="cancel"><button class="btn btn-outline-danger" type="submit">Cancel registration</button></form>{% else %}<p>{% if event.registration_deadline %}Registration closes {{ event.registration_deadline }}.{% endif %}</p><form method="post" action="{% url 'events:registration' event.public_id %}">{% csrf_token %}<button class="btn btn-primary" type="submit">Register</button></form>{% endif %}</div></section>{% endif %}
-  {% if can_manage %}<section class="card shadow-sm mt-4"><div class="card-body"><div class="d-flex justify-content-between align-items-center"><h2 class="h5 mb-0">Participants and attendance</h2>{% if perms.events.record_event_attendance and perms.events.change_eventparticipant %}<a class="btn btn-sm btn-primary" href="{% url 'events:attendance' event.public_id %}">Record attendance</a>{% endif %}</div><div class="table-responsive mt-3"><table class="table mb-0"><thead><tr><th>Member</th><th>Registration</th><th>Attendance</th><th></th></tr></thead><tbody>{% for participant in participants %}<tr><td>{{ participant.member.full_name }}</td><td>{{ participant.get_registration_status_display }}</td><td>{{ participant.get_attendance_status_display }}</td><td class="text-end"><a class="btn btn-sm btn-outline-primary" href="{% url 'events:participant-edit' event.public_id participant.pk %}">Edit</a></td></tr>{% empty %}<tr><td colspan="4">No participants.</td></tr>{% endfor %}</tbody></table></div></div></section>{% endif %}
+  <div class="chord-page-heading">
+    <div><p class="chord-eyebrow"><a href="{% url 'events:list' %}">Church calendar</a></p><h1>{{ event.title }}</h1><p>{{ event.starts_at|date:"l, d F Y · g:i A" }}–{{ event.ends_at|date:"g:i A" }}{% if event.location %} · {{ event.location }}{% endif %}</p></div>
+    {% if can_manage %}<div class="chord-page-actions">{% if perms.events.change_event %}<a class="btn btn-outline-primary" href="{% url 'events:edit' event.public_id %}">Edit event</a>{% endif %}{% if perms.events.add_eventparticipant %}<a class="btn btn-primary" href="{% url 'events:participant-add' event.public_id %}">Add participant</a>{% endif %}</div>{% endif %}
+  </div>
+
+  <div class="chord-profile-layout chord-event-detail-layout">
+    <div class="chord-profile-main">
+      <section class="chord-panel" aria-labelledby="event-details-heading">
+        <div class="chord-panel__header"><div><h2 id="event-details-heading">Event details</h2><p class="chord-panel__note">Schedule, audience, and preparation information.</p></div><span class="chord-status {% if event.status == 'published' %}chord-status--success{% elif event.status == 'draft' %}chord-status--warning{% elif event.status == 'cancelled' %}chord-status--danger{% else %}chord-status--info{% endif %}">{{ event.get_status_display }}</span></div>
+        <dl class="chord-definition-grid">
+          <div><dt>Event type</dt><dd>{{ event.get_event_type_display }}</dd></div>
+          <div><dt>Audience</dt><dd>{{ event.get_visibility_display }}</dd></div>
+          <div><dt>Starts</dt><dd>{{ event.starts_at|date:"d M Y · g:i A" }}</dd></div>
+          <div><dt>Ends</dt><dd>{{ event.ends_at|date:"d M Y · g:i A" }}</dd></div>
+          <div><dt>Location</dt><dd>{{ event.location|default:"To be confirmed" }}</dd></div>
+          <div><dt>Ministry</dt><dd>{% if event.ministry %}<a href="{% url 'ministries:detail' event.ministry.public_id %}">{{ event.ministry.name }}</a>{% else %}Church-wide{% endif %}</dd></div>
+          <div class="chord-definition-grid__full"><dt>Description</dt><dd>{{ event.description|linebreaksbr|default:"No event description has been added." }}</dd></div>
+        </dl>
+        {% if event.worship_plan or event.rehearsal %}<div class="chord-linked-resources">{% if event.worship_plan %}<a href="{% url 'worship:plan-detail' event.worship_plan.public_id %}">Open worship plan <span aria-hidden="true">&rarr;</span></a>{% endif %}{% if event.rehearsal %}<a href="{% url 'worship:rehearsal-edit' event.rehearsal.public_id %}">Open choir rehearsal <span aria-hidden="true">&rarr;</span></a>{% endif %}</div>{% endif %}
+      </section>
+
+      {% if event.registration_required and member and perms.events.register_for_events %}
+        <section class="chord-panel" aria-labelledby="registration-heading">
+          <div class="chord-panel__header"><div><h2 id="registration-heading">Your registration</h2><p class="chord-panel__note">Capacity and waitlist changes are handled transactionally.</p></div>{% if own_participation and own_participation.registration_status != 'cancelled' %}<span class="chord-status {% if own_participation.registration_status == 'registered' %}chord-status--success{% else %}chord-status--warning{% endif %}">{{ own_participation.get_registration_status_display }}</span>{% endif %}</div>
+          {% if own_participation and own_participation.registration_status != 'cancelled' %}
+            <p>You are currently <strong>{{ own_participation.get_registration_status_display|lower }}</strong> for this event.</p>
+            <form method="post" action="{% url 'events:registration' event.public_id %}">{% csrf_token %}<input type="hidden" name="action" value="cancel"><button class="btn btn-outline-danger" type="submit">Cancel registration</button></form>
+          {% elif registration_open %}
+            <p>{% if event.registration_deadline %}Registration closes {{ event.registration_deadline|date:"d M Y · g:i A" }}.{% else %}Registration remains open until the event begins.{% endif %}</p>
+            <form method="post" action="{% url 'events:registration' event.public_id %}">{% csrf_token %}<button class="btn btn-primary" type="submit">Register for event</button></form>
+          {% else %}<div class="chord-empty-state">Registration is now closed.</div>{% endif %}
+        </section>
+      {% endif %}
+
+      {% if can_manage %}
+        <section class="chord-panel" aria-labelledby="participants-heading">
+          <div class="chord-panel__header"><div><h2 id="participants-heading">Participants &amp; attendance</h2><p class="chord-panel__note">Cancelled registrations remain recorded but are excluded from attendance entry.</p></div>{% if perms.events.record_event_attendance and perms.events.change_eventparticipant %}<a href="{% url 'events:attendance' event.public_id %}">Record attendance</a>{% endif %}</div>
+          <div class="table-responsive chord-table-wrap"><table class="table chord-roster-table align-middle mb-0"><thead><tr><th scope="col">Member</th><th scope="col">Registration</th><th scope="col">Attendance</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead><tbody>{% for participant in participants %}<tr><td><strong>{{ participant.member.full_name }}</strong></td><td><span class="chord-status {% if participant.registration_status == 'registered' %}chord-status--success{% elif participant.registration_status == 'waitlisted' %}chord-status--warning{% else %}chord-status--muted{% endif %}">{{ participant.get_registration_status_display }}</span></td><td>{{ participant.get_attendance_status_display }}</td><td class="text-end">{% if perms.events.change_eventparticipant %}<a class="btn btn-sm btn-outline-primary" href="{% url 'events:participant-edit' event.public_id participant.pk %}">Edit</a>{% endif %}</td></tr>{% empty %}<tr><td colspan="4"><div class="chord-empty-state">No participants have been added.</div></td></tr>{% endfor %}</tbody></table></div>
+        </section>
+      {% endif %}
+    </div>
+
+    <aside class="chord-profile-aside">
+      <section class="chord-panel" aria-labelledby="event-registration-summary">
+        <div class="chord-panel__header"><h2 id="event-registration-summary">Registration overview</h2></div>
+        {% if event.registration_required %}
+          <dl class="chord-summary-list"><div><dt>Registered</dt><dd>{{ event.registered_count }}</dd></div><div><dt>Waitlisted</dt><dd>{{ event.waitlisted_count }}</dd></div><div><dt>Capacity</dt><dd>{{ event.capacity|default:"No limit" }}</dd></div><div><dt>Deadline</dt><dd>{{ event.registration_deadline|date:"d M Y · g:i A"|default:"Until start" }}</dd></div></dl>
+          {% if event.capacity %}<progress class="chord-capacity-progress" max="{{ event.capacity }}" value="{{ event.registered_count }}">{{ event.registered_count }} of {{ event.capacity }}</progress>{% endif %}
+        {% else %}<div class="chord-empty-state">This event does not require registration.</div>{% endif %}
+      </section>
+      <div class="chord-guidance-banner"><strong>Event privacy</strong><span>Direct URLs use the same audience and ministry-leadership visibility rules as the calendar.</span></div>
+    </aside>
+  </div>
 {% endblock %}

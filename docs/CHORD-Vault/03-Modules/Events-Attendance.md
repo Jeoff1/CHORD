@@ -1,6 +1,6 @@
 # Events and Attendance
 
-Status: **Completed - Phase 5 (2026-11-09)**
+Status: **Core completed in Phase 5; Phase 7.3 UI refined (2026-11-10)**
 
 ## Implemented
 
@@ -17,6 +17,20 @@ Status: **Completed - Phase 5 (2026-11-09)**
 - Assigned Ministry Leader object management and global Church Administrator
   management
 
+## Phase 7.3 interface
+
+- Upcoming, past, and all-event segments with truthful counts
+- Search, event-type, and ministry filtering with filter-preserving pagination
+- Responsive event cards showing lifecycle, audience, ministry, location,
+  registration count, capacity progress, and waitlist count
+- Event detail presentation with schedule, linked worship/rehearsal records,
+  registration state, cancellation, participant management, and attendance
+- Registration-open messaging that respects publication, start time, and
+  registration deadline while retaining service-layer validation
+- Permission-aware create/edit, participant, and attendance forms with clear
+  validation and empty states
+- Deterministic pagination and selected related data for efficient rendering
+
 ## Phase 4 integration
 
 `WorshipPlan.event` and `Rehearsal.event` are optional one-to-one links. When
@@ -27,6 +41,11 @@ workflows.
 
 No recurring-event engine or notification service was added; neither is needed
 for the verified Phase 5 core workflow.
+
+The Figma week grid, church service requests, rooms/resources, bookings,
+payments, full active-member attendance roster, first-time guests, roster
+export, and bulk attendance shortcuts remain unimplemented and are not shown as
+functional controls.
 
 See [[Ministry-Management]], [[Choir-Worship-Management]], and
 [[../04-Testing/Phase-5-Test-Results]].

@@ -1,20 +1,84 @@
 {% extends "base.html" %}
 {% block title %}{{ member.full_name }} | CHORD{% endblock %}
 {% block content %}
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">{{ member.full_name }}</h1>
-    {% if perms.members.manage_members and perms.members.change_member and perms.members.view_sensitive_member_data %}
-      <a class="btn btn-primary" href="{% url 'members:edit' member.public_id %}">Edit member</a>
-    {% endif %}
+  <div class="chord-page-heading chord-member-heading">
+    <div>
+      <p class="chord-eyebrow">Member profile</p>
+      <h1>{{ member.full_name }}</h1>
+      <p>{% if perms.members.view_member_directory %}<a href="{% url 'members:list' %}">Members</a> / {% endif %}Record {{ member.public_id|stringformat:"s"|slice:":8"|upper }}</p>
+    </div>
+    <div class="chord-page-actions">
+      {% if perms.members.view_member_directory %}<a class="btn btn-outline-primary" href="{% url 'members:list' %}">Back to directory</a>{% endif %}
+      {% if perms.members.manage_members and perms.members.change_member and perms.members.view_sensitive_member_data %}
+        <a class="btn btn-primary" href="{% url 'members:edit' member.public_id %}">Edit member</a>
+      {% endif %}
+    </div>
   </div>
-  <dl class="row card card-body shadow-sm">
-    <dt class="col-sm-4">Membership status</dt><dd class="col-sm-8">{{ member.get_membership_status_display }}</dd>
-    <dt class="col-sm-4">Joined</dt><dd class="col-sm-8">{{ member.joined_on|default:"—" }}</dd>
-    {% if can_view_sensitive %}
-      <dt class="col-sm-4">Email</dt><dd class="col-sm-8">{{ member.email|default:"—" }}</dd>
-      <dt class="col-sm-4">Phone</dt><dd class="col-sm-8">{{ member.phone_number|default:"—" }}</dd>
-      <dt class="col-sm-4">Address</dt><dd class="col-sm-8">{{ member.address|linebreaksbr|default:"—" }}</dd>
-      <dt class="col-sm-4">Date of birth</dt><dd class="col-sm-8">{{ member.date_of_birth|default:"—" }}</dd>
-    {% endif %}
-  </dl>
+
+  <nav class="chord-section-tabs" aria-label="Member profile sections">
+    <a class="is-active" href="#profile-contact" aria-current="page">Profile &amp; contact</a>
+    <a href="#member-affiliations">Ministries &amp; choir</a>
+    {% if can_view_attendance %}<a href="#attendance-history">Attendance history</a>{% endif %}
+  </nav>
+
+  <div class="chord-profile-layout">
+    <div class="chord-profile-main">
+      <section class="chord-panel" id="profile-contact" aria-labelledby="identity-contact-heading">
+        <div class="chord-panel__header">
+          <div>
+            <h2 id="identity-contact-heading">Identity &amp; contact</h2>
+            <p class="chord-panel__note">Core member information and membership status.</p>
+          </div>
+        </div>
+        <dl class="chord-definition-grid">
+          <div><dt>First name</dt><dd>{{ member.first_name }}</dd></div>
+          <div><dt>Last name</dt><dd>{{ member.last_name }}</dd></div>
+          {% if can_view_sensitive %}
+            <div><dt>Email address</dt><dd>{{ member.email|default:"—" }}</dd></div>
+            <div><dt>Mobile number</dt><dd>{{ member.phone_number|default:"—" }}</dd></div>
+            <div class="chord-definition-grid__full"><dt>Address</dt><dd>{{ member.address|linebreaksbr|default:"—" }}</dd></div>
+            <div><dt>Date of birth</dt><dd>{{ member.date_of_birth|date:"d F Y"|default:"—" }}</dd></div>
+          {% endif %}
+          <div><dt>Membership status</dt><dd><span class="chord-status {% if member.membership_status == 'member' %}chord-status--success{% elif member.membership_status == 'inactive' %}chord-status--danger{% elif member.membership_status == 'visitor' %}chord-status--warning{% else %}chord-status--info{% endif %}">{{ member.get_membership_status_display }}</span></dd></div>
+          <div><dt>Member since</dt><dd>{{ member.joined_on|date:"d F Y"|default:"—" }}</dd></div>
+        </dl>
+        {% if not can_view_sensitive %}
+          <div class="chord-inline-notice">Contact information is hidden because your account does not have permission to view sensitive member data.</div>
+        {% endif %}
+      </section>
+
+      {% if can_view_attendance %}
+        <section class="chord-panel" id="attendance-history" aria-labelledby="attendance-history-heading">
+          <div class="chord-panel__header">
+            <div>
+              <h2 id="attendance-history-heading">Recent attendance</h2>
+              <p class="chord-panel__note">Recorded attendance for events visible to your account.</p>
+            </div>
+          </div>
+          <div class="chord-compact-list">
+            {% for participation in recent_attendance %}
+              <a class="chord-detail-row" href="{% url 'events:detail' participation.event.public_id %}">
+                <span>
+                  <strong>{{ participation.event.title }}</strong>
+                  <small>{{ participation.event.starts_at|date:"d M Y · g:i A" }}</small>
+                </span>
+                <span class="chord-status {% if participation.attendance_status == 'present' %}chord-status--success{% elif participation.attendance_status == 'absent' %}chord-status--danger{% elif participation.attendance_status == 'late' %}chord-status--warning{% else %}chord-status--info{% endif %}">{{ participation.get_attendance_status_display }}</span>
+              </a>
+            {% empty %}
+              <div class="chord-empty-state">No attendance has been recorded for visible events.</div>
+            {% endfor %}
+          </div>
+        </section>
+      {% endif %}
+    </div>
+
+    <aside class="chord-profile-aside">
+      {% include "includes/member_profile_summary.html" %}
+      {% include "includes/member_affiliations.html" %}
+      <div class="chord-guidance-banner">
+        <strong>Protected member record</strong>
+        <span>Only authorized staff can edit membership details. Giving history is protected separately and is not shown here.</span>
+      </div>
+    </aside>
+  </div>
 {% endblock %}

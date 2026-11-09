@@ -1,13 +1,92 @@
 {% extends "base.html" %}
-{% block title %}{% if object %}Edit{% else %}Add{% endif %} member | CHORD{% endblock %}
+{% block title %}{% if object %}Edit {{ object.full_name }}{% else %}Add member{% endif %} | CHORD{% endblock %}
 {% block content %}
-  <h1 class="h3">{% if object %}Edit {{ object.full_name }}{% else %}Add member{% endif %}</h1>
-  <form method="post" class="card card-body shadow-sm">
-    {% csrf_token %}
-    {{ form.as_p }}
+  <div class="chord-page-heading chord-member-heading">
     <div>
-      <button class="btn btn-primary" type="submit">Save member</button>
-      <a class="btn btn-link" href="{% url 'members:list' %}">Cancel</a>
+      <p class="chord-eyebrow">Member management</p>
+      <h1>{% if object %}{{ object.full_name }}{% else %}Add member{% endif %}</h1>
+      <p>{% if object %}Update this protected member record.{% else %}Create a protected member record and optionally link a CHORD account.{% endif %}</p>
     </div>
-  </form>
+    <div class="chord-page-actions">
+      <a class="btn btn-outline-primary" href="{% if object %}{% url 'members:detail' object.public_id %}{% else %}{% url 'members:list' %}{% endif %}">Cancel</a>
+      <button class="btn btn-primary" type="submit" form="member-form">Save member</button>
+    </div>
+  </div>
+
+  {% if object %}
+    <nav class="chord-section-tabs" aria-label="Member profile sections">
+      <a class="is-active" href="#profile-contact" aria-current="page">Profile &amp; contact</a>
+      <a href="#member-affiliations">Ministries &amp; choir</a>
+      {% if can_view_attendance %}<a href="#attendance-history">Attendance history</a>{% endif %}
+    </nav>
+  {% endif %}
+
+  <div class="chord-profile-layout">
+    <div class="chord-profile-main">
+      <form id="member-form" method="post" class="chord-panel">
+        {% csrf_token %}
+        <div class="chord-panel__header">
+          <div>
+            <h2 id="profile-contact">Identity &amp; contact</h2>
+            <p class="chord-panel__note">Required fields are marked by the browser and validation errors appear beside their fields.</p>
+          </div>
+        </div>
+        {% if form.non_field_errors %}<div class="errorlist">{{ form.non_field_errors }}</div>{% endif %}
+        <div class="chord-form-grid">
+          {% include "includes/form_field.html" with field=form.first_name %}
+          {% include "includes/form_field.html" with field=form.last_name %}
+          {% include "includes/form_field.html" with field=form.email %}
+          {% include "includes/form_field.html" with field=form.phone_number %}
+          <div class="chord-form-field chord-form-field--full">
+            {{ form.address.label_tag }}
+            {{ form.address }}
+            {% for error in form.address.errors %}<span class="chord-field-error">{{ error }}</span>{% endfor %}
+          </div>
+          {% include "includes/form_field.html" with field=form.date_of_birth %}
+          {% include "includes/form_field.html" with field=form.membership_status %}
+          {% include "includes/form_field.html" with field=form.joined_on %}
+          {% include "includes/form_field.html" with field=form.user %}
+        </div>
+        <div class="chord-form-actions">
+          <button class="btn btn-primary" type="submit">Save member</button>
+          <a class="btn btn-link" href="{% if object %}{% url 'members:detail' object.public_id %}{% else %}{% url 'members:list' %}{% endif %}">Cancel</a>
+        </div>
+      </form>
+
+      {% if object and can_view_attendance %}
+        <section class="chord-panel" id="attendance-history" aria-labelledby="attendance-history-heading">
+          <div class="chord-panel__header">
+            <div>
+              <h2 id="attendance-history-heading">Recent attendance</h2>
+              <p class="chord-panel__note">Attendance is managed from each event workspace.</p>
+            </div>
+          </div>
+          <div class="chord-compact-list">
+            {% for participation in recent_attendance %}
+              <a class="chord-detail-row" href="{% url 'events:detail' participation.event.public_id %}">
+                <span><strong>{{ participation.event.title }}</strong><small>{{ participation.event.starts_at|date:"d M Y · g:i A" }}</small></span>
+                <span class="chord-status {% if participation.attendance_status == 'present' %}chord-status--success{% elif participation.attendance_status == 'absent' %}chord-status--danger{% elif participation.attendance_status == 'late' %}chord-status--warning{% else %}chord-status--info{% endif %}">{{ participation.get_attendance_status_display }}</span>
+              </a>
+            {% empty %}<div class="chord-empty-state">No attendance has been recorded for visible events.</div>{% endfor %}
+          </div>
+        </section>
+      {% endif %}
+    </div>
+
+    <aside class="chord-profile-aside">
+      {% if object %}
+        {% include "includes/member_profile_summary.html" with member=object %}
+        {% include "includes/member_affiliations.html" %}
+      {% else %}
+        <div class="chord-guidance-banner">
+          <strong>Create carefully</strong>
+          <span>Contact details are sensitive. Link an account only when the member should be able to view this record.</span>
+        </div>
+      {% endif %}
+      <div class="chord-guidance-banner">
+        <strong>Protected member record</strong>
+        <span>Changes are audited by field name. Giving history is protected separately and is not shown here.</span>
+      </div>
+    </aside>
+  </div>
 {% endblock %}

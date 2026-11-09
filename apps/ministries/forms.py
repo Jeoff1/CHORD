@@ -11,6 +11,10 @@ class MinistryForm(forms.ModelForm):
         fields = ("name", "description", "status")
         widgets = {"description": forms.Textarea(attrs={"rows": 5})}
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        apply_control_classes(self.fields)
+
 
 class MinistryMembershipForm(forms.ModelForm):
     class Meta:
@@ -43,6 +47,7 @@ class MinistryMembershipForm(forms.ModelForm):
             ):
                 self.fields["role"].disabled = True
                 self.fields["status"].disabled = True
+        apply_control_classes(self.fields)
 
     def clean_role(self):
         role = self.cleaned_data["role"]
@@ -61,3 +66,11 @@ class MinistryMembershipForm(forms.ModelForm):
         if commit:
             membership.save()
         return membership
+
+
+def apply_control_classes(fields):
+    for field in fields.values():
+        class_name = (
+            "form-select" if isinstance(field.widget, forms.Select) else "form-control"
+        )
+        field.widget.attrs.setdefault("class", class_name)

@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied, ValidationError
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -35,6 +35,8 @@ class EventListView(AuthenticatedPermissionRequiredMixin, ListView):
         event_type = self.request.GET.get("type", "").strip()
         ministry = self.request.GET.get("ministry", "").strip()
         timing = self.request.GET.get("timing", "upcoming")
+        if timing not in {"upcoming", "past", "all"}:
+            timing = "upcoming"
         if query:
             queryset = queryset.filter(
                 Q(title__icontains=query)
@@ -45,12 +47,38 @@ class EventListView(AuthenticatedPermissionRequiredMixin, ListView):
             queryset = queryset.filter(event_type=event_type)
         if ministry.isdigit():
             queryset = queryset.filter(ministry_id=ministry)
+        now = timezone.now()
+        self.timing_counts = queryset.aggregate(
+            upcoming=Count("pk", filter=Q(ends_at__gte=now), distinct=True),
+            past=Count("pk", filter=Q(ends_at__lt=now), distinct=True),
+            all=Count("pk", distinct=True),
+        )
+        queryset = queryset.annotate(
+            registered_count=Count(
+                "participants",
+                filter=Q(
+                    participants__registration_status=(
+                        EventParticipant.RegistrationStatus.REGISTERED
+                    )
+                ),
+                distinct=True,
+            ),
+            waitlisted_count=Count(
+                "participants",
+                filter=Q(
+                    participants__registration_status=(
+                        EventParticipant.RegistrationStatus.WAITLISTED
+                    )
+                ),
+                distinct=True,
+            ),
+        )
         if timing == "upcoming":
-            queryset = queryset.filter(ends_at__gte=timezone.now())
+            queryset = queryset.filter(ends_at__gte=now).order_by("starts_at", "id")
         elif timing == "past":
-            queryset = queryset.filter(ends_at__lt=timezone.now()).order_by(
-                "-starts_at"
-            )
+            queryset = queryset.filter(ends_at__lt=now).order_by("-starts_at", "-id")
+        else:
+            queryset = queryset.order_by("starts_at", "id")
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -62,7 +90,13 @@ class EventListView(AuthenticatedPermissionRequiredMixin, ListView):
                 "query": self.request.GET.get("q", ""),
                 "selected_type": self.request.GET.get("type", ""),
                 "selected_ministry": self.request.GET.get("ministry", ""),
-                "selected_timing": self.request.GET.get("timing", "upcoming"),
+                "selected_timing": (
+                    self.request.GET.get("timing", "upcoming")
+                    if self.request.GET.get("timing", "upcoming")
+                    in {"upcoming", "past", "all"}
+                    else "upcoming"
+                ),
+                "timing_counts": self.timing_counts,
                 "type_choices": Event.Type.choices,
                 "ministries": Ministry.objects.filter(status=Ministry.Status.ACTIVE),
                 "pagination_query": params.urlencode(),
@@ -80,8 +114,32 @@ class EventDetailView(AuthenticatedPermissionRequiredMixin, DetailView):
     slug_url_kwarg = "public_id"
 
     def get_queryset(self):
-        return visible_events_for(self.request.user).prefetch_related(
-            "participants__member"
+        return (
+            visible_events_for(self.request.user)
+            .select_related(
+                "worship_plan",
+                "rehearsal",
+            )
+            .annotate(
+                registered_count=Count(
+                    "participants",
+                    filter=Q(
+                        participants__registration_status=(
+                            EventParticipant.RegistrationStatus.REGISTERED
+                        )
+                    ),
+                    distinct=True,
+                ),
+                waitlisted_count=Count(
+                    "participants",
+                    filter=Q(
+                        participants__registration_status=(
+                            EventParticipant.RegistrationStatus.WAITLISTED
+                        )
+                    ),
+                    distinct=True,
+                ),
+            )
         )
 
     def get_context_data(self, **kwargs):
@@ -94,6 +152,15 @@ class EventDetailView(AuthenticatedPermissionRequiredMixin, DetailView):
         context["member"] = member
         context["own_participation"] = (
             self.object.participants.filter(member=member).first() if member else None
+        )
+        now = timezone.now()
+        context["registration_open"] = (
+            self.object.status == Event.Status.PUBLISHED
+            and self.object.starts_at > now
+            and (
+                self.object.registration_deadline is None
+                or self.object.registration_deadline >= now
+            )
         )
         if context["can_manage"]:
             context["participants"] = self.object.participants.select_related("member")

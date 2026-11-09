@@ -1,3 +1,25 @@
 {% extends "base.html" %}
-{% block title %}{% if object %}Edit event{% else %}Add event{% endif %} | CHORD{% endblock %}
-{% block content %}<h1 class="h3">{% if object %}Edit {{ object.title }}{% else %}Add event{% endif %}</h1><form method="post" class="card card-body shadow-sm">{% csrf_token %}{{ form.as_p }}<div><button class="btn btn-primary" type="submit">Save event</button><a class="btn btn-link" href="{% url 'events:list' %}">Cancel</a></div></form>{% endblock %}
+{% block title %}{% if object %}Edit {{ object.title }}{% else %}Create event{% endif %} | CHORD{% endblock %}
+{% block content %}
+  <div class="chord-page-heading">
+    <div><p class="chord-eyebrow">Church calendar</p><h1>{% if object %}Edit {{ object.title }}{% else %}Create event{% endif %}</h1><p>Schedule a church-wide or ministry-scoped activity using the existing visibility rules.</p></div>
+    <div class="chord-page-actions"><a class="btn btn-outline-primary" href="{% if object %}{% url 'events:detail' object.public_id %}{% else %}{% url 'events:list' %}{% endif %}">Cancel</a><button class="btn btn-primary" type="submit" form="event-form">Save event</button></div>
+  </div>
+  <form id="event-form" method="post" class="chord-panel chord-form-panel">
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="errorlist">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="chord-form-grid">
+      <div class="chord-form-field chord-form-field--full">{% include "includes/form_field.html" with field=form.title %}</div>
+      {% include "includes/form_field.html" with field=form.event_type %}
+      {% include "includes/form_field.html" with field=form.ministry %}
+      {% include "includes/form_field.html" with field=form.starts_at %}
+      {% include "includes/form_field.html" with field=form.ends_at %}
+      {% include "includes/form_field.html" with field=form.location %}
+      {% include "includes/form_field.html" with field=form.status %}
+      {% include "includes/form_field.html" with field=form.visibility %}
+      <div class="chord-form-field chord-form-field--full">{% include "includes/form_field.html" with field=form.description %}</div>
+    </div>
+    <fieldset class="chord-form-section"><legend>Registration</legend><div class="form-check chord-registration-toggle">{{ form.registration_required }}{{ form.registration_required.label_tag }}{% for error in form.registration_required.errors %}<span class="chord-field-error">{{ error }}</span>{% endfor %}</div><div class="chord-form-grid">{% include "includes/form_field.html" with field=form.registration_deadline %}{% include "includes/form_field.html" with field=form.capacity %}</div><p class="chord-panel__note">Deadline and capacity are cleared automatically when registration is not required.</p></fieldset>
+    <div class="chord-form-actions"><button class="btn btn-primary" type="submit">Save event</button><a class="btn btn-link" href="{% if object %}{% url 'events:detail' object.public_id %}{% else %}{% url 'events:list' %}{% endif %}">Cancel</a></div>
+  </form>
+{% endblock %}

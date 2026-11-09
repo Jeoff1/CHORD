@@ -9,6 +9,9 @@ from django.urls import reverse
 from django.utils import timezone
 
 from apps.accounts.models import Role, UserRole
+from apps.events.models import Event, EventParticipant
+from apps.ministries.models import Ministry, MinistryMembership
+from apps.worship.models import ChoirEnrollment
 
 from .models import Member, MemberAuditEvent
 
@@ -112,7 +115,71 @@ class MemberDirectoryTests(TestCase):
         self.assertContains(response, self.active_member.full_name)
         self.assertNotContains(response, self.visitor.full_name)
 
+    def test_directory_filters_by_active_ministry_membership(self):
+        ministry = Ministry.objects.create(name="Welcome Team")
+        MinistryMembership.objects.create(
+            ministry=ministry,
+            member=self.active_member,
+            status=MinistryMembership.Status.ACTIVE,
+        )
+        self.client.force_login(self.administrator)
+
+        response = self.client.get(
+            reverse("members:list"),
+            {"ministry": ministry.pk},
+        )
+
+        self.assertContains(response, self.active_member.full_name)
+        self.assertContains(response, ministry.name)
+        self.assertNotContains(response, self.visitor.full_name)
+
+    def test_directory_segments_report_counts_and_filter_inactive_records(self):
+        inactive = Member.objects.create(
+            first_name="Archived",
+            last_name="Person",
+            membership_status=Member.Status.INACTIVE,
+        )
+        Member.objects.filter(pk=inactive.pk).update(
+            created_at=timezone.now() - timedelta(days=60)
+        )
+        self.client.force_login(self.administrator)
+
+        response = self.client.get(
+            reverse("members:list"),
+            {"segment": "inactive"},
+        )
+
+        self.assertContains(response, "All members · 3")
+        self.assertContains(response, "Active · 2")
+        self.assertContains(response, "Inactive · 1")
+        self.assertContains(response, inactive.full_name)
+        self.assertNotContains(response, self.active_member.full_name)
+
+    def test_directory_renders_prefetched_ministry_and_choir_affiliations(self):
+        ministry = Ministry.objects.create(name="Worship Ministry")
+        MinistryMembership.objects.create(
+            ministry=ministry,
+            member=self.active_member,
+            status=MinistryMembership.Status.ACTIVE,
+        )
+        ChoirEnrollment.objects.create(
+            member=self.active_member,
+            voice_part=ChoirEnrollment.VoicePart.ALTO,
+        )
+        self.client.force_login(self.administrator)
+
+        response = self.client.get(reverse("members:list"))
+
+        self.assertContains(response, ministry.name)
+        self.assertContains(response, "Choir (Alto)")
+
     def test_directory_renders_pagination_and_preserves_filters(self):
+        ministry = Ministry.objects.create(name="Pagination Ministry")
+        MinistryMembership.objects.create(
+            ministry=ministry,
+            member=self.active_member,
+            status=MinistryMembership.Status.ACTIVE,
+        )
         Member.objects.bulk_create(
             [
                 Member(
@@ -126,11 +193,16 @@ class MemberDirectoryTests(TestCase):
         self.client.force_login(self.administrator)
         response = self.client.get(
             reverse("members:list"),
-            {"q": "Member", "status": Member.Status.MEMBER},
+            {
+                "q": "Member",
+                "status": Member.Status.MEMBER,
+                "segment": "active",
+            },
         )
         self.assertContains(response, "Page 1 of 2")
         self.assertContains(response, "q=Member")
         self.assertContains(response, f"status={Member.Status.MEMBER}")
+        self.assertContains(response, "segment=active")
 
     def test_email_search_requires_sensitive_permission(self):
         viewer = User.objects.create_user("directory-viewer", password=PASSWORD)
@@ -145,6 +217,27 @@ class MemberDirectoryTests(TestCase):
 
         response = self.client.get(reverse("members:list"), {"q": "alpha@example"})
         self.assertNotContains(response, self.active_member.full_name)
+
+    def test_limited_directory_view_does_not_render_contact_columns(self):
+        viewer = User.objects.create_user("privacy-viewer", password=PASSWORD)
+        role = Role.objects.get(code=Role.Code.MINISTRY_LEADER)
+        role.permissions.add(
+            Permission.objects.get(
+                content_type__app_label="members",
+                codename="view_member_directory",
+            )
+        )
+        UserRole.objects.create(user=viewer, role=role)
+        self.active_member.phone_number = "+63 912 345 6789"
+        self.active_member.save(update_fields=("phone_number", "updated_at"))
+        self.client.force_login(viewer)
+
+        response = self.client.get(reverse("members:list"))
+
+        self.assertContains(response, self.active_member.full_name)
+        self.assertNotContains(response, self.active_member.email)
+        self.assertNotContains(response, self.active_member.phone_number)
+        self.assertNotContains(response, "Contact number")
 
 
 class MemberAccessTests(TestCase):
@@ -198,6 +291,115 @@ class MemberAccessTests(TestCase):
         self.client.force_login(user)
         response = self.client.get(reverse("members:my-record"))
         self.assertEqual(response.status_code, 404)
+
+
+class MemberProfileScreenTests(TestCase):
+    def setUp(self):
+        self.administrator = User.objects.create_user(
+            "profile-admin", password=PASSWORD
+        )
+        UserRole.objects.create(
+            user=self.administrator,
+            role=Role.objects.get(code=Role.Code.CHURCH_ADMINISTRATOR),
+        )
+        self.member = Member.objects.create(
+            first_name="Sofia",
+            last_name="Reyes",
+            email="sofia@example.test",
+            phone_number="+63 917 555 0142",
+            membership_status=Member.Status.MEMBER,
+            joined_on=timezone.localdate() - timedelta(days=30),
+        )
+        self.ministry = Ministry.objects.create(name="Welcome Ministry")
+        MinistryMembership.objects.create(
+            ministry=self.ministry,
+            member=self.member,
+            status=MinistryMembership.Status.ACTIVE,
+        )
+        ChoirEnrollment.objects.create(
+            member=self.member,
+            voice_part=ChoirEnrollment.VoicePart.SOPRANO,
+        )
+        starts_at = timezone.now() - timedelta(days=7)
+        self.event = Event.objects.create(
+            title="Sunday worship",
+            event_type=Event.Type.WORSHIP_SERVICE,
+            starts_at=starts_at,
+            ends_at=starts_at + timedelta(hours=2),
+            status=Event.Status.COMPLETED,
+            visibility=Event.Visibility.CHURCH,
+        )
+        EventParticipant.objects.create(
+            event=self.event,
+            member=self.member,
+            attendance_status=EventParticipant.AttendanceStatus.PRESENT,
+        )
+
+    def test_profile_presents_supported_affiliations_and_attendance(self):
+        self.client.force_login(self.administrator)
+
+        response = self.client.get(
+            reverse("members:detail", args=(self.member.public_id,))
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Identity &amp; contact")
+        self.assertContains(response, self.ministry.name)
+        self.assertContains(response, "Choir")
+        self.assertContains(response, "Soprano")
+        self.assertContains(response, self.event.title)
+        self.assertContains(response, "Present")
+        self.assertNotContains(response, "Contribution records")
+
+    def test_edit_screen_reuses_profile_context_and_real_form_fields(self):
+        self.client.force_login(self.administrator)
+
+        response = self.client.get(
+            reverse("members:edit", args=(self.member.public_id,))
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="member-form"')
+        self.assertContains(response, 'name="first_name"')
+        self.assertContains(response, 'name="membership_status"')
+        self.assertContains(response, self.ministry.name)
+        self.assertContains(response, self.event.title)
+
+    def test_profile_attendance_respects_event_visibility(self):
+        viewer = User.objects.create_user("profile-viewer", password=PASSWORD)
+        role = Role.objects.get(code=Role.Code.MINISTRY_LEADER)
+        role.permissions.add(
+            Permission.objects.get(
+                content_type__app_label="members",
+                codename="view_member_directory",
+            )
+        )
+        UserRole.objects.create(user=viewer, role=role)
+        private_ministry = Ministry.objects.create(name="Private Leadership")
+        starts_at = timezone.now() - timedelta(days=2)
+        hidden_event = Event.objects.create(
+            title="Private leader meeting",
+            event_type=Event.Type.MINISTRY,
+            ministry=private_ministry,
+            starts_at=starts_at,
+            ends_at=starts_at + timedelta(hours=1),
+            status=Event.Status.COMPLETED,
+            visibility=Event.Visibility.LEADERS,
+        )
+        EventParticipant.objects.create(
+            event=hidden_event,
+            member=self.member,
+            attendance_status=EventParticipant.AttendanceStatus.PRESENT,
+        )
+        self.client.force_login(viewer)
+
+        response = self.client.get(
+            reverse("members:detail", args=(self.member.public_id,))
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, hidden_event.title)
+        self.assertNotContains(response, self.member.email)
 
 
 class MemberManagementTests(TestCase):

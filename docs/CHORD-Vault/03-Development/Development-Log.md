@@ -297,3 +297,71 @@ See [[Design-System]], [[Branding-and-Assets]],
 
 See [[Screen-Implementation-Tracker]] and
 [[../04-Testing/Phase-7-Test-Results]].
+
+## 2026-11-10 - Phase 7.3 milestone 2 member management
+
+- **References:** Rendered the Member Directory and Member Profile regions from
+  the user-provided combined `static/assets/CHORD.svg`. The source export was
+  not modified or embedded as application UI.
+- **Directory:** Added derived All/Active/New/Inactive segments, authorized
+  name/email/phone search, active-ministry and status filters, filter-preserving
+  pagination, membership/choir affiliations, status pills, responsive columns,
+  and explicit privacy/empty states.
+- **Profile:** Refined detail and create/edit presentation with shared form
+  fields, identity/contact details, member summary, active ministry and choir
+  affiliations, and recent attendance restricted to permitted visible events.
+- **ORM/refactoring:** Centralized the profile queryset/context, selected linked
+  account/choir relations, prefetched active ministry memberships and account
+  roles, and selected attendance events to prevent template N+1 queries.
+- **Security:** Preserved directory, sensitive-data, create, and change
+  permissions. Limited viewers receive no contact columns/search results;
+  attendance reuses event visibility; no giving query or value is exposed.
+- **Tests:** Added seven member UI/query/privacy tests. All 26 member tests and
+  nine dashboard/shell regressions passed. The full PostgreSQL suite passed
+  123/123 in 58.218 seconds. Django checks, migration consistency, Ruff lint,
+  and Ruff formatting passed.
+- **Visual verification:** Headless Chrome successfully rendered the two local
+  SVG reference crops. Authenticated application screenshot comparison was not
+  automated; responsive behavior is verified structurally and remains suitable
+  for a manual browser pass.
+- **Boundary:** No model, migration, booking/payment, notifications, care,
+  advanced attendance, recommendation, or Figma-file changes were introduced.
+
+See [[Screen-Implementation-Tracker]], [[Design-Change-Log]],
+[[../03-Modules/Member-Management]], and
+[[../04-Testing/Phase-7-Test-Results]].
+
+## 2026-11-10 - Phase 7.3 milestone 3 ministries and church events
+
+- **References:** Rendered the Ministry & Volunteers, Church Calendar, and
+  Attendance regions from the combined local `static/assets/CHORD.svg`; no
+  Figma MCP call or source-design change was made.
+- **Ministries:** Added responsive searchable team cards, administrator status
+  filtering, active leaders/member counts, ministry purpose/status, visible
+  upcoming activities, protected membership roster, and refined create/edit
+  and enrollment forms.
+- **Events:** Added upcoming/past/all segments, truthful filtered counts,
+  search/type/ministry controls, responsive event cards, lifecycle/audience
+  presentation, capacity and waitlist summaries, linked schedule details,
+  registration/cancellation UI, participant forms, and attendance workspace.
+- **Security:** Preserved `can_manage_ministry`, `can_manage_event`, and
+  `visible_events_for`. General ministry viewers receive no roster; hidden
+  events remain 404; management actions render only with their existing
+  permissions.
+- **ORM/refactoring:** Prefetched active ministry leaders, selected membership
+  relations, annotated event registration/waitlist totals, selected linked
+  worship/rehearsal records, and added deterministic list ordering.
+- **Tests:** Added six UI/security/integration tests. Ministry/event tests passed
+  23/23, the dashboard/shell/member/ministry/event regression set passed 58/58,
+  and the full PostgreSQL suite passed 129/129 in 61.596 seconds. Django checks,
+  migration consistency, Ruff lint, Ruff formatting, and diff checks passed.
+- **Visual limitation:** Local SVG references were rendered successfully.
+  Authenticated application desktop/mobile screenshot comparison was not
+  automated and remains appropriate for a manual browser pass.
+- **Boundary:** Volunteer assignments/availability, conflicts, church service
+  requests, resource booking, payments, guest/full-roster attendance, exports,
+  notifications, reports, and recommendations were not implemented.
+
+See [[Screen-Implementation-Tracker]], [[Design-Change-Log]],
+[[../03-Modules/Ministry-Management]], [[../03-Modules/Events-Attendance]], and
+[[../04-Testing/Phase-7-Test-Results]].

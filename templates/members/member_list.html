@@ -1,19 +1,43 @@
 {% extends "base.html" %}
-{% block title %}Members | CHORD{% endblock %}
+{% block title %}Member directory | CHORD{% endblock %}
 {% block content %}
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">Member directory</h1>
+  <div class="chord-page-heading">
+    <div>
+      <p class="chord-eyebrow">Community operations</p>
+      <h1>Member directory</h1>
+      <p>Know your community. Keep every connection up to date.</p>
+    </div>
     {% if perms.members.manage_members and perms.members.add_member and perms.members.view_sensitive_member_data %}
-      <a class="btn btn-primary" href="{% url 'members:add' %}">Add member</a>
+      <div class="chord-page-actions">
+        <a class="btn btn-primary" href="{% url 'members:add' %}">Add member</a>
+      </div>
     {% endif %}
   </div>
-  <form method="get" class="row g-2 mb-3" role="search">
-    <div class="col-md-6">
-      <label class="visually-hidden" for="member-search">Search</label>
-      <input id="member-search" class="form-control" type="search" name="q" value="{{ query }}" placeholder="Search by name or email">
+
+  <nav class="chord-section-tabs" aria-label="Directory segments">
+    <a href="?segment=all"{% if selected_segment == "all" %} class="is-active" aria-current="page"{% endif %}>All members · {{ directory_counts.all }}</a>
+    <a href="?segment=active"{% if selected_segment == "active" %} class="is-active" aria-current="page"{% endif %}>Active · {{ directory_counts.active }}</a>
+    <a href="?segment=new"{% if selected_segment == "new" %} class="is-active" aria-current="page"{% endif %}>New in 30 days · {{ directory_counts.new }}</a>
+    <a href="?segment=inactive"{% if selected_segment == "inactive" %} class="is-active" aria-current="page"{% endif %}>Inactive · {{ directory_counts.inactive }}</a>
+  </nav>
+
+  <form class="chord-directory-filters" method="get" role="search">
+    <input type="hidden" name="segment" value="{{ selected_segment }}">
+    <div class="chord-directory-filters__search">
+      <label class="visually-hidden" for="member-search">Search members</label>
+      <input id="member-search" class="form-control" type="search" name="q" value="{{ query }}" placeholder="{% if can_view_sensitive %}Search name, email, or phone{% else %}Search by name{% endif %}">
     </div>
-    <div class="col-md-4">
-      <label class="visually-hidden" for="status-filter">Status</label>
+    <div>
+      <label class="visually-hidden" for="ministry-filter">Ministry</label>
+      <select id="ministry-filter" class="form-select" name="ministry">
+        <option value="">All ministries</option>
+        {% for ministry in ministries %}
+          <option value="{{ ministry.pk }}"{% if selected_ministry == ministry.pk|stringformat:"s" %} selected{% endif %}>{{ ministry.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="visually-hidden" for="status-filter">Membership status</label>
       <select id="status-filter" class="form-select" name="status">
         <option value="">All statuses</option>
         {% for value, label in status_choices %}
@@ -21,29 +45,73 @@
         {% endfor %}
       </select>
     </div>
-    <div class="col-md-2"><button class="btn btn-outline-primary w-100" type="submit">Filter</button></div>
+    <button class="btn btn-outline-primary" type="submit">Apply filters</button>
+    {% if query or selected_ministry or selected_status or selected_segment != "all" %}
+      <a class="btn btn-link" href="{% url 'members:list' %}">Clear</a>
+    {% endif %}
   </form>
-  <div class="table-responsive">
-    <table class="table table-striped align-middle">
-      <thead><tr><th>Name</th><th>Status</th><th>Joined</th><th></th></tr></thead>
-      <tbody>
-        {% for member in members %}
+
+  <section class="chord-panel chord-directory-panel" aria-labelledby="directory-results-heading">
+    <div class="chord-panel__header">
+      <div>
+        <h2 id="directory-results-heading">Our people</h2>
+        <p class="chord-panel__note">{{ page_obj.paginator.count }} record{{ page_obj.paginator.count|pluralize }} found · sorted by name</p>
+      </div>
+    </div>
+    <div class="table-responsive chord-member-table-wrap">
+      <table class="table chord-member-table align-middle">
+        <thead>
           <tr>
-            <td>{{ member.full_name }}</td>
-            <td>{{ member.get_membership_status_display }}</td>
-            <td>{{ member.joined_on|default:"—" }}</td>
-            <td class="text-end">
-              <a class="btn btn-sm btn-outline-secondary" href="{% url 'members:detail' member.public_id %}">View</a>
-              {% if perms.members.manage_members and perms.members.change_member and perms.members.view_sensitive_member_data %}
-                <a class="btn btn-sm btn-outline-primary" href="{% url 'members:edit' member.public_id %}">Edit</a>
-              {% endif %}
-            </td>
+            <th>Member</th>
+            {% if can_view_sensitive %}<th class="chord-member-contact">Contact number</th>{% endif %}
+            <th class="chord-member-affiliations">Ministries and choir</th>
+            <th>Status</th>
+            <th class="chord-member-since">Member since</th>
+            <th><span class="visually-hidden">Actions</span></th>
           </tr>
-        {% empty %}
-          <tr><td colspan="4">No member records found.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  {% include "includes/pagination.html" %}
+        </thead>
+        <tbody>
+          {% for member in members %}
+            <tr>
+              <td>
+                <div class="chord-member-identity">
+                  <span class="chord-person-row__avatar" aria-hidden="true">{{ member.first_name|slice:":1" }}{{ member.last_name|slice:":1" }}</span>
+                  <span>
+                    <a href="{% url 'members:detail' member.public_id %}"><strong>{{ member.full_name }}</strong></a>
+                    {% if can_view_sensitive %}<small>{{ member.email|default:"No email recorded" }}</small>{% endif %}
+                  </span>
+                </div>
+              </td>
+              {% if can_view_sensitive %}<td class="chord-member-contact">{{ member.phone_number|default:"—" }}</td>{% endif %}
+              <td class="chord-member-affiliations">
+                {% for membership in member.active_ministry_memberships %}
+                  {{ membership.ministry.name }}{% if not forloop.last or member.choir_enrollment %} · {% endif %}
+                {% endfor %}
+                {% if member.choir_enrollment %}Choir ({{ member.choir_enrollment.get_voice_part_display }}){% endif %}
+                {% if not member.active_ministry_memberships and not member.choir_enrollment %}<span class="text-muted">None recorded</span>{% endif %}
+              </td>
+              <td>
+                <span class="chord-status {% if member.membership_status == 'member' %}chord-status--success{% elif member.membership_status == 'inactive' %}chord-status--danger{% elif member.membership_status == 'visitor' %}chord-status--warning{% else %}chord-status--info{% endif %}">{{ member.get_membership_status_display }}</span>
+              </td>
+              <td class="chord-member-since">{{ member.joined_on|date:"d M Y"|default:"—" }}</td>
+              <td class="text-end">
+                <a class="btn btn-sm btn-outline-primary" href="{% url 'members:detail' member.public_id %}">View</a>
+                {% if perms.members.manage_members and perms.members.change_member and perms.members.view_sensitive_member_data %}
+                  <a class="btn btn-sm btn-link" href="{% url 'members:edit' member.public_id %}">Edit</a>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="6"><div class="chord-empty-state">No member records match these filters. Clear the filters or try another search.</div></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% include "includes/pagination.html" %}
+  </section>
+
+  <aside class="chord-guidance-banner chord-directory-privacy" aria-label="Directory privacy">
+    <strong>People first. Privacy always.</strong>
+    <span>Contact details are visible only to authorized church staff. Giving records are protected separately and never appear in a member’s directory profile.</span>
+  </aside>
 {% endblock %}

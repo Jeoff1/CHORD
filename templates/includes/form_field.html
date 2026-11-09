@@ -1,0 +1,6 @@
+<div class="chord-form-field">
+  {{ field.label_tag }}
+  {{ field }}
+  {% if field.help_text %}<small class="helptext">{{ field.help_text }}</small>{% endif %}
+  {% for error in field.errors %}<span class="chord-field-error">{{ error }}</span>{% endfor %}
+</div>

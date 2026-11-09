@@ -46,6 +46,7 @@ class EventForm(forms.ModelForm):
         if not actor.has_perm("events.manage_events"):
             ministries = ministries.filter(pk__in=led_ministry_ids(actor))
         self.fields["ministry"].queryset = ministries
+        apply_control_classes(self.fields)
 
     def clean(self):
         cleaned_data = super().clean()
@@ -78,6 +79,7 @@ class EventParticipantForm(forms.ModelForm):
         )
         if self.instance.pk:
             self.fields["member"].disabled = True
+        apply_control_classes(self.fields)
 
     def save(self, commit=True):
         participant = super().save(commit=False)
@@ -102,6 +104,18 @@ class AttendanceEntryForm(forms.Form):
         super().__init__(*args, **kwargs)
         if participant_queryset is not None:
             self.fields["participant"].queryset = participant_queryset
+        self.fields["attendance_status"].widget.attrs.setdefault("class", "form-select")
 
 
 AttendanceFormSet = forms.formset_factory(AttendanceEntryForm, extra=0)
+
+
+def apply_control_classes(fields):
+    for field in fields.values():
+        if isinstance(field.widget, forms.CheckboxInput):
+            class_name = "form-check-input"
+        elif isinstance(field.widget, forms.Select):
+            class_name = "form-select"
+        else:
+            class_name = "form-control"
+        field.widget.attrs.setdefault("class", class_name)

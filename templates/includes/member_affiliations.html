@@ -1,0 +1,27 @@
+<section class="chord-panel" id="member-affiliations" aria-labelledby="member-affiliations-heading">
+  <div class="chord-panel__header">
+    <h2 id="member-affiliations-heading">Ministries &amp; choir</h2>
+    {% if perms.ministries.view_ministry_directory %}<a href="{% url 'ministries:list' %}">View all</a>{% endif %}
+  </div>
+  <div class="chord-affiliation-list">
+    {% for membership in active_ministry_memberships %}
+      <div>
+        {% if perms.ministries.view_ministry_directory %}
+          <a href="{% url 'ministries:detail' membership.ministry.public_id %}"><strong>{{ membership.ministry.name }}</strong></a>
+        {% else %}
+          <strong>{{ membership.ministry.name }}</strong>
+        {% endif %}
+        <small>{{ membership.get_role_display }} · joined {{ membership.joined_on|date:"d M Y" }}</small>
+      </div>
+    {% endfor %}
+    {% if choir_enrollment %}
+      <div>
+        <strong>Choir</strong>
+        <small>{{ choir_enrollment.get_voice_part_display }} · {{ choir_enrollment.get_status_display }}</small>
+      </div>
+    {% endif %}
+    {% if not active_ministry_memberships and not choir_enrollment %}
+      <div class="chord-empty-state">No active ministry or choir affiliations are recorded.</div>
+    {% endif %}
+  </div>
+</section>

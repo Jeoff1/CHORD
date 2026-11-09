@@ -16,9 +16,13 @@
   rankings, model-training code, ML tables, or ML-only dependencies.
 - Preserve the structured song metadata and usage relationships needed by the
   future Phase 8 work without implementing recommendation behavior early.
-- Phases 1-6 and the Phase 7.2 design-system/application-shell milestone are
-  complete. Continue Phase 7 only through explicitly authorized milestones;
-  Phase 8 remains the only ML implementation phase.
+- Phases 1-6, the Phase 7.2 design-system/application-shell milestone, and Phase
+  7.3 dashboard, member-management, ministry, and church-event milestones 1-3
+  are complete. Continue Phase 7 only through explicitly authorized screen
+  groups; Phase 8 remains the only ML implementation phase.
+- Use the exported `static/assets/CHORD.svg` as the visual reference while the
+  Figma MCP read quota is unavailable. Inspect only the relevant screen region
+  and never reproduce a screen as a single SVG image.
 - Reuse the shared shell, design tokens, official branding partial, responsive
   navigation, and permission-backed links. Do not add design-only navigation
   for backend features that do not exist.
