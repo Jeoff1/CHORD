@@ -20,6 +20,10 @@ CHORD's source-of-truth development notes.
 - [[03-Modules/Giving|Giving]]
 - [[03-Development/Development-Roadmap|Development Roadmap]]
 - [[03-Development/Phase-7-Figma-Design-Audit|Phase 7 Figma Design Audit]]
+- [[03-Development/Design-System|Design System]]
+- [[03-Development/Branding-and-Assets|Branding and Assets]]
+- [[03-Development/Screen-Implementation-Tracker|Screen Implementation Tracker]]
+- [[03-Development/Design-Change-Log|Design Change Log]]
 - [[03-Development/Task-Tracker|Task Tracker]]
 - [[03-Development/Development-Log|Development Log]]
 - [[03-Development/Known-Issues|Known Issues]]
@@ -31,11 +35,12 @@ CHORD's source-of-truth development notes.
 - [[04-Testing/Phase-4-Test-Results|Phase 4 Test Results]]
 - [[04-Testing/Phase-5-Test-Results|Phase 5 Test Results]]
 - [[04-Testing/Phase-6-Test-Results|Phase 6 Test Results]]
+- [[04-Testing/Phase-7-Test-Results|Phase 7 Test Results]]
 
-Current status: **PHASE 6 COMPLETE; PHASE 7 DESIGN AUDIT COMPLETE.** On 2026-11-09, Spotify track embeds,
-protected chord-sheet previews, ChordPro display, resource replacement, and
-worship/choir preparation integration passed the 107-test full suite,
-PostgreSQL migration verification, Django checks, and Ruff. The read-only Figma
-screen audit and source mapping are complete, but Phase 7 implementation has
-not started. Machine learning is reserved for Phase 8 and is neither
-implemented nor in progress.
+Current status: **PHASE 7.3 FIRST SCREEN GROUP COMPLETE.** The administrator
+overview and member portal now use truthful, permission-scoped data within the
+Phase 7.2 application shell. All 116 tests, PostgreSQL test-database execution,
+migration consistency, Django checks, Ruff lint, and Ruff formatting passed on
+2026-11-09. Remaining screen groups and reports are separate milestones.
+Machine learning is reserved for Phase 8 and is neither implemented nor in
+progress.

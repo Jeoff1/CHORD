@@ -1,6 +1,6 @@
 # Known Issues
 
-No critical or high-severity blocker remains after Phase 5.
+No critical or high-severity blocker remains after Phase 7.2.
 
 ## Medium
 
@@ -19,7 +19,8 @@ No critical or high-severity blocker remains after Phase 5.
 1. The earlier `venv/` and `db.sqlite3` bootstrap artifacts remain ignored on
    disk and are not used by the configured project.
 2. Python 3.12 is not installed; the project uses compatible Python 3.14.7.
-3. Bootstrap CSS is loaded from a CDN without an offline/static asset strategy.
+3. Bootstrap CSS and Lato are loaded from CDNs without an offline/static asset
+   strategy.
 4. Existing Phase 4 worship plans and rehearsals are not automatically matched
    to newly created events. Administrators may link them explicitly; unlinked
    schedules remain supported by design.
@@ -32,10 +33,15 @@ No critical or high-severity blocker remains after Phase 5.
 8. Browser preview intentionally excludes `.doc` and `.docx`; authorized users
    must download those files. ChordPro support is a safe display subset rather
    than a complete implementation of every directive.
-9. The visually matching CHORD logo files exist under `static/assets/branding/`,
-   but the local `static/` directory is currently untracked by Git. Review and
-   commit the approved branding files before Phase 7 or deployment depends on
-   them.
+9. The approved logo, CSS, and JavaScript are intentionally version-controllable
+   source assets, but `static/` remains untracked until the user reviews and
+   authorizes staging/commit.
+10. Exact Figma navigation icons are not available as durable local assets after
+    the Starter MCP limit. Phase 7.2 uses accessible text navigation rather than
+    substituting an unapproved icon set.
+11. Headless Chrome screenshot rendering fails in the managed Windows session
+    because its GPU process is unavailable. Automated template/static checks
+    pass, but a manual or browser-enabled visual pass remains recommended.
 
 ## Resolved
 
@@ -53,10 +59,9 @@ No critical or high-severity blocker remains after Phase 5.
   selection, and advanced practice controls that do not have supporting Django
   domains. They require explicit scope and must not be shipped as static or
   misleading UI.
-- The Figma file exposes no design variables for the inspected nodes and uses
-  Lato on desktop but Inter in the mobile practice view. Phase 7 must decide
-  whether the mobile experience is intentionally a separate focused visual
-  mode and codify local tokens accordingly.
+- The Figma file exposes no design variables for the inspected nodes. Phase 7.2
+  codifies local desktop tokens and deliberately keeps the mobile practice
+  Inter/amber system isolated as a specialized future experience.
 - Only the practice screen has a mobile frame. The desktop sidebar, dense
   tables, and reports need responsive and accessibility specifications before
   implementation.

@@ -240,3 +240,60 @@ See [[../03-Modules/Song-Resources-Chord-Sheets]] and
   checks were run because this task changed documentation only.
 
 See [[Phase-7-Figma-Design-Audit]], [[Task-Tracker]], and [[Known-Issues]].
+
+## 2026-11-09 - Phase 7.2 design system and application shell
+
+- **Branding:** Validated the official PNG/SVG files and integrated the exact
+  horizontal PNG through Django staticfiles on login and authenticated layouts.
+- **Design system:** Added reusable forest-green/warm-neutral tokens and shared
+  styling for typography, spacing, radii, shadows, buttons, forms, cards,
+  tables, pagination, alerts, and statuses.
+- **Shell:** Replaced the dark Bootstrap navbar with the audited desktop sidebar,
+  application header, breadcrumb, current-section state, identity, and shared
+  content workspace.
+- **Authorization:** Navigation remains permission-based and links only to real
+  routes. Bookings, Recommendations, Reports, and Notifications were not added.
+- **Responsive/accessibility:** Added an off-canvas mobile drawer, backdrop,
+  Escape handling, focus movement, skip link, focus-visible states, and reduced
+  motion handling.
+- **Architecture:** Added a presentation-only context processor and reusable
+  shell partials; no model, migration, or backend workflow changed.
+- **Tests:** Added six shell tests. All 113 tests passed in 60.597 seconds using
+  the isolated PostgreSQL test database. Django checks, migration consistency,
+  Ruff lint, and Ruff formatting passed.
+- **Smoke:** The development server started cleanly. Login, CSS, JavaScript, PNG,
+  and SVG requests returned HTTP 200 with correct content types.
+- **Limitation:** Headless Chrome screenshots failed because its GPU process is
+  unavailable in the managed Windows session. No screenshot verification is
+  claimed.
+- **Boundary:** Individual Figma screens and reports were not implemented. No
+  Phase 8 recommendation behavior or UI was added. No Git commit was created.
+
+See [[Design-System]], [[Branding-and-Assets]],
+[[Screen-Implementation-Tracker]], and [[Design-Change-Log]].
+
+## 2026-11-09 - Phase 7.3 milestone 1 dashboard screens
+
+- **Screens:** Implemented the Community Operations administrator overview and
+  Member Experience member portal on the existing `accounts:dashboard` route.
+- **Administrator experience:** Added real member, event, ministry, worship-plan,
+  and permission-protected monthly giving summaries; upcoming calendar, recent
+  member, service-preparation, and functional quick-action panels.
+- **Member experience:** Added visibility-scoped upcoming events, active ministry
+  memberships, upcoming choir song assignments, role summary, functional links,
+  and an honest unlinked-member-record state.
+- **Design:** Reused the audited Lato/forest-green system, cards, status pills,
+  spacing, and responsive shell. Added reusable dashboard panel, metric, event,
+  person, guidance, and empty-state styles plus a shared event-list partial.
+- **Security:** Reused `visible_events_for`; giving totals require
+  `giving.manage_giving`; all links remain permission-backed. Restricted events
+  and administrator financial summaries are covered by tests.
+- **Tests:** Added three dashboard tests. Dashboard/shell tests passed 9/9 and
+  the full PostgreSQL suite passed 116/116 in 60.766 seconds. Django checks,
+  migration consistency, Ruff lint, and Ruff formatting passed.
+- **Boundary:** Did not add bookings, payments, care workflows, notifications,
+  reports, fake charts, or recommendations. No Figma source was modified and no
+  new MCP audit was performed.
+
+See [[Screen-Implementation-Tracker]] and
+[[../04-Testing/Phase-7-Test-Results]].

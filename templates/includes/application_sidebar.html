@@ -1,0 +1,70 @@
+<aside class="chord-sidebar" id="application-sidebar" aria-label="Application navigation">
+  <div class="chord-sidebar__top">
+    <div class="chord-sidebar__mobile-actions">
+      <button class="chord-sidebar__close" type="button" data-sidebar-close>Close menu</button>
+    </div>
+    {% include "includes/chord_brand.html" %}
+    <p class="chord-brand__tagline">Church Hub for Organized Resources and Devotion</p>
+
+    <div class="chord-workspace-card" aria-label="Current workspace">
+      <span class="chord-workspace-card__mark" aria-hidden="true">C</span>
+      <span>
+        <strong>Church workspace</strong>
+        <small>CHORD · Single workspace</small>
+      </span>
+    </div>
+
+    <nav class="chord-primary-nav" aria-label="Primary">
+      <p class="chord-nav-heading">Workspace</p>
+      <a class="chord-nav-link{% if shell_nav_section == 'overview' %} is-active{% endif %}" href="{% url 'accounts:dashboard' %}"{% if shell_nav_section == 'overview' %} aria-current="page"{% endif %}>Overview</a>
+
+      {% if perms.accounts.manage_accounts %}
+        <a class="chord-nav-link{% if shell_nav_section == 'accounts' %} is-active{% endif %}" href="{% url 'accounts:user-list' %}"{% if shell_nav_section == 'accounts' %} aria-current="page"{% endif %}>Accounts</a>
+      {% endif %}
+      {% if perms.members.view_member_directory %}
+        <a class="chord-nav-link{% if shell_nav_section == 'members' %} is-active{% endif %}" href="{% url 'members:list' %}"{% if shell_nav_section == 'members' %} aria-current="page"{% endif %}>Members</a>
+      {% endif %}
+      {% if perms.ministries.view_ministry_directory %}
+        <a class="chord-nav-link{% if shell_nav_section == 'ministries' %} is-active{% endif %}" href="{% url 'ministries:list' %}"{% if shell_nav_section == 'ministries' %} aria-current="page"{% endif %}>Ministries &amp; volunteers</a>
+      {% endif %}
+      {% if perms.events.view_event_calendar %}
+        <a class="chord-nav-link{% if shell_nav_section == 'events' %} is-active{% endif %}" href="{% url 'events:list' %}"{% if shell_nav_section == 'events' %} aria-current="page"{% endif %}>Calendar</a>
+      {% endif %}
+      {% if perms.worship.view_choir_schedule and perms.worship.view_choir_announcements %}
+        <a class="chord-nav-link{% if shell_nav_section == 'choir' %} is-active{% endif %}" href="{% url 'worship:choir-activity' %}"{% if shell_nav_section == 'choir' %} aria-current="page"{% endif %}>Choir</a>
+      {% endif %}
+      {% if perms.worship.view_song_library %}
+        <a class="chord-nav-link{% if shell_nav_section == 'songs' %} is-active{% endif %}" href="{% url 'worship:song-list' %}"{% if shell_nav_section == 'songs' %} aria-current="page"{% endif %}>Song library</a>
+      {% endif %}
+      {% if perms.worship.view_worship_plans %}
+        <a class="chord-nav-link{% if shell_nav_section == 'plans' %} is-active{% endif %}" href="{% url 'worship:plan-list' %}"{% if shell_nav_section == 'plans' %} aria-current="page"{% endif %}>Service plans</a>
+      {% endif %}
+      {% if perms.giving.manage_giving %}
+        <a class="chord-nav-link{% if shell_nav_section == 'giving' %} is-active{% endif %}" href="{% url 'giving:contribution-list' %}"{% if shell_nav_section == 'giving' %} aria-current="page"{% endif %}>Giving records</a>
+      {% elif perms.giving.view_own_contributions %}
+        <a class="chord-nav-link{% if shell_nav_section == 'giving' %} is-active{% endif %}" href="{% url 'giving:my-contributions' %}"{% if shell_nav_section == 'giving' %} aria-current="page"{% endif %}>My giving</a>
+      {% endif %}
+
+      <p class="chord-nav-heading chord-nav-heading--account">Account</p>
+      <a class="chord-nav-link{% if shell_nav_section == 'profile' %} is-active{% endif %}" href="{% url 'accounts:profile' %}"{% if shell_nav_section == 'profile' %} aria-current="page"{% endif %}>Access &amp; profile</a>
+    </nav>
+  </div>
+
+  <div class="chord-sidebar__footer">
+    <div class="chord-sidebar__identity">
+      {% include "includes/user_avatar.html" %}
+      <span class="chord-sidebar__identity-copy">
+        <strong>{{ user.get_full_name|default:user.username }}</strong>
+        {% with primary_role=user.roles.first %}
+          <small>{{ primary_role.name|default:"Active account" }}</small>
+        {% endwith %}
+      </span>
+    </div>
+    <form method="post" action="{% url 'accounts:logout' %}">
+      {% csrf_token %}
+      <button class="chord-logout" type="submit">Log out</button>
+    </form>
+    <p class="chord-sidebar__motto">Care for people. Make room for worship.</p>
+  </div>
+</aside>
+<button class="chord-sidebar-backdrop" type="button" data-sidebar-close aria-label="Close navigation"></button>

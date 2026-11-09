@@ -1,0 +1,26 @@
+<section class="chord-panel" aria-labelledby="dashboard-events-heading">
+  <div class="chord-panel__header">
+    <div>
+      <p class="chord-eyebrow">Calendar</p>
+      <h2 id="dashboard-events-heading">{{ panel_title }}</h2>
+    </div>
+    <a href="{% url 'events:list' %}">View calendar</a>
+  </div>
+  <div class="chord-compact-list">
+    {% for event in events %}
+      <a class="chord-event-row" href="{% url 'events:detail' event.public_id %}">
+        <time class="chord-event-date" datetime="{{ event.starts_at|date:'c' }}">
+          <strong>{{ event.starts_at|date:"d" }}</strong>
+          <span>{{ event.starts_at|date:"M" }}</span>
+        </time>
+        <span class="chord-event-row__copy">
+          <strong>{{ event.title }}</strong>
+          <small>{{ event.starts_at|date:"g:i A" }}{% if event.location %} · {{ event.location }}{% endif %}</small>
+        </span>
+        <span class="chord-status {% if event.status == 'published' %}chord-status--success{% elif event.status == 'draft' %}chord-status--warning{% else %}chord-status--info{% endif %}">{{ event.get_status_display }}</span>
+      </a>
+    {% empty %}
+      <div class="chord-empty-state">No upcoming events are visible to you.</div>
+    {% endfor %}
+  </div>
+</section>

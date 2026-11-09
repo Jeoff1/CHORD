@@ -114,3 +114,23 @@ See [[../03-Modules/Ministry-Management]],
 
 See [[../03-Modules/Song-Resources-Chord-Sheets]] and
 [[../04-Testing/Phase-6-Test-Results]].
+
+## 2026-11-09 - Phase 7.2 presentation foundation
+
+- Keep Bootstrap 5 and Django templates; add project-owned CSS tokens and small
+  vanilla JavaScript rather than a frontend framework.
+- Use one shared authenticated shell with reusable partials and a
+  presentation-only context processor for active navigation state.
+- Derive navigation visibility from existing Django permissions and omit every
+  design-only route until its backend exists.
+- Use the exact audited horizontal PNG for the sidebar/authentication slot. Keep
+  the official square, raster-embedded SVG as a source asset rather than forcing
+  it into incompatible geometry.
+- Treat the Inter/amber mobile practice design as a specialized experience,
+  separate from the Lato/forest-green application shell.
+- Preserve server-side permission enforcement; navigation visibility is never
+  an authorization boundary.
+
+See [[../03-Development/Design-System]],
+[[../03-Development/Branding-and-Assets]], and
+[[../03-Development/Screen-Implementation-Tracker]].

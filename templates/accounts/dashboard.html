@@ -1,21 +1,192 @@
 {% extends "base.html" %}
-{% block title %}Dashboard | CHORD{% endblock %}
+{% block title %}Overview | CHORD{% endblock %}
 {% block content %}
-  <h1 class="h3">Welcome, {{ user.get_full_name|default:user.username }}</h1>
-  <p class="text-muted">Your CHORD account is active.</p>
-  <section class="card shadow-sm">
-    <div class="card-body">
-      <h2 class="h5">Assigned roles</h2>
-      <ul class="mb-0">
-        {% for role in user.roles.all %}
-          <li>{{ role.name }}</li>
-        {% empty %}
-          <li>No roles assigned yet.</li>
-        {% endfor %}
-      </ul>
+  {% if dashboard_variant == "administrator" %}
+    <div class="chord-page-heading">
+      <div>
+        <p class="chord-eyebrow">Community operations</p>
+        <h1>Good day, {{ dashboard_display_name }}</h1>
+        <p>Here is what is happening across your CHORD workspace.</p>
+      </div>
+      {% if quick_actions %}
+        <div class="chord-page-actions">
+          {% for action in quick_actions %}
+            <a class="btn {% if forloop.first %}btn-primary{% else %}btn-outline-primary{% endif %}" href="{{ action.url }}">{{ action.label }}</a>
+          {% endfor %}
+        </div>
+      {% endif %}
     </div>
-  </section>
-  {% if user.member_record %}
-    <p class="mt-3"><a class="btn btn-outline-primary" href="{% url 'members:my-record' %}">View my member record</a></p>
+
+    <section class="chord-metric-grid" aria-label="Church overview metrics">
+      {% for metric in dashboard_metrics %}
+        <a class="chord-metric-card" href="{{ metric.url }}">
+          <span>{{ metric.label }}</span>
+          <strong>{{ metric.value }}</strong>
+          <small>{{ metric.detail }}</small>
+        </a>
+      {% empty %}
+        <div class="chord-empty-state">No overview metrics are available for your permissions.</div>
+      {% endfor %}
+    </section>
+
+    <div class="chord-dashboard-grid">
+      {% include "includes/dashboard_event_list.html" with panel_title="Upcoming calendar" events=upcoming_events %}
+
+      <section class="chord-panel" aria-labelledby="recent-members-heading">
+        <div class="chord-panel__header">
+          <div>
+            <p class="chord-eyebrow">Community</p>
+            <h2 id="recent-members-heading">Recently added people</h2>
+          </div>
+          {% if perms.members.view_member_directory %}<a href="{% url 'members:list' %}">View directory</a>{% endif %}
+        </div>
+        <div class="chord-compact-list">
+          {% for member in recent_members %}
+            <a class="chord-person-row" href="{% url 'members:detail' member.public_id %}">
+              <span class="chord-person-row__avatar" aria-hidden="true">{{ member.first_name|slice:":1" }}{{ member.last_name|slice:":1" }}</span>
+              <span class="chord-person-row__copy">
+                <strong>{{ member.full_name }}</strong>
+                <small>{{ member.get_membership_status_display }}</small>
+              </span>
+              <span aria-hidden="true">&rarr;</span>
+            </a>
+          {% empty %}
+            <div class="chord-empty-state">No member records have been added yet.</div>
+          {% endfor %}
+        </div>
+      </section>
+
+      {% if perms.worship.view_worship_plans %}
+        <section class="chord-panel" aria-labelledby="service-preparation-heading">
+          <div class="chord-panel__header">
+            <div>
+              <p class="chord-eyebrow">Worship</p>
+              <h2 id="service-preparation-heading">Service preparation</h2>
+            </div>
+            <a href="{% url 'worship:plan-list' %}">View plans</a>
+          </div>
+          <div class="chord-compact-list">
+            {% for plan in upcoming_plans %}
+              <a class="chord-detail-row" href="{% url 'worship:plan-detail' plan.public_id %}">
+                <span>
+                  <strong>{{ plan.title }}</strong>
+                  <small>{{ plan.service_datetime|date:"D, d M · g:i A" }}{% if plan.location %} · {{ plan.location }}{% endif %}</small>
+                </span>
+                <span class="chord-status {% if plan.status == 'ready' %}chord-status--success{% elif plan.status == 'preparing' %}chord-status--warning{% else %}chord-status--info{% endif %}">{{ plan.get_status_display }}</span>
+              </a>
+            {% empty %}
+              <div class="chord-empty-state">No upcoming service plans need preparation.</div>
+            {% endfor %}
+          </div>
+        </section>
+      {% endif %}
+
+      {% if monthly_contributions != None %}
+        <section class="chord-panel chord-panel--giving" aria-labelledby="giving-summary-heading">
+          <div class="chord-panel__header">
+            <div>
+              <p class="chord-eyebrow">Giving</p>
+              <h2 id="giving-summary-heading">This month</h2>
+            </div>
+            <a href="{% url 'giving:contribution-list' %}">View records</a>
+          </div>
+          <p class="chord-giving-total">{{ monthly_contributions|floatformat:2 }}</p>
+          <p class="chord-panel__note">Total value of contributions recorded this calendar month.</p>
+        </section>
+      {% endif %}
+    </div>
+  {% else %}
+    <div class="chord-page-heading">
+      <div>
+        <p class="chord-eyebrow">My community</p>
+        <h1>Welcome back, {{ dashboard_display_name }}</h1>
+        <p>Your upcoming gatherings, ministry activity, and worship preparation in one place.</p>
+      </div>
+      {% if quick_links %}
+        <div class="chord-page-actions">
+          {% for link in quick_links %}
+            <a class="btn {% if forloop.first %}btn-primary{% else %}btn-outline-primary{% endif %}" href="{{ link.url }}">{{ link.label }}</a>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    {% if not dashboard_member %}
+      <div class="chord-guidance-banner" role="status">
+        <strong>Your account is active.</strong>
+        <span>A church member record has not been linked to this account yet. Contact an administrator if you need member-specific information here.</span>
+      </div>
+    {% endif %}
+
+    <div class="chord-dashboard-grid chord-dashboard-grid--member">
+      {% if perms.events.view_event_calendar %}
+        {% include "includes/dashboard_event_list.html" with panel_title="Upcoming gatherings" events=upcoming_events %}
+      {% endif %}
+
+      <section class="chord-panel" aria-labelledby="my-ministries-heading">
+        <div class="chord-panel__header">
+          <div>
+            <p class="chord-eyebrow">Serving</p>
+            <h2 id="my-ministries-heading">My ministries</h2>
+          </div>
+          {% if perms.ministries.view_ministry_directory %}<a href="{% url 'ministries:list' %}">View ministries</a>{% endif %}
+        </div>
+        <div class="chord-compact-list">
+          {% for membership in ministry_memberships %}
+            <a class="chord-detail-row" href="{% url 'ministries:detail' membership.ministry.public_id %}">
+              <span>
+                <strong>{{ membership.ministry.name }}</strong>
+                <small>{{ membership.get_role_display }} · Active</small>
+              </span>
+              <span aria-hidden="true">&rarr;</span>
+            </a>
+          {% empty %}
+            <div class="chord-empty-state">No active ministry memberships are linked to your record.</div>
+          {% endfor %}
+        </div>
+      </section>
+
+      {% if perms.worship.view_worship_plans %}
+        <section class="chord-panel" aria-labelledby="choir-preparation-heading">
+          <div class="chord-panel__header">
+            <div>
+              <p class="chord-eyebrow">Worship</p>
+              <h2 id="choir-preparation-heading">My song assignments</h2>
+            </div>
+            {% if perms.worship.view_choir_schedule and perms.worship.view_choir_announcements %}<a href="{% url 'worship:choir-activity' %}">Choir activity</a>{% endif %}
+          </div>
+          <div class="chord-compact-list">
+            {% for assignment in song_assignments %}
+              <a class="chord-detail-row" href="{% url 'worship:plan-detail' assignment.plan_song.plan.public_id %}">
+                <span>
+                  <strong>{{ assignment.plan_song.song.title }}</strong>
+                  <small>{{ assignment.plan_song.plan.title }} · {{ assignment.plan_song.plan.service_datetime|date:"d M, g:i A" }}</small>
+                </span>
+                <span aria-hidden="true">&rarr;</span>
+              </a>
+            {% empty %}
+              <div class="chord-empty-state">You have no upcoming song assignments.</div>
+            {% endfor %}
+          </div>
+        </section>
+      {% endif %}
+
+      <section class="chord-panel" aria-labelledby="access-summary-heading">
+        <div class="chord-panel__header">
+          <div>
+            <p class="chord-eyebrow">Account</p>
+            <h2 id="access-summary-heading">Access summary</h2>
+          </div>
+          <a href="{% url 'accounts:profile' %}">Profile settings</a>
+        </div>
+        <ul class="chord-role-list">
+          {% for role in dashboard_roles %}
+            <li><span class="chord-status chord-status--success">{{ role.name }}</span></li>
+          {% empty %}
+            <li class="chord-empty-state">No roles are assigned to this account.</li>
+          {% endfor %}
+        </ul>
+      </section>
+    </div>
   {% endif %}
 {% endblock %}

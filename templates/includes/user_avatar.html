@@ -1,0 +1,7 @@
+<span class="chord-avatar" aria-hidden="true">
+  {% if user.first_name %}
+    {{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}
+  {% else %}
+    {{ user.username|slice:":2" }}
+  {% endif %}
+</span>

@@ -16,5 +16,9 @@
   rankings, model-training code, ML tables, or ML-only dependencies.
 - Preserve the structured song metadata and usage relationships needed by the
   future Phase 8 work without implementing recommendation behavior early.
-- Phases 1-6 are complete. Do not begin Phase 7 without explicit user
-  authorization; Phase 8 remains the only ML implementation phase.
+- Phases 1-6 and the Phase 7.2 design-system/application-shell milestone are
+  complete. Continue Phase 7 only through explicitly authorized milestones;
+  Phase 8 remains the only ML implementation phase.
+- Reuse the shared shell, design tokens, official branding partial, responsive
+  navigation, and permission-backed links. Do not add design-only navigation
+  for backend features that do not exist.

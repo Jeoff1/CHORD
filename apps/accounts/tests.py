@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
+from django.contrib.staticfiles import finders
 from django.db import IntegrityError, connection, transaction
 from django.test import Client, SimpleTestCase, TestCase
 from django.urls import reverse
@@ -170,6 +171,76 @@ class AuthenticationViewTests(TestCase):
             "phone_number",
             "Enter a valid phone number using digits and standard separators.",
         )
+
+
+class ApplicationShellTests(TestCase):
+    def setUp(self):
+        self.member = User.objects.create_user(
+            "shell-member",
+            first_name="Sofia",
+            last_name="Reyes",
+            password=PASSWORD,
+        )
+
+    def test_login_uses_official_branding_without_application_navigation(self):
+        response = self.client.get(reverse("accounts:login"))
+
+        self.assertContains(response, "/static/assets/branding/CHORD_Logo.png")
+        self.assertContains(response, "/static/css/chord.css")
+        self.assertContains(response, "/static/js/chord-shell.js")
+        self.assertNotContains(response, 'id="application-sidebar"')
+
+    def test_authenticated_shell_shows_only_authorized_navigation(self):
+        self.client.force_login(self.member)
+
+        response = self.client.get(reverse("accounts:dashboard"))
+
+        self.assertContains(response, 'id="application-sidebar"')
+        self.assertContains(response, 'href="/" aria-current="page"')
+        self.assertContains(response, reverse("accounts:profile"))
+        self.assertNotContains(response, reverse("accounts:user-list"))
+        self.assertNotContains(response, reverse("members:list"))
+
+    def test_shell_does_not_advertise_unimplemented_figma_features(self):
+        self.client.force_login(self.member)
+
+        response = self.client.get(reverse("accounts:dashboard"))
+
+        self.assertNotContains(response, ">Bookings<")
+        self.assertNotContains(response, ">Recommendations<")
+        self.assertNotContains(response, ">Reports<")
+        self.assertNotContains(response, ">Notifications<")
+
+    def test_administrator_sees_permission_backed_navigation(self):
+        administrator = User.objects.create_user("shell-admin", password=PASSWORD)
+        role = Role.objects.get(code=Role.Code.CHURCH_ADMINISTRATOR)
+        UserRole.objects.create(user=administrator, role=role)
+        self.client.force_login(administrator)
+
+        response = self.client.get(reverse("accounts:dashboard"))
+
+        self.assertContains(response, reverse("accounts:user-list"))
+        self.assertContains(response, reverse("members:list"))
+        self.assertContains(response, reverse("events:list"))
+        self.assertContains(response, reverse("worship:song-list"))
+
+    def test_shell_marks_current_module_navigation(self):
+        administrator = User.objects.create_user("section-admin", password=PASSWORD)
+        role = Role.objects.get(code=Role.Code.CHURCH_ADMINISTRATOR)
+        UserRole.objects.create(user=administrator, role=role)
+        self.client.force_login(administrator)
+
+        response = self.client.get(reverse("members:list"))
+
+        self.assertEqual(response.context["shell_nav_section"], "members")
+        self.assertContains(response, ">Members</a>")
+        self.assertContains(response, 'aria-current="page"')
+
+    def test_shell_static_assets_are_discoverable(self):
+        self.assertIsNotNone(finders.find("assets/branding/CHORD_Logo.png"))
+        self.assertIsNotNone(finders.find("assets/branding/CHORD Logo.svg"))
+        self.assertIsNotNone(finders.find("css/chord.css"))
+        self.assertIsNotNone(finders.find("js/chord-shell.js"))
 
 
 class AccountManagementTests(TestCase):

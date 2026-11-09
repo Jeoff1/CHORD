@@ -63,5 +63,37 @@ is explicitly authorized. Do not proceed to Phase 7 automatically.
 The audit does not start or complete Phase 7 implementation. See
 [[Phase-7-Figma-Design-Audit]].
 
+## Phase 7.2 design system and application shell
+
+- [x] Validate official PNG and SVG branding assets without modifying them
+- [x] Confirm `static/` is source-controlled in principle and not ignored
+- [x] Add reusable color, typography, spacing, radius, shadow, and component tokens
+- [x] Integrate the official logo through Django staticfiles
+- [x] Add branded authentication layout
+- [x] Replace the shared top navbar with the Figma-aligned sidebar/header shell
+- [x] Preserve permission-aware navigation and server-side authorization
+- [x] Add active navigation state for existing modules
+- [x] Add responsive off-canvas navigation and accessible focus behavior
+- [x] Exclude unfinished and Phase 8-only navigation
+- [x] Add shell/static regression tests and pass the 113-test suite
+- [x] Pass Django checks, migration drift, Ruff lint, Ruff format, and server smoke
+- [x] Update design, branding, tracker, log, and issue documentation
+
+Phase 7.2 is complete. Its shell is the foundation for the incremental Phase
+7.3 screen groups below. Reports remain a later Phase 7 milestone.
+
+## Phase 7.3 screen implementation
+
+- [x] Milestone 1: administrator overview dashboard
+- [x] Milestone 1: member portal dashboard
+- [x] Use existing permission-scoped data and omit unsupported Figma features
+- [x] Add dashboard visibility, content, and empty-state tests
+- [x] Pass the 116-test suite, Django checks, migration drift, and Ruff checks
+- [ ] Milestone 2: Member Directory and Member Profile refinement
+- [ ] Remaining mapped screen groups
+
+Phase 7.3 milestone 1 is complete. Do not begin milestone 2 or Phase 8 without
+explicit authorization.
+
 See [[Development-Roadmap]], [[Known-Issues]], and
-[[../04-Testing/Phase-6-Test-Results]].
+[[../04-Testing/Phase-7-Test-Results]].

@@ -5,6 +5,7 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, TemplateView, UpdateView
 from django.views.generic.edit import CreateView
 
+from .dashboard import build_dashboard_context
 from .forms import ManagedUserCreationForm, ManagedUserUpdateForm, ProfileForm
 from .mixins import AuthenticatedPermissionRequiredMixin
 
@@ -13,6 +14,11 @@ User = get_user_model()
 
 class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = "accounts/dashboard.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(build_dashboard_context(self.request.user))
+        return context
 
 
 class ProfileUpdateView(LoginRequiredMixin, UpdateView):
