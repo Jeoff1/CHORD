@@ -1,38 +1,101 @@
 {% extends "base.html" %}
-{% block title %}Choir activity | CHORD{% endblock %}
+{% block title %}Choir overview | CHORD{% endblock %}
 {% block content %}
-  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-    <h1 class="h3 mb-0">Choir activity</h1>
+  <div class="chord-page-heading">
     <div>
-      {% if perms.worship.view_choir_roster %}<a class="btn btn-outline-primary" href="{% url 'worship:choir-roster' %}">Roster</a>{% endif %}
-      <a class="btn btn-outline-primary" href="{% url 'worship:rehearsal-list' %}">Rehearsals</a>
-      <a class="btn btn-outline-primary" href="{% url 'worship:announcement-list' %}">Announcements</a>
+      <p class="chord-eyebrow">Choir management</p>
+      <h1>Choir overview</h1>
+      <p>Rehearsals, announcements, and assigned music for the work ahead.</p>
+    </div>
+    <div class="chord-page-actions">
+      {% if perms.worship.view_choir_roster %}<a class="btn btn-outline-primary" href="{% url 'worship:choir-roster' %}">View roster</a>{% endif %}
+      <a class="btn btn-primary" href="{% url 'worship:rehearsal-list' %}">View rehearsals</a>
     </div>
   </div>
-  <div class="row g-4">
-    <section class="col-lg-6">
-      <div class="card shadow-sm h-100"><div class="card-body">
-        <h2 class="h5">Upcoming rehearsals</h2>
-        <ul class="list-group list-group-flush">
-          {% for rehearsal in rehearsals %}
-            <li class="list-group-item px-0"><a href="{% url 'worship:rehearsal-detail' rehearsal.public_id %}">{{ rehearsal.title }}</a><br><small class="text-muted">{{ rehearsal.starts_at }}{% if rehearsal.location %} · {{ rehearsal.location }}{% endif %}</small></li>
-          {% empty %}<li class="list-group-item px-0">No upcoming rehearsals.</li>{% endfor %}
-        </ul>
-      </div></div>
+
+  <nav class="chord-section-tabs" aria-label="Choir sections">
+    <a class="is-active" href="{% url 'worship:choir-activity' %}" aria-current="page">Overview</a>
+    {% if perms.worship.view_choir_roster %}<a href="{% url 'worship:choir-roster' %}">Members</a>{% endif %}
+    <a href="{% url 'worship:rehearsal-list' %}">Rehearsals</a>
+    {% if can_view_announcements %}<a href="{% url 'worship:announcement-list' %}">Announcements</a>{% endif %}
+  </nav>
+
+  <div class="chord-metric-grid chord-choir-metrics">
+    {% if can_view_roster %}
+      <a class="chord-metric-card" href="{% url 'worship:choir-roster' %}?status=active"><span>Active singers</span><strong>{{ choir_summary.active }}</strong><small>{{ choir_summary.on_leave }} currently on leave</small></a>
+      <a class="chord-metric-card" href="{% url 'worship:choir-roster' %}"><span>Choir enrollment</span><strong>{{ choir_summary.total }}</strong><small>All participation statuses</small></a>
+    {% elif own_enrollment %}
+      <article class="chord-metric-card"><span>Your voice part</span><strong class="chord-metric-card__word">{{ own_enrollment.get_voice_part_display }}</strong><small>{{ own_enrollment.get_status_display }} enrollment</small></article>
+    {% else %}
+      <article class="chord-metric-card"><span>Your enrollment</span><strong class="chord-metric-card__word">Not linked</strong><small>Ask a choir leader to review your member record.</small></article>
+    {% endif %}
+    <a class="chord-metric-card" href="{% url 'worship:rehearsal-list' %}"><span>Upcoming rehearsals</span><strong>{{ upcoming_rehearsal_count }}</strong><small>Scheduled from today</small></a>
+    {% if can_view_announcements %}
+      <a class="chord-metric-card" href="{% url 'worship:announcement-list' %}"><span>Current announcements</span><strong>{{ current_announcement_count }}</strong><small>Published and not expired</small></a>
+    {% else %}
+      <article class="chord-metric-card"><span>Your assignments</span><strong>{{ upcoming_assignment_count }}</strong><small>Upcoming worship-plan songs</small></article>
+    {% endif %}
+  </div>
+
+  <div class="chord-dashboard-grid chord-choir-dashboard">
+    <section class="chord-panel" aria-labelledby="upcoming-rehearsals-heading">
+      <div class="chord-panel__header">
+        <div><h2 id="upcoming-rehearsals-heading">Upcoming rehearsals</h2><p class="chord-panel__note">Scheduled choir preparation and linked church events.</p></div>
+        <a href="{% url 'worship:rehearsal-list' %}">View all</a>
+      </div>
+      <div class="chord-compact-list">
+        {% for rehearsal in rehearsals %}
+          <a class="chord-event-row" href="{% url 'worship:rehearsal-detail' rehearsal.public_id %}">
+            <span class="chord-event-date"><strong>{{ rehearsal.starts_at|date:"d" }}</strong><span>{{ rehearsal.starts_at|date:"M" }}</span></span>
+            <span class="chord-event-row__copy"><strong>{{ rehearsal.title }}</strong><small>{{ rehearsal.starts_at|date:"D, d M Y · g:i A" }}{% if rehearsal.location %} · {{ rehearsal.location }}{% endif %}{% if rehearsal.event %} · Calendar linked{% endif %}</small></span>
+            <span class="chord-status chord-status--info">{{ rehearsal.songs.all|length }} song{{ rehearsal.songs.all|length|pluralize }}</span>
+          </a>
+        {% empty %}<div class="chord-empty-state">No upcoming rehearsals are scheduled.</div>{% endfor %}
+      </div>
     </section>
-    <section class="col-lg-6">
-      <div class="card shadow-sm h-100"><div class="card-body">
-        <h2 class="h5">Announcements</h2>
-        {% for announcement in announcements %}
-          <article class="border-bottom pb-2 mb-2"><h3 class="h6">{{ announcement.title }}</h3><div>{{ announcement.body|linebreaksbr }}</div><small class="text-muted">{{ announcement.published_at }}</small></article>
-        {% empty %}<p class="mb-0">No current announcements.</p>{% endfor %}
-      </div></div>
+
+    <section class="chord-panel" aria-labelledby="choir-announcements-heading">
+      <div class="chord-panel__header">
+        <div><h2 id="choir-announcements-heading">Choir announcements</h2><p class="chord-panel__note">Current information for your permitted audience.</p></div>
+        {% if can_view_announcements %}<a href="{% url 'worship:announcement-list' %}">View all</a>{% endif %}
+      </div>
+      {% if can_view_announcements %}
+        <div class="chord-choir-announcements">
+          {% for announcement in announcements %}
+            <article><div class="chord-choir-announcement__heading"><h3>{{ announcement.title }}</h3><span class="chord-status chord-status--info">{{ announcement.get_audience_display }}</span></div><p>{{ announcement.body|truncatewords:28 }}</p><small>Published {{ announcement.published_at|date:"d M Y · g:i A" }}</small></article>
+          {% empty %}<div class="chord-empty-state">No current announcements are available.</div>{% endfor %}
+        </div>
+      {% else %}
+        <div class="chord-empty-state">Your role can coordinate schedules and roster participation, but choir announcements are limited to their permitted audiences.</div>
+      {% endif %}
     </section>
   </div>
-  {% if assignments %}
-    <section class="card shadow-sm mt-4"><div class="card-body">
-      <h2 class="h5">My upcoming song assignments</h2>
-      <div class="vstack gap-3">{% for assignment in assignments %}<div><a href="{% url 'worship:plan-detail' assignment.plan_song.plan.public_id %}">{{ assignment.plan_song.song }}</a> — {{ assignment.plan_song.plan.title }} on {{ assignment.plan_song.plan.service_datetime }}{% if assignment.plan_song.song.spotify_url %}<br><a class="small" href="{{ assignment.plan_song.song.spotify_url }}" target="_blank" rel="noopener noreferrer">Open on Spotify</a>{% endif %}<div class="mt-1">{% include "worship/includes/song_resources.html" with song=assignment.plan_song.song %}</div></div>{% endfor %}</div>
-    </div></section>
-  {% endif %}
+
+  <div class="chord-profile-layout chord-choir-lower-grid">
+    <div class="chord-profile-main">
+      <section class="chord-panel" aria-labelledby="choir-assignments-heading">
+        <div class="chord-panel__header"><div><h2 id="choir-assignments-heading">My upcoming song assignments</h2><p class="chord-panel__note">Only assignments connected to your member enrollment are shown.</p></div></div>
+        <div class="chord-choir-assignments">
+          {% for assignment in assignments %}
+            <article class="chord-assignment-card">
+              <div class="chord-assignment-card__heading"><div><h3><a href="{% url 'worship:song-detail' assignment.plan_song.song.public_id %}">{{ assignment.plan_song.song.title }}</a></h3><p>{{ assignment.plan_song.song.artist|default:"Artist not recorded" }}</p></div><span class="chord-status {% if assignment.plan_song.plan.status == 'ready' %}chord-status--success{% elif assignment.plan_song.plan.status == 'preparing' %}chord-status--warning{% else %}chord-status--muted{% endif %}">{{ assignment.plan_song.plan.get_status_display }}</span></div>
+              <p><strong>{{ assignment.plan_song.plan.title }}</strong> · {{ assignment.plan_song.plan.service_datetime|date:"d M Y · g:i A" }}{% if assignment.plan_song.planned_key %} · Key {{ assignment.plan_song.planned_key }}{% endif %}</p>
+              {% if assignment.notes %}<p class="chord-panel__note">Preparation note: {{ assignment.notes }}</p>{% endif %}
+              <div class="chord-assignment-card__actions"><a class="chord-text-link" href="{% url 'worship:plan-detail' assignment.plan_song.plan.public_id %}">Open service plan <span aria-hidden="true">&rarr;</span></a>{% if assignment.plan_song.song.spotify_url %}<a class="chord-text-link" href="{{ assignment.plan_song.song.spotify_url }}" target="_blank" rel="noopener noreferrer">Open on Spotify</a>{% endif %}</div>
+              <div class="chord-assignment-resources">{% include "worship/includes/song_resources.html" with song=assignment.plan_song.song %}</div>
+            </article>
+          {% empty %}<div class="chord-empty-state">No upcoming song assignments are linked to your choir enrollment.</div>{% endfor %}
+        </div>
+      </section>
+    </div>
+    <aside class="chord-profile-aside">
+      <section class="chord-panel" aria-labelledby="choir-leaders-heading">
+        <div class="chord-panel__header"><h2 id="choir-leaders-heading">Choir leaders</h2></div>
+        <div class="chord-affiliation-list">
+          {% for leader in choir_leaders %}<div><strong>{{ leader.full_name }}</strong><small>Active Choir Leader account</small></div>{% empty %}<div class="chord-empty-state">No active Choir Leader account is linked to a member record.</div>{% endfor %}
+        </div>
+      </section>
+      <div class="chord-guidance-banner"><strong>Protected choir information</strong><span>Members see only their own attendance and song assignments. Roster management remains limited to authorized leaders.</span></div>
+    </aside>
+  </div>
 {% endblock %}

@@ -259,6 +259,168 @@ class ChoirWorkflowTests(TestCase):
         self.assertContains(response, self.member.full_name)
         self.assertNotContains(response, other_member.full_name)
 
+    def test_worship_leader_can_coordinate_schedule_without_announcement_access(self):
+        worship_leader = create_role_user("choir-coordinator", Role.Code.WORSHIP_LEADER)
+        ChoirAnnouncement.objects.create(
+            title="Choir leader private notice",
+            body="Restricted announcement",
+            audience=ChoirAnnouncement.Audience.LEADERS,
+            created_by=self.leader,
+        )
+        self.client.force_login(worship_leader)
+
+        response = self.client.get(reverse("worship:choir-activity"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Choir overview")
+        self.assertContains(response, reverse("worship:rehearsal-list"))
+        self.assertNotContains(response, "Choir leader private notice")
+        self.assertNotContains(response, reverse("worship:announcement-list"))
+
+    def test_choir_dashboard_discloses_only_members_own_assignments(self):
+        other_user = create_role_user("other-choir-user", Role.Code.CHOIR_MEMBER)
+        other_member = Member.objects.create(
+            user=other_user,
+            first_name="Other",
+            last_name="Singer",
+            membership_status=Member.Status.MEMBER,
+        )
+        other_enrollment = ChoirEnrollment.objects.create(member=other_member)
+        plan = WorshipPlan.objects.create(
+            title="Assignment privacy service",
+            service_datetime=future_datetime(3),
+        )
+        PlanChoirParticipation.objects.create(
+            plan=plan,
+            enrollment=self.enrollment,
+        )
+        PlanChoirParticipation.objects.create(
+            plan=plan,
+            enrollment=other_enrollment,
+        )
+        own_song = Song.objects.create(title="Member preparation song")
+        other_song = Song.objects.create(title="Other private song")
+        own_plan_song = PlanSong.objects.create(
+            plan=plan,
+            song=own_song,
+            position=1,
+        )
+        other_plan_song = PlanSong.objects.create(
+            plan=plan,
+            song=other_song,
+            position=2,
+        )
+        SongAssignment.objects.create(
+            plan_song=own_plan_song,
+            enrollment=self.enrollment,
+            assigned_by=self.leader,
+        )
+        SongAssignment.objects.create(
+            plan_song=other_plan_song,
+            enrollment=other_enrollment,
+            assigned_by=self.leader,
+        )
+        self.client.force_login(self.member_user)
+
+        response = self.client.get(reverse("worship:choir-activity"))
+
+        self.assertContains(response, own_song.title)
+        self.assertNotContains(response, other_song.title)
+
+    def test_roster_filters_preserve_truthful_membership_summary(self):
+        leave_member = Member.objects.create(
+            first_name="Leave",
+            last_name="Singer",
+            membership_status=Member.Status.MEMBER,
+        )
+        ChoirEnrollment.objects.create(
+            member=leave_member,
+            voice_part=ChoirEnrollment.VoicePart.TENOR,
+            status=ChoirEnrollment.Status.ON_LEAVE,
+        )
+        self.client.force_login(self.leader)
+
+        response = self.client.get(
+            reverse("worship:choir-roster"),
+            {"status": ChoirEnrollment.Status.ON_LEAVE, "voice_part": "tenor"},
+        )
+
+        self.assertContains(response, leave_member.full_name)
+        self.assertNotContains(response, self.member.full_name)
+        self.assertEqual(response.context["roster_summary"]["total"], 2)
+        self.assertEqual(response.context["roster_summary"]["active"], 1)
+        self.assertEqual(response.context["roster_summary"]["on_leave"], 1)
+
+    def test_rehearsal_directory_segments_upcoming_and_previous(self):
+        upcoming = Rehearsal.objects.create(
+            title="Upcoming preparation",
+            starts_at=future_datetime(),
+            ends_at=future_datetime() + timedelta(hours=1),
+            created_by=self.leader,
+        )
+        past_start = timezone.now() - timedelta(days=2)
+        previous = Rehearsal.objects.create(
+            title="Previous preparation",
+            starts_at=past_start,
+            ends_at=past_start + timedelta(hours=1),
+            status=Rehearsal.Status.COMPLETED,
+            created_by=self.leader,
+        )
+        self.client.force_login(self.member_user)
+
+        upcoming_response = self.client.get(reverse("worship:rehearsal-list"))
+        previous_response = self.client.get(
+            reverse("worship:rehearsal-list"), {"timing": "past"}
+        )
+
+        self.assertContains(upcoming_response, upcoming.title)
+        self.assertNotContains(upcoming_response, previous.title)
+        self.assertContains(previous_response, previous.title)
+        self.assertNotContains(previous_response, upcoming.title)
+
+    def test_announcement_manager_can_filter_scheduled_notices(self):
+        ChoirAnnouncement.objects.create(
+            title="Current choir notice",
+            body="Current",
+            created_by=self.leader,
+        )
+        ChoirAnnouncement.objects.create(
+            title="Scheduled choir notice",
+            body="Scheduled",
+            published_at=timezone.now() + timedelta(days=2),
+            created_by=self.leader,
+        )
+        self.client.force_login(self.leader)
+
+        response = self.client.get(
+            reverse("worship:announcement-list"), {"timing": "scheduled"}
+        )
+
+        self.assertContains(response, "Scheduled choir notice")
+        self.assertNotContains(response, "Current choir notice")
+
+    def test_choir_management_forms_render_for_leader(self):
+        start = future_datetime()
+        rehearsal = Rehearsal.objects.create(
+            title="Form rehearsal",
+            starts_at=start,
+            ends_at=start + timedelta(hours=1),
+            created_by=self.leader,
+        )
+        self.client.force_login(self.leader)
+
+        enrollment_response = self.client.get(reverse("worship:choir-enroll"))
+        rehearsal_response = self.client.get(reverse("worship:rehearsal-add"))
+        attendance_response = self.client.get(
+            reverse("worship:rehearsal-attendance", args=(rehearsal.public_id,))
+        )
+        announcement_response = self.client.get(reverse("worship:announcement-add"))
+
+        self.assertContains(enrollment_response, 'id="choir-enrollment-form"')
+        self.assertContains(rehearsal_response, 'id="rehearsal-form"')
+        self.assertContains(attendance_response, 'id="rehearsal-attendance-form"')
+        self.assertContains(announcement_response, 'id="announcement-form"')
+
 
 class SongLibraryWorkflowTests(TestCase):
     def setUp(self):

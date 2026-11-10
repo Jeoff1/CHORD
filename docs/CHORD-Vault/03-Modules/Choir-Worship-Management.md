@@ -74,3 +74,24 @@ No recommendation algorithm, score, endpoint, UI, or ML dependency exists.
 Phase 6 extends this module with official Spotify track embeds, protected
 resource previews and updates, ChordPro display, and rehearsal-song preparation.
 See [[Song-Resources-Chord-Sheets]].
+
+## Phase 7.3 milestone 5 interface
+
+- Role-aware choir overview with actual enrollment, upcoming rehearsal,
+  announcement, and own-assignment information
+- Protected roster with name search, voice-part/status filters, summary cards,
+  active Choir Leader names, pagination, and refined enrollment forms
+- Upcoming, previous, and all-rehearsal views with search/status filters,
+  selected-song summaries, optional church-event links, and responsive cards
+- Rehearsal detail with authorized Spotify/resource access and attendance
+  summaries for recorders; ordinary choir members receive only their own row
+- Audience- and publication-aware announcement directory with management filters
+- Refined song-assignment form limited to active worship-plan participants
+- Worship Leader coordination access through existing schedule/roster
+  permissions without automatically exposing choir announcements
+
+No dedicated choir-management Figma frame was present in the exported file.
+The UI therefore uses the audited CHORD desktop system and existing shared
+components. The separate Inter/amber mobile practice design was not made global.
+No notification service, new playback system, practice controls, automatic
+chord generation, or recommendation behavior was added.

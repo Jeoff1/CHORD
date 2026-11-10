@@ -1,6 +1,6 @@
 # Known Issues
 
-No critical or high-severity blocker remains after Phase 7.3 Milestone 4.
+No critical or high-severity blocker remains after Phase 7.3 Milestone 5.
 
 ## Medium
 
@@ -47,6 +47,10 @@ No critical or high-severity blocker remains after Phase 7.3 Milestone 4.
     not the Figma week-grid calendar. Resource availability, church service
     requests, and room booking require backend domains before that composition
     can be implemented truthfully.
+13. The exported design contains no dedicated choir-management frame. Milestone
+    5 consistently applies the audited shared design system, but an exact
+    choir-screen visual comparison is unavailable. Authenticated desktop/mobile
+    review remains manual.
 
 ## Resolved
 

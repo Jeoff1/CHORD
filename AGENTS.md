@@ -17,8 +17,8 @@
 - Preserve the structured song metadata and usage relationships needed by the
   future Phase 8 work without implementing recommendation behavior early.
 - Phases 1-6, the Phase 7.2 design-system/application-shell milestone, and Phase
-  7.3 dashboard, member-management, ministry, church-event, attendance, and
-  giving milestones 1-4 are complete. Continue Phase 7 only through explicitly
+  7.3 dashboard, member-management, ministry, church-event, attendance, giving,
+  and choir-management milestones 1-5 are complete. Continue Phase 7 only through explicitly
   authorized screen groups; Phase 8 remains the only ML implementation phase.
 - Use the exported `static/assets/CHORD.svg` as the visual reference while the
   Figma MCP read quota is unavailable. Inspect only the relevant screen region

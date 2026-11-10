@@ -402,3 +402,39 @@ See [[Screen-Implementation-Tracker]], [[Design-Change-Log]],
 See [[Screen-Implementation-Tracker]], [[Design-Change-Log]],
 [[../03-Modules/Events-Attendance]], [[../03-Modules/Giving]], and
 [[../04-Testing/Phase-7-Test-Results]].
+
+## 2026-11-10 - Phase 7.3 milestone 5 choir management
+
+- **References:** Reused the exported `static/assets/CHORD.svg`, the completed
+  audit, and the Phase 7.2 desktop system. The export contains no dedicated
+  choir-management frame or searchable choir text, so no missing composition
+  was invented and Figma MCP remained unused.
+- **Overview and roster:** Added real enrollment/rehearsal/announcement/
+  assignment summaries, leader context, protected roster filters, voice/status
+  presentation, pagination, and refined enrollment management.
+- **Rehearsals:** Added upcoming/previous/all segmentation, search and status
+  filters, deterministic ordering, linked-event context, selected songs,
+  Spotify/resource access, attendance summaries, and responsive forms.
+- **Announcements and assignments:** Added audience/publication management
+  filters, responsive announcement details, and an assignment form limited to
+  active worship-plan participants with existing practice resources.
+- **Security:** Choir Members continue to receive only their own attendance and
+  assignments. Worship Leaders can use their existing schedule/roster
+  permissions but receive no announcement content without that permission.
+- **ORM/refactoring:** Selected linked events, prefetched rehearsal songs and
+  resources, aggregated roster/timing counts, added deterministic pagination,
+  styled shared form widgets once, and removed redundant local render imports.
+- **Tests:** Worship/resource/dashboard/shell regressions passed 53/53 in
+  31.327 seconds; the protected rehearsal resource recheck passed 2/2; and the
+  complete PostgreSQL suite passed 143/143 in 71.098 seconds. Django checks,
+  migration consistency, Ruff, and diff validation passed.
+- **Visual limitation:** With no dedicated choir frame, verification is against
+  the established shared tokens and responsive structure. Authenticated
+  desktop/mobile screenshot comparison remains a manual follow-up.
+- **Boundary:** No notification service, custom playback, advanced practice
+  controls, chord generation, new choir domain, or recommendation behavior was
+  introduced.
+
+See [[Screen-Implementation-Tracker]], [[Design-Change-Log]],
+[[../03-Modules/Choir-Worship-Management]], and
+[[../04-Testing/Phase-7-Test-Results]].

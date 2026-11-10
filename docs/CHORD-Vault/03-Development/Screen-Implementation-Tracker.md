@@ -1,8 +1,9 @@
 # Screen Implementation Tracker
 
-**Phase 7.3 milestone 4 result:** Dashboard, member-management, ministry,
-church-event, attendance, and giving screen groups complete. The shared shell
-remains the Phase 7.2 foundation; other Figma screens remain separate milestones.
+**Phase 7.3 milestone 5 result:** Dashboard, member-management, ministry,
+church-event, attendance, giving, and choir-management screen groups complete.
+The shared shell remains the Phase 7.2 foundation; other Figma screens remain
+separate milestones.
 
 Every existing authenticated Django screen now inherits the role-aware shell,
 header, responsive drawer, design tokens, and shared Bootstrap refinements from
@@ -29,6 +30,15 @@ header, responsive drawer, design tokens, and shared Bootstrap refinements from
 | Member experience · Member portal | **Implemented in 7.3 milestone 1:** visible upcoming events, active ministry memberships, choir song assignments, account roles, permission-backed links, and unlinked-record empty state |
 | Member experience · Notifications | Unified notifications not implemented; no navigation added |
 | Member experience · Access and profile settings | Existing profile/account screens inherit shell/tokens; detailed tabs/preferences not started |
+
+## Choir-management adaptation
+
+**Implemented for the current domain in 7.3 milestone 5:** role-aware overview,
+protected searchable roster, leader information, rehearsal timing/search/status
+views, linked events, attendance privacy, announcements, song assignments,
+Spotify links, and protected resources. The exported file has no dedicated
+choir-management frame, so shared desktop patterns were used without inventing
+missing design details.
 
 ## Shared implementation coverage
 
@@ -101,5 +111,21 @@ See [[Phase-7-Figma-Design-Audit]], [[Design-System]], and [[Task-Tracker]].
   Online payment, giving reports, export, reconciliation, tax receipts, and
   event-linked offerings were not simulated.
 
-The next recommended screen group is Choir Management. Do not begin it without
+## Phase 7.3 milestone 5 boundaries
+
+- No dedicated choir-management frame or searchable choir label exists in the
+  exported `CHORD.svg`; the audited desktop shell, cards, tables, forms, status
+  language, and documented mobile-practice boundary were the references.
+- Choir overview, roster, rehearsals, attendance, announcements, and song
+  assignment pages reuse existing models, permissions, and services. No choir
+  model, song, resource, playback, or notification domain was duplicated.
+- Worship Leaders may open schedule/roster coordination through their existing
+  permissions, but announcements remain absent unless the account separately
+  has the announcement-view permission.
+- Choir Members receive only their own attendance and assignments. Protected
+  song resources continue through the Phase 6 permission-checked routes.
+- Automatic reminders, outbound communication, attendance export, practice
+  controls, chord generation, and recommendation behavior were not simulated.
+
+The next recommended screen group is Worship Planning. Do not begin it without
 explicit authorization.

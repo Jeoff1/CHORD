@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.db.models import Prefetch, Q
+from django.db.models import Count, Prefetch, Q
 from django.http import FileResponse, Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
@@ -14,6 +14,8 @@ from django.views.generic import (
 )
 
 from apps.accounts.mixins import AuthenticatedPermissionRequiredMixin
+from apps.accounts.models import Role
+from apps.members.models import Member
 
 from .chordpro import parse_chordpro
 from .forms import (
@@ -48,38 +50,76 @@ from .services import (
 
 
 class ChoirActivityView(AuthenticatedPermissionRequiredMixin, TemplateView):
-    permission_required = (
-        "worship.view_choir_schedule",
-        "worship.view_choir_announcements",
-    )
+    permission_required = "worship.view_choir_schedule"
     template_name = "worship/choir_activity.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         now = timezone.now()
-        announcements = ChoirAnnouncement.objects.filter(
-            published_at__lte=now,
-        ).filter(Q(expires_at__isnull=True) | Q(expires_at__gt=now))
-        if not self.request.user.has_perm("worship.manage_choir"):
-            announcements = announcements.filter(
-                audience__in=(
-                    ChoirAnnouncement.Audience.ALL,
-                    ChoirAnnouncement.Audience.MEMBERS,
+        can_view_announcements = self.request.user.has_perm(
+            "worship.view_choir_announcements"
+        )
+        announcements = ChoirAnnouncement.objects.none()
+        if can_view_announcements:
+            announcements = ChoirAnnouncement.objects.filter(
+                published_at__lte=now,
+            ).filter(Q(expires_at__isnull=True) | Q(expires_at__gt=now))
+            if not self.request.user.has_perm("worship.manage_choir_announcements"):
+                announcements = announcements.filter(
+                    audience__in=(
+                        ChoirAnnouncement.Audience.ALL,
+                        ChoirAnnouncement.Audience.MEMBERS,
+                    )
                 )
+
+        rehearsals = (
+            Rehearsal.objects.filter(
+                starts_at__gte=now,
+                status=Rehearsal.Status.SCHEDULED,
             )
-        context["announcements"] = announcements[:10]
-        context["rehearsals"] = Rehearsal.objects.filter(
-            starts_at__gte=now,
-            status=Rehearsal.Status.SCHEDULED,
-        )[:10]
-        context["assignments"] = (
+            .select_related("event")
+            .prefetch_related("songs")
+        )
+        assignments = (
             SongAssignment.objects.filter(
                 enrollment__member__user=self.request.user,
                 plan_song__plan__service_datetime__gte=now,
             )
             .select_related("plan_song__song", "plan_song__plan")
             .prefetch_related("plan_song__song__resources")
-            .order_by("plan_song__plan__service_datetime", "plan_song__position")[:20]
+            .order_by("plan_song__plan__service_datetime", "plan_song__position")
+        )
+        can_view_roster = self.request.user.has_perm("worship.view_choir_roster")
+        choir_summary = None
+        if can_view_roster:
+            choir_summary = ChoirEnrollment.objects.aggregate(
+                total=Count("pk"),
+                active=Count("pk", filter=Q(status=ChoirEnrollment.Status.ACTIVE)),
+                on_leave=Count("pk", filter=Q(status=ChoirEnrollment.Status.ON_LEAVE)),
+            )
+
+        context.update(
+            {
+                "announcements": announcements[:5],
+                "assignments": assignments[:8],
+                "can_view_announcements": can_view_announcements,
+                "can_view_roster": can_view_roster,
+                "current_announcement_count": announcements.count(),
+                "choir_leaders": Member.objects.filter(
+                    user__is_active=True,
+                    user__roles__code=Role.Code.CHOIR_LEADER,
+                )
+                .select_related("user")
+                .distinct()
+                .order_by("last_name", "first_name"),
+                "choir_summary": choir_summary,
+                "own_enrollment": ChoirEnrollment.objects.select_related("member")
+                .filter(member__user=self.request.user)
+                .first(),
+                "rehearsals": rehearsals[:6],
+                "upcoming_assignment_count": assignments.count(),
+                "upcoming_rehearsal_count": rehearsals.count(),
+            }
         )
         return context
 
@@ -119,6 +159,23 @@ class ChoirRosterView(AuthenticatedPermissionRequiredMixin, ListView):
                 "selected_voice": self.request.GET.get("voice_part", ""),
                 "query": self.request.GET.get("q", ""),
                 "pagination_query": params.urlencode(),
+                "choir_leaders": Member.objects.filter(
+                    user__is_active=True,
+                    user__roles__code=Role.Code.CHOIR_LEADER,
+                )
+                .select_related("user")
+                .distinct()
+                .order_by("last_name", "first_name"),
+                "roster_summary": ChoirEnrollment.objects.aggregate(
+                    total=Count("pk"),
+                    active=Count("pk", filter=Q(status=ChoirEnrollment.Status.ACTIVE)),
+                    on_leave=Count(
+                        "pk", filter=Q(status=ChoirEnrollment.Status.ON_LEAVE)
+                    ),
+                    inactive=Count(
+                        "pk", filter=Q(status=ChoirEnrollment.Status.INACTIVE)
+                    ),
+                ),
             }
         )
         return context
@@ -163,19 +220,57 @@ class RehearsalListView(AuthenticatedPermissionRequiredMixin, ListView):
     paginate_by = 25
 
     def get_queryset(self):
-        queryset = Rehearsal.objects.all()
+        queryset = (
+            Rehearsal.objects.select_related("event")
+            .prefetch_related("songs")
+            .annotate(song_count=Count("songs", distinct=True))
+        )
         status = self.request.GET.get("status", "").strip()
+        timing = self.request.GET.get("timing", "upcoming").strip()
+        query = self.request.GET.get("q", "").strip()
         if status in Rehearsal.Status.values:
             queryset = queryset.filter(status=status)
+        if timing == "past":
+            queryset = queryset.filter(starts_at__lt=timezone.now()).order_by(
+                "-starts_at", "-id"
+            )
+        elif timing != "all":
+            timing = "upcoming"
+            queryset = queryset.filter(starts_at__gte=timezone.now()).order_by(
+                "starts_at", "id"
+            )
+        else:
+            queryset = queryset.order_by("starts_at", "id")
+        if query:
+            queryset = queryset.filter(
+                Q(title__icontains=query)
+                | Q(location__icontains=query)
+                | Q(event__title__icontains=query)
+            )
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         params = self.request.GET.copy()
         params.pop("page", None)
-        context["status_choices"] = Rehearsal.Status.choices
-        context["selected_status"] = self.request.GET.get("status", "")
-        context["pagination_query"] = params.urlencode()
+        now = timezone.now()
+        selected_timing = self.request.GET.get("timing", "upcoming")
+        if selected_timing not in {"upcoming", "past", "all"}:
+            selected_timing = "upcoming"
+        context.update(
+            {
+                "pagination_query": params.urlencode(),
+                "query": self.request.GET.get("q", ""),
+                "selected_status": self.request.GET.get("status", ""),
+                "selected_timing": selected_timing,
+                "status_choices": Rehearsal.Status.choices,
+                "timing_counts": Rehearsal.objects.aggregate(
+                    upcoming=Count("pk", filter=Q(starts_at__gte=now)),
+                    past=Count("pk", filter=Q(starts_at__lt=now)),
+                    all=Count("pk"),
+                ),
+            }
+        )
         return context
 
 
@@ -201,7 +296,36 @@ class RehearsalDetailView(AuthenticatedPermissionRequiredMixin, DetailView):
                 queryset=attendance_queryset,
             ),
             "songs__resources",
+        ).select_related("event")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        can_record_attendance = self.request.user.has_perm(
+            "worship.record_rehearsal_attendance"
         )
+        attendance_records = list(self.object.attendance_records.all())
+        context["can_record_attendance"] = can_record_attendance
+        if can_record_attendance:
+            context["attendance_summary"] = {
+                "recorded": len(attendance_records),
+                "present": sum(
+                    record.status == RehearsalAttendance.Status.PRESENT
+                    for record in attendance_records
+                ),
+                "late": sum(
+                    record.status == RehearsalAttendance.Status.LATE
+                    for record in attendance_records
+                ),
+                "absent": sum(
+                    record.status == RehearsalAttendance.Status.ABSENT
+                    for record in attendance_records
+                ),
+                "excused": sum(
+                    record.status == RehearsalAttendance.Status.EXCUSED
+                    for record in attendance_records
+                ),
+            }
+        return context
 
 
 class RehearsalManageMixin(AuthenticatedPermissionRequiredMixin):
@@ -296,6 +420,7 @@ class RehearsalAttendanceView(AuthenticatedPermissionRequiredMixin, View):
         enrollments = self.get_enrollments(rehearsal)
         formset = AttendanceFormSet(
             request.POST,
+            initial=self.get_initial(rehearsal, enrollments),
             form_kwargs={"enrollment_queryset": enrollments},
         )
         if formset.is_valid():
@@ -309,8 +434,6 @@ class RehearsalAttendanceView(AuthenticatedPermissionRequiredMixin, View):
         return self.render(request, rehearsal, formset)
 
     def render(self, request, rehearsal, formset):
-        from django.shortcuts import render
-
         return render(
             request,
             self.template_name,
@@ -327,8 +450,9 @@ class AnnouncementListView(AuthenticatedPermissionRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = ChoirAnnouncement.objects.all()
-        if not self.request.user.has_perm("worship.manage_choir_announcements"):
-            now = timezone.now()
+        can_manage = self.request.user.has_perm("worship.manage_choir_announcements")
+        now = timezone.now()
+        if not can_manage:
             queryset = queryset.filter(published_at__lte=now).filter(
                 Q(expires_at__isnull=True) | Q(expires_at__gt=now)
             )
@@ -338,7 +462,44 @@ class AnnouncementListView(AuthenticatedPermissionRequiredMixin, ListView):
                     ChoirAnnouncement.Audience.MEMBERS,
                 )
             )
+        else:
+            audience = self.request.GET.get("audience", "").strip()
+            timing = self.request.GET.get("timing", "all").strip()
+            if audience in ChoirAnnouncement.Audience.values:
+                queryset = queryset.filter(audience=audience)
+            if timing == "current":
+                queryset = queryset.filter(published_at__lte=now).filter(
+                    Q(expires_at__isnull=True) | Q(expires_at__gt=now)
+                )
+            elif timing == "scheduled":
+                queryset = queryset.filter(published_at__gt=now)
+            elif timing == "expired":
+                queryset = queryset.filter(expires_at__lte=now)
+        query = self.request.GET.get("q", "").strip()
+        if query:
+            queryset = queryset.filter(
+                Q(title__icontains=query) | Q(body__icontains=query)
+            )
         return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        params = self.request.GET.copy()
+        params.pop("page", None)
+        context.update(
+            {
+                "audience_choices": ChoirAnnouncement.Audience.choices,
+                "can_manage_announcements": self.request.user.has_perm(
+                    "worship.manage_choir_announcements"
+                ),
+                "pagination_query": params.urlencode(),
+                "query": self.request.GET.get("q", ""),
+                "now": timezone.now(),
+                "selected_audience": self.request.GET.get("audience", ""),
+                "selected_timing": self.request.GET.get("timing", "all"),
+            }
+        )
+        return context
 
 
 class AnnouncementManageMixin(AuthenticatedPermissionRequiredMixin):
@@ -830,7 +991,9 @@ class SongAssignmentUpdateView(AuthenticatedPermissionRequiredMixin, View):
 
     def get_plan_song(self):
         return get_object_or_404(
-            PlanSong.objects.select_related("plan", "song"),
+            PlanSong.objects.select_related("plan", "song").prefetch_related(
+                "song__resources"
+            ),
             pk=self.kwargs["pk"],
             plan__public_id=self.kwargs["public_id"],
         )
@@ -854,8 +1017,6 @@ class SongAssignmentUpdateView(AuthenticatedPermissionRequiredMixin, View):
         return self.render(request, plan_song, form)
 
     def render(self, request, plan_song, form):
-        from django.shortcuts import render
-
         return render(
             request,
             self.template_name,

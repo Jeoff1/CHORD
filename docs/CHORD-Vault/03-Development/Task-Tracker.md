@@ -108,9 +108,17 @@ Phase 7.2 is complete. Its shell is the foundation for the incremental Phase
 - [x] Refine confidential ledger, fund, contribution form, and member-history UI
 - [x] Verify direct-route attendance and financial-management denial
 - [x] Pass 35 targeted tests, 64 milestone regressions, and 137 full tests
+- [x] Milestone 5: Choir Management refinement
+- [x] Add role-aware choir overview, real membership summaries, and leader context
+- [x] Refine protected roster search/status/voice filters and enrollment forms
+- [x] Add upcoming/previous rehearsal views, linked events, songs, and resources
+- [x] Refine rehearsal details, private attendance, and recording forms
+- [x] Refine audience-scoped announcements and song-assignment preparation
+- [x] Verify Choir Leader, Choir Member, and Worship Leader access boundaries
+- [x] Pass 53 worship/resource/dashboard/shell regressions and 143 full tests
 - [ ] Remaining mapped screen groups
 
-Phase 7.3 milestone 4 is complete. Do not begin the next screen group or Phase 8
+Phase 7.3 milestone 5 is complete. Do not begin the next screen group or Phase 8
 without explicit authorization.
 
 See [[Development-Roadmap]], [[Known-Issues]], and

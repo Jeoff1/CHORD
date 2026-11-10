@@ -1,7 +1,7 @@
 # Phase 7 Test Results
 
 Verified: **2026-11-10**
-Current scope: **Phase 7.3 milestone 4 - attendance and giving**
+Current scope: **Phase 7.3 milestone 5 - choir management**
 
 ## Automated results
 
@@ -9,9 +9,9 @@ Current scope: **Phase 7.3 milestone 4 - attendance and giving**
 | --- | --- |
 | `manage.py check` | Pass - no issues |
 | `makemigrations --check --dry-run` | Pass - no model drift |
-| Attendance, giving, and shell tests | Pass - 35 tests in 14.735 seconds |
-| Milestone regression set | Pass - 64 tests in 25.555 seconds |
-| Full Django suite | Pass - 137 tests in 63.357 seconds |
+| Choir, worship-resource, dashboard, and shell regressions | Pass - 53 tests in 31.327 seconds |
+| Protected rehearsal resource recheck | Pass - 2 tests in 1.332 seconds |
+| Full Django suite | Pass - 143 tests in 71.098 seconds |
 | PostgreSQL test database cleanup | Pass |
 | `ruff check .` | Pass |
 | `ruff format --check .` | Pass - 125 files compliant |
@@ -44,9 +44,19 @@ Current scope: **Phase 7.3 milestone 4 - attendance and giving**
 - Fund directory totals use real contributions.
 - Member giving history excludes every other donor and internal reference.
 - Members cannot access fund administration or contribution creation routes.
+- Choir overview uses actual enrollment/rehearsal/announcement/assignment data.
+- Choir Members see only their own song assignments and rehearsal attendance.
+- Choir roster filtering preserves truthful unfiltered participation summaries.
+- Upcoming and previous rehearsal segments use deterministic date ordering.
+- Choir Leaders can render and submit enrollment, rehearsal, attendance,
+  announcement, and assignment workflows under existing permissions.
+- Worship Leaders can coordinate schedules and roster participation without
+  receiving choir-announcement access they do not possess.
+- Rehearsal and assignment screens preserve Spotify and protected-resource access.
 
 No models or migrations were added. Browser verification rendered the exported
-Attendance and Giving reference crops; authenticated application screenshot
-comparison remains a manual follow-up. Payments, exports, reconciliation,
-notifications, broader reporting, and Phase 8 recommendation behavior remain
-outside this milestone.
+file for earlier screen groups, but it contains no dedicated choir-management
+frame. Authenticated application screenshot comparison remains a manual
+follow-up. Notifications, custom playback, advanced practice controls,
+automatic chord generation, and Phase 8 recommendation behavior remain outside
+this milestone.

@@ -1,19 +1,42 @@
 {% extends "base.html" %}
-{% block title %}Choir roster | CHORD{% endblock %}
+{% block title %}Choir members | CHORD{% endblock %}
 {% block content %}
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">Choir roster</h1>
-    {% if perms.worship.manage_choir and perms.worship.add_choirenrollment %}<a class="btn btn-primary" href="{% url 'worship:choir-enroll' %}">Enroll member</a>{% endif %}
+  <div class="chord-page-heading">
+    <div><p class="chord-eyebrow"><a href="{% url 'worship:choir-activity' %}">Choir management</a></p><h1>Choir members</h1><p>Voice parts and participation status for the protected choir roster.</p></div>
+    {% if perms.worship.manage_choir and perms.worship.add_choirenrollment %}<div class="chord-page-actions"><a class="btn btn-primary" href="{% url 'worship:choir-enroll' %}">Enroll member</a></div>{% endif %}
   </div>
-  <form method="get" class="row g-2 mb-3">
-    <div class="col-md-5"><label class="visually-hidden" for="roster-search">Search</label><input id="roster-search" class="form-control" type="search" name="q" value="{{ query }}" placeholder="Search by member name"></div>
-    <div class="col-md-3"><label class="visually-hidden" for="roster-status">Status</label><select id="roster-status" class="form-select" name="status"><option value="">All statuses</option>{% for value, label in status_choices %}<option value="{{ value }}"{% if selected_status == value %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
-    <div class="col-md-3"><label class="visually-hidden" for="voice-part">Voice part</label><select id="voice-part" class="form-select" name="voice_part"><option value="">All voice parts</option>{% for value, label in voice_choices %}<option value="{{ value }}"{% if selected_voice == value %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
-    <div class="col-md-1"><button class="btn btn-outline-primary w-100" type="submit">Go</button></div>
+
+  <nav class="chord-section-tabs" aria-label="Choir sections"><a href="{% url 'worship:choir-activity' %}">Overview</a><a class="is-active" href="{% url 'worship:choir-roster' %}" aria-current="page">Members</a><a href="{% url 'worship:rehearsal-list' %}">Rehearsals</a>{% if perms.worship.view_choir_announcements %}<a href="{% url 'worship:announcement-list' %}">Announcements</a>{% endif %}</nav>
+
+  <div class="chord-metric-grid chord-choir-metrics">
+    <article class="chord-metric-card"><span>Total enrollment</span><strong>{{ roster_summary.total }}</strong><small>All participation statuses</small></article>
+    <article class="chord-metric-card"><span>Active</span><strong>{{ roster_summary.active }}</strong><small>Available for current choir activity</small></article>
+    <article class="chord-metric-card"><span>On leave</span><strong>{{ roster_summary.on_leave }}</strong><small>Temporarily away</small></article>
+    <article class="chord-metric-card"><span>Inactive</span><strong>{{ roster_summary.inactive }}</strong><small>Retained participation history</small></article>
+  </div>
+
+  <form method="get" class="chord-directory-filters chord-choir-filters" aria-label="Filter choir members">
+    <div class="chord-directory-filters__search"><label class="visually-hidden" for="roster-search">Search choir members</label><input id="roster-search" class="form-control" type="search" name="q" value="{{ query }}" placeholder="Search by member name"></div>
+    <div><label class="visually-hidden" for="roster-status">Participation status</label><select id="roster-status" class="form-select" name="status"><option value="">All statuses</option>{% for value, label in status_choices %}<option value="{{ value }}"{% if selected_status == value %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+    <div><label class="visually-hidden" for="voice-part">Voice part</label><select id="voice-part" class="form-select" name="voice_part"><option value="">All voice parts</option>{% for value, label in voice_choices %}<option value="{{ value }}"{% if selected_voice == value %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+    <button class="btn btn-outline-primary" type="submit">Apply filters</button>
+    {% if query or selected_status or selected_voice %}<a class="btn btn-link" href="{% url 'worship:choir-roster' %}">Clear</a>{% endif %}
   </form>
-  <div class="table-responsive"><table class="table table-striped align-middle"><thead><tr><th>Member</th><th>Voice part</th><th>Status</th><th>Joined</th><th></th></tr></thead><tbody>
-    {% for enrollment in enrollments %}<tr><td>{{ enrollment.member.full_name }}</td><td>{{ enrollment.get_voice_part_display }}</td><td>{{ enrollment.get_status_display }}</td><td>{{ enrollment.joined_on }}</td><td class="text-end">{% if perms.worship.manage_choir and perms.worship.change_choirenrollment %}<a class="btn btn-sm btn-outline-primary" href="{% url 'worship:choir-enrollment-edit' enrollment.public_id %}">Edit</a>{% endif %}</td></tr>
-    {% empty %}<tr><td colspan="5">No choir enrollments found.</td></tr>{% endfor %}
-  </tbody></table></div>
-  {% include "includes/pagination.html" %}
+
+  <div class="chord-profile-layout chord-choir-roster-layout">
+    <div class="chord-profile-main">
+      <section class="chord-panel chord-directory-panel" aria-labelledby="choir-roster-heading">
+        <div class="chord-panel__header"><div><h2 id="choir-roster-heading">Membership roster</h2><p class="chord-panel__note">Enrollment is choir participation and remains separate from account roles.</p></div></div>
+        <div class="table-responsive chord-table-wrap"><table class="table chord-roster-table chord-choir-roster-table align-middle mb-0"><thead><tr><th scope="col">Member</th><th scope="col">Voice part</th><th scope="col">Status</th><th scope="col">Joined</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead><tbody>
+          {% for enrollment in enrollments %}<tr><td><div class="chord-member-identity"><span class="chord-person-row__avatar" aria-hidden="true">{{ enrollment.member.first_name|slice:":1" }}{{ enrollment.member.last_name|slice:":1" }}</span><span><strong>{{ enrollment.member.full_name }}</strong><small>Choir participant</small></span></div></td><td><span class="chord-voice-part">{{ enrollment.get_voice_part_display }}</span></td><td><span class="chord-status {% if enrollment.status == 'active' %}chord-status--success{% elif enrollment.status == 'on_leave' %}chord-status--warning{% else %}chord-status--muted{% endif %}">{{ enrollment.get_status_display }}</span></td><td>{{ enrollment.joined_on|date:"d M Y" }}</td><td class="text-end">{% if perms.worship.manage_choir and perms.worship.change_choirenrollment %}<a class="btn btn-sm btn-outline-primary" href="{% url 'worship:choir-enrollment-edit' enrollment.public_id %}">Edit</a>{% endif %}</td></tr>
+          {% empty %}<tr><td colspan="5"><div class="chord-empty-state">No choir enrollments match these filters.</div></td></tr>{% endfor %}
+        </tbody></table></div>
+      </section>
+      <div class="chord-pagination-wrap">{% include "includes/pagination.html" %}</div>
+    </div>
+    <aside class="chord-profile-aside">
+      <section class="chord-panel" aria-labelledby="roster-leaders-heading"><div class="chord-panel__header"><h2 id="roster-leaders-heading">Choir leaders</h2></div><div class="chord-affiliation-list">{% for leader in choir_leaders %}<div><strong>{{ leader.full_name }}</strong><small>Active Choir Leader account</small></div>{% empty %}<div class="chord-empty-state">No active Choir Leader account is linked to a member record.</div>{% endfor %}</div></section>
+      <div class="chord-guidance-banner"><strong>Role and enrollment are distinct</strong><span>A Choir Member or Choir Leader account role controls access. Enrollment records voice part and participation.</span></div>
+    </aside>
+  </div>
 {% endblock %}

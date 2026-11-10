@@ -1195,6 +1195,235 @@ h6 {
   grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
 }
 
+/* Choir management screens */
+.chord-choir-metrics .chord-metric-card__word {
+  font-size: clamp(1.35rem, 2vw, 2rem);
+}
+
+.chord-choir-dashboard {
+  margin-bottom: var(--chord-space-5);
+}
+
+.chord-choir-lower-grid {
+  margin-top: var(--chord-space-5);
+}
+
+.chord-choir-announcements article {
+  border-top: 1px solid var(--chord-color-border);
+  padding: var(--chord-space-3) 0;
+}
+
+.chord-choir-announcements article:last-child {
+  padding-bottom: 0;
+}
+
+.chord-choir-announcement__heading,
+.chord-assignment-card__heading,
+.chord-assignment-card__actions,
+.chord-rehearsal-card__heading,
+.chord-rehearsal-card__meta,
+.chord-announcement-card__heading,
+.chord-announcement-card__footer {
+  align-items: flex-start;
+  display: flex;
+  gap: var(--chord-space-3);
+  justify-content: space-between;
+}
+
+.chord-choir-announcement__heading h3,
+.chord-assignment-card__heading h3,
+.chord-announcement-card h2 {
+  font-size: var(--chord-text-md);
+  margin: 0;
+}
+
+.chord-choir-announcements article > p,
+.chord-assignment-card__heading p,
+.chord-assignment-card > p,
+.chord-announcement-card__footer small {
+  color: var(--chord-color-muted);
+  font-size: var(--chord-text-sm);
+  margin: var(--chord-space-2) 0 0;
+}
+
+.chord-choir-announcements article > small {
+  color: var(--chord-color-muted);
+  font-size: var(--chord-text-xs);
+}
+
+.chord-choir-assignments {
+  display: grid;
+  gap: var(--chord-space-3);
+}
+
+.chord-assignment-card {
+  border: 1px solid var(--chord-color-border);
+  border-radius: var(--chord-radius-control);
+  padding: var(--chord-space-4);
+}
+
+.chord-assignment-card h3 a,
+.chord-rehearsal-card h2 a {
+  color: var(--chord-color-text);
+  text-decoration: none;
+}
+
+.chord-assignment-card h3 a:hover,
+.chord-rehearsal-card h2 a:hover {
+  color: var(--chord-color-primary);
+}
+
+.chord-assignment-card__actions {
+  justify-content: flex-start;
+  margin-top: var(--chord-space-3);
+}
+
+.chord-assignment-resources {
+  border-top: 1px solid var(--chord-color-border);
+  margin-top: var(--chord-space-3);
+  padding-top: var(--chord-space-3);
+}
+
+.chord-choir-filters,
+.chord-announcement-filters {
+  grid-template-columns: minmax(16rem, 2fr) minmax(10rem, 1fr) minmax(10rem, 1fr) auto auto;
+}
+
+.chord-rehearsal-filters {
+  grid-template-columns: minmax(16rem, 2fr) minmax(11rem, 1fr) auto auto;
+}
+
+.chord-voice-part {
+  color: var(--chord-color-primary-strong);
+  font-weight: 700;
+}
+
+.chord-rehearsal-grid,
+.chord-announcement-grid {
+  display: grid;
+  gap: var(--chord-space-4);
+}
+
+.chord-rehearsal-card {
+  background: var(--chord-color-surface);
+  border: 1px solid var(--chord-color-border);
+  border-radius: var(--chord-radius-card);
+  box-shadow: var(--chord-shadow-card);
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.chord-rehearsal-card__date {
+  align-items: center;
+  background: var(--chord-color-primary-soft);
+  color: var(--chord-color-primary);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--chord-space-4);
+  text-transform: uppercase;
+}
+
+.chord-rehearsal-card__date span,
+.chord-rehearsal-card__date small {
+  font-size: var(--chord-text-xs);
+  font-weight: 700;
+}
+
+.chord-rehearsal-card__date strong {
+  font-size: 2rem;
+  line-height: 1.1;
+}
+
+.chord-rehearsal-card__body {
+  padding: var(--chord-space-5);
+}
+
+.chord-rehearsal-card__heading h2 {
+  font-size: var(--chord-text-lg);
+  margin: 0;
+}
+
+.chord-rehearsal-card__heading p,
+.chord-rehearsal-card__songs {
+  color: var(--chord-color-muted);
+  font-size: var(--chord-text-sm);
+  margin: var(--chord-space-1) 0 0;
+}
+
+.chord-rehearsal-card__meta {
+  border-bottom: 1px solid var(--chord-color-border);
+  border-top: 1px solid var(--chord-color-border);
+  color: var(--chord-color-muted);
+  font-size: var(--chord-text-xs);
+  justify-content: flex-start;
+  margin: var(--chord-space-3) 0;
+  padding: var(--chord-space-3) 0;
+}
+
+.chord-rehearsal-card__songs {
+  margin-bottom: var(--chord-space-3);
+}
+
+.chord-rehearsal-notes {
+  border-top: 1px solid var(--chord-color-border);
+  margin-top: var(--chord-space-4);
+  padding-top: var(--chord-space-4);
+}
+
+.chord-rehearsal-attendance-table small,
+.chord-rehearsal-attendance-form-table small {
+  color: var(--chord-color-muted);
+  display: block;
+  font-size: var(--chord-text-xs);
+  margin-top: var(--chord-space-1);
+}
+
+.chord-rehearsal-attendance-form-table .form-control {
+  min-width: 14rem;
+}
+
+.chord-choice-list {
+  display: grid;
+  gap: var(--chord-space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.chord-choice-list label {
+  align-items: center;
+  border: 1px solid var(--chord-color-border);
+  border-radius: var(--chord-radius-control);
+  display: flex;
+  gap: var(--chord-space-2);
+  padding: var(--chord-space-3);
+}
+
+.chord-song-assignment-notes {
+  margin-top: var(--chord-space-4);
+}
+
+.chord-song-resource-title {
+  font-size: var(--chord-text-md);
+}
+
+.chord-announcement-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.chord-announcement-card__heading h2 {
+  margin-top: var(--chord-space-2);
+}
+
+.chord-announcement-card__footer {
+  align-items: center;
+  border-top: 1px solid var(--chord-color-border);
+  margin-top: var(--chord-space-4);
+  padding-top: var(--chord-space-3);
+}
+
 .chord-sidebar-backdrop {
   background: rgba(35, 58, 50, 0.38);
   border: 0;
@@ -1538,6 +1767,16 @@ form p > small {
   .chord-giving-filters__search {
     grid-column: 1 / -1;
   }
+
+  .chord-choir-filters,
+  .chord-rehearsal-filters,
+  .chord-announcement-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .chord-announcement-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 575.98px) {
@@ -1624,6 +1863,12 @@ form p > small {
     grid-template-columns: 1fr;
   }
 
+  .chord-choir-filters,
+  .chord-rehearsal-filters,
+  .chord-announcement-filters {
+    grid-template-columns: 1fr;
+  }
+
   .chord-giving-filters__search,
   .chord-filter-actions {
     grid-column: auto;
@@ -1646,6 +1891,26 @@ form p > small {
 
   .chord-calendar-card__heading {
     flex-direction: column-reverse;
+  }
+
+  .chord-rehearsal-card {
+    grid-template-columns: 4.25rem minmax(0, 1fr);
+  }
+
+  .chord-rehearsal-card__body {
+    padding: var(--chord-space-4);
+  }
+
+  .chord-rehearsal-card__heading,
+  .chord-announcement-card__heading,
+  .chord-announcement-card__footer {
+    flex-direction: column;
+  }
+
+  .chord-choir-roster-table th:nth-child(4),
+  .chord-choir-roster-table td:nth-child(4),
+  .chord-rehearsal-attendance-table .chord-recorded-column {
+    display: none;
   }
 
   .table > :not(caption) > * > * {

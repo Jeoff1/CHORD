@@ -20,6 +20,20 @@ from .services import sync_plan_participants, sync_song_assignments
 from .spotify import normalize_spotify_track
 
 
+def style_choir_fields(fields):
+    """Apply the shared CHORD controls to choir-facing forms."""
+    for field in fields.values():
+        widget = field.widget
+        if isinstance(widget, forms.HiddenInput):
+            continue
+        if isinstance(widget, forms.CheckboxSelectMultiple):
+            widget.attrs.setdefault("class", "chord-choice-list")
+        elif isinstance(widget, (forms.Select, forms.SelectMultiple)):
+            widget.attrs.setdefault("class", "form-select")
+        else:
+            widget.attrs.setdefault("class", "form-control")
+
+
 class DateTimeLocalInput(forms.DateTimeInput):
     input_type = "datetime-local"
 
@@ -39,6 +53,7 @@ class ChoirEnrollmentForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        style_choir_fields(self.fields)
         unavailable_ids = ChoirEnrollment.objects.exclude(pk=self.instance.pk).values(
             "member_id"
         )
@@ -69,6 +84,7 @@ class RehearsalForm(forms.ModelForm):
 
     def __init__(self, *args, actor, **kwargs):
         super().__init__(*args, **kwargs)
+        style_choir_fields(self.fields)
         events = visible_events_for(actor).filter(event_type=Event.Type.REHEARSAL)
         available_events = Q(rehearsal__isnull=True)
         if self.instance.pk:
@@ -106,6 +122,7 @@ class AttendanceEntryForm(forms.Form):
 
     def __init__(self, *args, enrollment_queryset=None, **kwargs):
         super().__init__(*args, **kwargs)
+        style_choir_fields(self.fields)
         if enrollment_queryset is not None:
             self.fields["enrollment"].queryset = enrollment_queryset
 
@@ -122,6 +139,10 @@ class ChoirAnnouncementForm(forms.ModelForm):
             "published_at": DateTimeLocalInput(),
             "expires_at": DateTimeLocalInput(),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        style_choir_fields(self.fields)
 
 
 class SongForm(forms.ModelForm):
@@ -302,6 +323,7 @@ class SongAssignmentForm(forms.Form):
 
     def __init__(self, *args, plan_song, actor, **kwargs):
         super().__init__(*args, **kwargs)
+        style_choir_fields(self.fields)
         self.plan_song = plan_song
         self.actor = actor
         self.fields["enrollments"].queryset = ChoirEnrollment.objects.filter(

@@ -103,3 +103,21 @@ See [[Screen-Implementation-Tracker]], [[Development-Log]],
 
 See [[Screen-Implementation-Tracker]], [[Development-Log]],
 [[../03-Modules/Events-Attendance]], and [[../03-Modules/Giving]].
+
+## 2026-11-10 - Phase 7.3 choir-management screen group
+
+- Confirmed that the exported reference contains no dedicated choir-management
+  frame, then applied the established Lato/forest-green shell, cards, metrics,
+  tables, forms, statuses, and responsive breakpoints consistently.
+- Replaced raw Bootstrap choir pages with a role-aware overview, protected
+  roster, rehearsal cards/details/attendance, announcement cards, enrollment
+  forms, and song-assignment preparation views backed by existing data.
+- Kept the specialized Inter/amber practice design isolated; Spotify remains an
+  official external link and protected resources retain their existing routes.
+- Added only choir-specific layout styles where shared components could not
+  express the schedule, assignment, and announcement compositions.
+- Omitted automatic reminders, custom playback, advanced practice controls,
+  chord generation, and design-only features without backend support.
+
+See [[Screen-Implementation-Tracker]], [[Development-Log]], and
+[[../03-Modules/Choir-Worship-Management]].
