@@ -37,11 +37,11 @@ CHORD's source-of-truth development notes.
 - [[04-Testing/Phase-6-Test-Results|Phase 6 Test Results]]
 - [[04-Testing/Phase-7-Test-Results|Phase 7 Test Results]]
 
-Current status: **PHASE 7.3 MILESTONE 3 COMPLETE.** The ministry-management and
-church-event screen group now joins the completed dashboards and member screens
-within the Phase 7.2 shell. Ministry leadership, event visibility,
-registration/waitlisting, capacity, cancellation, and attendance remain backed
-by the existing permission and service layers. All 129 tests, PostgreSQL
+Current status: **PHASE 7.3 MILESTONE 4 COMPLETE.** Attendance overview/history,
+per-event recording, giving administration, fund categories, contribution
+filters/summaries, and private member giving history now use the Phase 7.2
+shell. Existing event scope, confidential giving permissions, transactional
+services, and audit metadata remain authoritative. All 137 tests, PostgreSQL
 test-database execution, migration consistency, Django checks, Ruff lint, and
 Ruff formatting passed on 2026-11-10. Remaining screen groups and reports are
 separate milestones. Machine learning is reserved for Phase 8 and is neither

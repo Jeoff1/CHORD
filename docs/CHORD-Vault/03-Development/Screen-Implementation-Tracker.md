@@ -1,8 +1,8 @@
 # Screen Implementation Tracker
 
-**Phase 7.3 milestone 3 result:** Dashboard, member-management, ministry, and
-church-event screen groups complete. The shared shell remains the Phase 7.2
-foundation; other Figma screens remain separate milestones.
+**Phase 7.3 milestone 4 result:** Dashboard, member-management, ministry,
+church-event, attendance, and giving screen groups complete. The shared shell
+remains the Phase 7.2 foundation; other Figma screens remain separate milestones.
 
 Every existing authenticated Django screen now inherits the role-aware shell,
 header, responsive drawer, design tokens, and shared Bootstrap refinements from
@@ -13,8 +13,8 @@ header, responsive drawer, design tokens, and shared Bootstrap refinements from
 | Community operations · Admin overview | **Implemented in 7.3 milestone 1:** permission-scoped metrics, quick actions, upcoming events, recent members, worship preparation, and confidential monthly giving summary |
 | Community operations · Member directory | **Implemented in 7.3 milestone 2:** segmented counts, privacy-aware search, ministry/status filters, affiliations, responsive table, pagination, and empty/privacy states |
 | Community operations · Member profile | **Implemented in 7.3 milestone 2:** identity/contact presentation, supported ministry/choir affiliations, visibility-scoped attendance, responsive detail/edit layouts, and validation states |
-| Community operations · Attendance workspace | **Supported workflow refined in 7.3 milestone 3:** permission-scoped participant roster, accessible status controls, empty state, and event-scoped save actions. Full active-member roster, guests, bulk actions, and export remain backend gaps. |
-| Community operations · Giving records | Existing screens inherit shell/tokens; aggregate cards/export not started |
+| Community operations · Attendance workspace | **Implemented for the current domain in 7.3 milestone 4:** permission-scoped overview/history, event/date filters, real summary cards, responsive status table, active navigation, and refined per-event recording. Full active-member roster, guests, bulk actions, and export remain backend gaps. |
+| Community operations · Giving records | **Implemented for the current domain in 7.3 milestone 4:** confidential filtered ledger, actual total/record/fund summaries, date/fund/method/search controls, fund management, contribution forms, metadata, and private member history. Reports, reconciliation, and export remain separate gaps. |
 | Community operations · Ministry and volunteers | **Implemented for the current domain in 7.3 milestone 3:** searchable/status-aware team cards, leaders, protected membership roster, forms, visible ministry activities, responsive states, and permission-backed actions. Volunteer assignments/availability remain out of scope. |
 | Scheduling & bookings · Event and resource calendar | **Implemented for existing events in 7.3 milestone 3:** upcoming/past/all directory, search/type/ministry filters, responsive event cards, visibility, registration/capacity/waitlist details, forms, cancellation, participants, and attendance. Week-grid resources, service requests, and bookings remain unsupported. |
 | Scheduling & bookings · Booking details | Not implemented; no navigation added |
@@ -85,5 +85,21 @@ See [[Phase-7-Figma-Design-Audit]], [[Design-System]], and [[Task-Tracker]].
   resource booking, payments, full-member attendance, guest records, and
   export were not simulated because those domains do not exist.
 
-The next recommended screen group is Giving Records. Do not begin it without
+## Phase 7.3 milestone 4 boundaries
+
+- The local `CHORD.svg` Attendance and Giving Records regions were rendered and
+  used as visual references without Figma MCP or source-design changes.
+- Attendance overview/history aggregates existing non-cancelled
+  `EventParticipant` rows and limits events through `manageable_events_for`,
+  which composes existing visibility and ministry-leadership scope.
+- Per-event attendance continues through `record_event_attendance`; no parallel
+  roster, attendance model, or automatic attendance behavior was introduced.
+- Giving totals and fund summaries are calculated only inside the existing
+  authorized admin or member-self querysets. Member pages never receive donor,
+  note, audit, or contribution data belonging to another member.
+- Contribution create/update still uses the existing atomic audit services.
+  Online payment, giving reports, export, reconciliation, tax receipts, and
+  event-linked offerings were not simulated.
+
+The next recommended screen group is Choir Management. Do not begin it without
 explicit authorization.

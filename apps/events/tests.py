@@ -186,6 +186,15 @@ class EventLeadershipTests(TestCase):
         self.assertEqual(participant.attendance_recorded_by, self.leader)
         self.assertIsNotNone(participant.attendance_recorded_at)
 
+    def test_leader_cannot_open_attendance_for_another_ministry(self):
+        self.client.force_login(self.leader)
+
+        response = self.client.get(
+            reverse("events:attendance", args=(self.other_event.public_id,))
+        )
+
+        self.assertEqual(response.status_code, 403)
+
 
 class EventRegistrationTests(TestCase):
     def setUp(self):
@@ -332,6 +341,79 @@ class EventUIRefinementTests(TestCase):
         self.assertNotContains(list_response, "Create event")
         self.assertNotContains(detail_response, "Edit event")
         self.assertNotContains(detail_response, "Add participant")
+
+
+class AttendanceOverviewTests(TestCase):
+    def setUp(self):
+        self.administrator = create_role_user(
+            "attendance-admin", Role.Code.CHURCH_ADMINISTRATOR
+        )
+        self.event = create_event(title="Attendance Summary Event")
+        self.present_member = Member.objects.create(
+            first_name="Present", last_name="Member"
+        )
+        self.absent_member = Member.objects.create(
+            first_name="Absent", last_name="Member"
+        )
+        self.pending_member = Member.objects.create(
+            first_name="Pending", last_name="Member"
+        )
+        EventParticipant.objects.create(
+            event=self.event,
+            member=self.present_member,
+            attendance_status=EventParticipant.AttendanceStatus.PRESENT,
+        )
+        EventParticipant.objects.create(
+            event=self.event,
+            member=self.absent_member,
+            attendance_status=EventParticipant.AttendanceStatus.ABSENT,
+        )
+        EventParticipant.objects.create(event=self.event, member=self.pending_member)
+
+    def test_overview_uses_existing_participants_and_event_filter(self):
+        other_event = create_event(
+            title="Other Attendance Event", starts_at=future_time(5)
+        )
+        self.client.force_login(self.administrator)
+
+        response = self.client.get(
+            reverse("events:attendance-overview"),
+            {"event": self.event.public_id},
+        )
+
+        self.assertEqual(response.context["attendance_summary"]["participants"], 3)
+        self.assertEqual(response.context["attendance_summary"]["present"], 1)
+        self.assertEqual(response.context["attendance_summary"]["absent"], 1)
+        self.assertEqual(response.context["attendance_summary"]["not_recorded"], 1)
+        self.assertContains(response, self.event.title)
+        self.assertNotIn(other_event, list(response.context["attendance_events"]))
+        self.assertEqual(response.context["shell_nav_section"], "attendance")
+
+    def test_overview_date_filter_excludes_events_outside_range(self):
+        self.client.force_login(self.administrator)
+        target_date = timezone.localdate() + timedelta(days=2)
+
+        response = self.client.get(
+            reverse("events:attendance-overview"),
+            {
+                "date_from": target_date.isoformat(),
+                "date_to": target_date.isoformat(),
+            },
+        )
+
+        self.assertContains(response, self.event.title)
+
+    def test_regular_member_cannot_access_attendance_management(self):
+        member_user = create_role_user("attendance-member", Role.Code.CHURCH_MEMBER)
+        self.client.force_login(member_user)
+
+        overview = self.client.get(reverse("events:attendance-overview"))
+        record = self.client.get(
+            reverse("events:attendance", args=(self.event.public_id,))
+        )
+
+        self.assertEqual(overview.status_code, 403)
+        self.assertEqual(record.status_code, 403)
 
 
 class EventWorshipIntegrationTests(TestCase):

@@ -222,6 +222,7 @@ class ApplicationShellTests(TestCase):
         self.assertContains(response, reverse("accounts:user-list"))
         self.assertContains(response, reverse("members:list"))
         self.assertContains(response, reverse("events:list"))
+        self.assertContains(response, reverse("events:attendance-overview"))
         self.assertContains(response, reverse("worship:song-list"))
 
     def test_shell_marks_current_module_navigation(self):

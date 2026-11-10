@@ -169,3 +169,93 @@ class GivingWorkflowTests(TestCase):
         self.assertEqual(audit_event.action, ContributionAuditEvent.Action.UPDATED)
         self.assertIn("amount", audit_event.fields_changed)
         self.assertNotIn("35.00", audit_event.fields_changed)
+
+
+class GivingUIRefinementTests(TestCase):
+    def setUp(self):
+        self.administrator = create_role_user(
+            "giving-ui-admin", Role.Code.CHURCH_ADMINISTRATOR
+        )
+        self.member_user = create_role_user("giving-ui-member", Role.Code.CHURCH_MEMBER)
+        self.member = Member.objects.create(
+            user=self.member_user,
+            first_name="Giving UI",
+            last_name="Member",
+        )
+        self.other_member = Member.objects.create(
+            first_name="Other",
+            last_name="Donor",
+        )
+        self.general = Fund.objects.create(name="General UI")
+        self.missions = Fund.objects.create(name="Missions UI")
+        self.today = timezone.localdate()
+        self.linked_contribution = Contribution.objects.create(
+            member=self.member,
+            fund=self.general,
+            amount=Decimal("125.00"),
+            method=Contribution.Method.CASH,
+            contributed_on=self.today,
+            recorded_by=self.administrator,
+        )
+        Contribution.objects.create(
+            member=self.other_member,
+            fund=self.missions,
+            amount=Decimal("80.00"),
+            method=Contribution.Method.BANK,
+            contributed_on=self.today - timedelta(days=10),
+            recorded_by=self.administrator,
+            reference="PRIVATE-OTHER",
+        )
+
+    def test_admin_date_and_fund_filters_drive_actual_summary(self):
+        self.client.force_login(self.administrator)
+
+        response = self.client.get(
+            reverse("giving:contribution-list"),
+            {
+                "fund": self.general.pk,
+                "date_from": self.today.isoformat(),
+                "date_to": self.today.isoformat(),
+            },
+        )
+
+        self.assertEqual(response.context["giving_summary"]["records"], 1)
+        self.assertEqual(response.context["giving_summary"]["total"], Decimal("125.00"))
+        self.assertContains(response, "Giving UI Member")
+        self.assertNotContains(response, "Other Donor")
+
+    def test_member_history_never_exposes_another_donor(self):
+        self.client.force_login(self.member_user)
+
+        response = self.client.get(
+            reverse("giving:my-contributions"),
+            {
+                "date_from": self.today.isoformat(),
+                "date_to": self.today.isoformat(),
+            },
+        )
+
+        self.assertEqual(response.context["giving_summary"]["records"], 1)
+        self.assertEqual(response.context["giving_summary"]["total"], Decimal("125.00"))
+        self.assertContains(response, "125.00")
+        self.assertNotContains(response, "PRIVATE-OTHER")
+        self.assertNotContains(response, "Other Donor")
+
+    def test_fund_directory_uses_actual_recorded_totals(self):
+        self.client.force_login(self.administrator)
+
+        response = self.client.get(reverse("giving:fund-list"))
+
+        self.assertContains(response, "General UI")
+        self.assertContains(response, "125.00")
+        self.assertContains(response, "Missions UI")
+        self.assertContains(response, "80.00")
+
+    def test_member_cannot_access_financial_management_routes(self):
+        self.client.force_login(self.member_user)
+
+        fund_list = self.client.get(reverse("giving:fund-list"))
+        contribution_add = self.client.get(reverse("giving:contribution-add"))
+
+        self.assertEqual(fund_list.status_code, 403)
+        self.assertEqual(contribution_add.status_code, 403)

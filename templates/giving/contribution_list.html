@@ -1,44 +1,31 @@
 {% extends "base.html" %}
-{% block title %}Contributions | CHORD{% endblock %}
+{% block title %}Giving records | CHORD{% endblock %}
 {% block content %}
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">Contributions</h1>
-    <div>
-      <a class="btn btn-outline-secondary" href="{% url 'giving:fund-list' %}">Funds</a>
-      {% if perms.giving.record_contributions and perms.giving.add_contribution %}<a class="btn btn-primary" href="{% url 'giving:contribution-add' %}">Record contribution</a>{% endif %}
-    </div>
+  <div class="chord-page-heading">
+    <div><p class="chord-eyebrow">Community operations</p><h1>Giving records</h1><p>Manually recorded offerings, held with care and accountability.</p></div>
+    <div class="chord-page-actions"><a class="btn btn-outline-primary" href="{% url 'giving:fund-list' %}">Manage funds</a>{% if perms.giving.record_contributions and perms.giving.add_contribution %}<a class="btn btn-primary" href="{% url 'giving:contribution-add' %}">Record contribution</a>{% endif %}</div>
   </div>
-  <form method="get" class="row g-2 mb-3">
-    <div class="col-md-5">
-      <label class="form-label" for="fund-filter">Fund</label>
-      <select id="fund-filter" class="form-select" name="fund">
-        <option value="">All funds</option>
-        {% for fund in funds %}<option value="{{ fund.pk }}"{% if selected_fund == fund.pk|stringformat:'s' %} selected{% endif %}>{{ fund.name }}</option>{% endfor %}
-      </select>
-    </div>
-    <div class="col-md-5">
-      <label class="form-label" for="method-filter">Method</label>
-      <select id="method-filter" class="form-select" name="method">
-        <option value="">All methods</option>
-        {% for value, label in method_choices %}<option value="{{ value }}"{% if selected_method == value %} selected{% endif %}>{{ label }}</option>{% endfor %}
-      </select>
-    </div>
-    <div class="col-md-2 d-flex align-items-end"><button class="btn btn-outline-primary w-100" type="submit">Filter</button></div>
+  <div class="chord-guidance-banner"><strong>Offering records only · No online collection</strong><span>Authorized staff record contributions received outside CHORD. No bank, card, wallet, or payment gateway connection is used.</span></div>
+
+  <form method="get" class="chord-panel chord-giving-filters" aria-label="Filter contribution records">
+    <div class="chord-form-field chord-giving-filters__search"><label for="giving-search">Donor, fund, or reference</label><input id="giving-search" class="form-control" type="search" name="q" value="{{ query }}" placeholder="Search protected records"></div>
+    <div class="chord-form-field"><label for="fund-filter">Fund</label><select id="fund-filter" class="form-select" name="fund"><option value="">All funds</option>{% for fund in funds %}<option value="{{ fund.pk }}"{% if selected_fund == fund.pk|stringformat:"s" %} selected{% endif %}>{{ fund.name }}</option>{% endfor %}</select></div>
+    <div class="chord-form-field"><label for="method-filter">Method</label><select id="method-filter" class="form-select" name="method"><option value="">All methods</option>{% for value, label in method_choices %}<option value="{{ value }}"{% if selected_method == value %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+    <div class="chord-form-field"><label for="giving-date-from">From</label><input id="giving-date-from" class="form-control" type="date" name="date_from" value="{{ date_from|date:'Y-m-d' }}"></div>
+    <div class="chord-form-field"><label for="giving-date-to">To</label><input id="giving-date-to" class="form-control" type="date" name="date_to" value="{{ date_to|date:'Y-m-d' }}"></div>
+    <div class="chord-filter-actions"><button class="btn btn-primary" type="submit">Apply filters</button>{% if query or selected_fund or selected_method or date_from or date_to %}<a class="btn btn-link" href="{% url 'giving:contribution-list' %}">Clear</a>{% endif %}</div>
   </form>
-  <div class="table-responsive">
-    <table class="table table-striped align-middle">
-      <thead><tr><th>Date</th><th>Donor</th><th>Fund</th><th>Amount</th><th>Method</th><th></th></tr></thead>
-      <tbody>
-        {% for contribution in contributions %}
-          <tr>
-            <td>{{ contribution.contributed_on }}</td>
-            <td>{% if contribution.anonymous_donor %}Anonymous{% else %}{{ contribution.member.full_name }}{% endif %}</td>
-            <td>{{ contribution.fund }}</td><td>{{ contribution.amount }}</td><td>{{ contribution.get_method_display }}</td>
-            <td class="text-end"><a class="btn btn-sm btn-outline-primary" href="{% url 'giving:contribution-edit' contribution.public_id %}">Edit</a></td>
-          </tr>
-        {% empty %}<tr><td colspan="6">No contributions found.</td></tr>{% endfor %}
-      </tbody>
-    </table>
+
+  <div class="chord-metric-grid chord-giving-metrics">
+    <article class="chord-metric-card"><span>Filtered total</span><strong>₱{{ giving_summary.total|floatformat:2 }}</strong><small>{{ giving_summary.records }} contribution{{ giving_summary.records|pluralize }}</small></article>
+    <article class="chord-metric-card"><span>Identified records</span><strong>{{ giving_summary.identified }}</strong><small>Linked to member records</small></article>
+    <article class="chord-metric-card"><span>Anonymous records</span><strong>{{ giving_summary.anonymous }}</strong><small>Not linked to a member</small></article>
+    {% for summary in fund_summaries|slice:":1" %}<article class="chord-metric-card"><span>Top filtered fund</span><strong>₱{{ summary.total|floatformat:2 }}</strong><small>{{ summary.fund__name }} · {{ summary.records }} record{{ summary.records|pluralize }}</small></article>{% empty %}<article class="chord-metric-card"><span>Top filtered fund</span><strong>₱0.00</strong><small>No matching records</small></article>{% endfor %}
   </div>
-  {% include "includes/pagination.html" %}
+
+  <section class="chord-panel chord-directory-panel" aria-labelledby="giving-ledger-heading">
+    <div class="chord-panel__header"><div><h2 id="giving-ledger-heading">Contribution ledger</h2><p class="chord-panel__note">Donor and amount information is restricted to authorized giving administrators.</p></div></div>
+    <div class="table-responsive chord-table-wrap"><table class="table chord-giving-table align-middle mb-0"><thead><tr><th scope="col">Record / donor</th><th scope="col">Date</th><th scope="col">Fund</th><th scope="col">Amount</th><th scope="col">Method</th><th scope="col">Recorded by</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead><tbody>{% for contribution in contributions %}<tr><td><strong>{% if contribution.anonymous_donor %}Anonymous donor{% else %}{{ contribution.member.full_name }}{% endif %}</strong><small>{% if contribution.reference %}Ref: {{ contribution.reference }}{% else %}Record {{ contribution.public_id|stringformat:"s"|slice:":8"|upper }}{% endif %}</small></td><td>{{ contribution.contributed_on|date:"d M Y" }}</td><td>{{ contribution.fund.name }}</td><td class="chord-money">₱{{ contribution.amount|floatformat:2 }}</td><td><span class="chord-status chord-status--info">{{ contribution.get_method_display }}</span></td><td>{% if contribution.recorded_by %}{{ contribution.recorded_by.get_full_name|default:contribution.recorded_by.username }}{% else %}System{% endif %}<small>{{ contribution.created_at|date:"d M Y · g:i A" }}</small></td><td class="text-end">{% if perms.giving.change_contribution %}<a class="btn btn-sm btn-outline-primary" href="{% url 'giving:contribution-edit' contribution.public_id %}">Edit</a>{% endif %}</td></tr>{% empty %}<tr><td colspan="7"><div class="chord-empty-state">No contributions match these filters.</div></td></tr>{% endfor %}</tbody></table></div>
+  </section>
+  <div class="chord-pagination-wrap">{% include "includes/pagination.html" %}</div>
 {% endblock %}

@@ -365,3 +365,40 @@ See [[Screen-Implementation-Tracker]], [[Design-Change-Log]],
 See [[Screen-Implementation-Tracker]], [[Design-Change-Log]],
 [[../03-Modules/Ministry-Management]], [[../03-Modules/Events-Attendance]], and
 [[../04-Testing/Phase-7-Test-Results]].
+
+## 2026-11-10 - Phase 7.3 milestone 4 attendance and giving
+
+- **References:** Rendered the Attendance and Giving Records regions from the
+  combined local `static/assets/CHORD.svg`; no Figma MCP call or source-design
+  change was made.
+- **Attendance:** Added a real overview/history route with manageable-event and
+  date filters, participant/present/absent/not-recorded summaries, responsive
+  event rows, role-aware navigation, and a refined per-event recording screen.
+  It aggregates the existing `EventParticipant` records and continues to save
+  through `record_event_attendance`.
+- **Giving:** Added confidential donor/fund/reference search, fund/method/date
+  filters, filtered financial summary cards, fund totals, protected ledger
+  metadata, refined contribution/fund forms, and private member-scoped giving
+  totals/history.
+- **Security:** Added `manageable_events_for` by composing existing visibility
+  and leadership scope. Giving aggregates execute only on administrator or
+  member-self querysets; contribution create/update remains permission-backed
+  and atomic with field-name-only audit events.
+- **ORM/refactoring:** Annotated attendance and fund totals, selected giving
+  relationships, retained filter-preserving pagination, and reused shared form,
+  metric, panel, table, status, and empty-state components.
+- **Tests:** Added eight authorization/filter/summary tests and extended shell
+  navigation coverage. Targeted attendance/giving/shell tests passed 35/35,
+  the milestone regression set passed 64/64, and the full PostgreSQL suite
+  passed 137/137 in 63.357 seconds. Checks, migration consistency, Ruff, and
+  diff validation passed.
+- **Visual limitation:** Exported SVG crops rendered successfully. Authenticated
+  desktop/mobile application screenshots were not automated and remain a
+  manual browser follow-up.
+- **Boundary:** No full-member or guest attendance, export, reconciliation,
+  online payment, tax receipt, giving report, notification, booking, care, or
+  recommendation feature was introduced.
+
+See [[Screen-Implementation-Tracker]], [[Design-Change-Log]],
+[[../03-Modules/Events-Attendance]], [[../03-Modules/Giving]], and
+[[../04-Testing/Phase-7-Test-Results]].

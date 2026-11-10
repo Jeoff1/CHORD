@@ -1,17 +1,10 @@
 {% extends "base.html" %}
 {% block title %}My giving | CHORD{% endblock %}
 {% block content %}
-  <h1 class="h3">My giving history</h1>
-  <p class="text-muted">Only contributions linked to your member record appear here. Anonymous contributions are not linked to an account.</p>
-  <div class="table-responsive">
-    <table class="table table-striped align-middle">
-      <thead><tr><th>Date</th><th>Fund</th><th>Amount</th><th>Method</th></tr></thead>
-      <tbody>
-        {% for contribution in contributions %}
-          <tr><td>{{ contribution.contributed_on }}</td><td>{{ contribution.fund }}</td><td>{{ contribution.amount }}</td><td>{{ contribution.get_method_display }}</td></tr>
-        {% empty %}<tr><td colspan="4">No contributions are linked to your member record.</td></tr>{% endfor %}
-      </tbody>
-    </table>
-  </div>
-  {% include "includes/pagination.html" %}
+  <div class="chord-page-heading"><div><p class="chord-eyebrow">Member experience</p><h1>My giving history</h1><p>Only contributions intentionally linked to your member record appear here.</p></div></div>
+  <div class="chord-guidance-banner"><strong>Private to your account</strong><span>Anonymous contributions are not linked to any account. Internal notes, audit details, and other donors are never shown here.</span></div>
+  <form method="get" class="chord-panel chord-member-giving-filters" aria-label="Filter my giving history"><div class="chord-form-field"><label for="my-giving-fund">Fund</label><select id="my-giving-fund" class="form-select" name="fund"><option value="">All funds</option>{% for fund in funds %}<option value="{{ fund.pk }}"{% if selected_fund == fund.pk|stringformat:"s" %} selected{% endif %}>{{ fund.name }}</option>{% endfor %}</select></div><div class="chord-form-field"><label for="my-giving-from">From</label><input id="my-giving-from" class="form-control" type="date" name="date_from" value="{{ date_from|date:'Y-m-d' }}"></div><div class="chord-form-field"><label for="my-giving-to">To</label><input id="my-giving-to" class="form-control" type="date" name="date_to" value="{{ date_to|date:'Y-m-d' }}"></div><button class="btn btn-primary" type="submit">Apply filters</button>{% if selected_fund or date_from or date_to %}<a class="btn btn-link" href="{% url 'giving:my-contributions' %}">Clear</a>{% endif %}</form>
+  <div class="chord-metric-grid chord-member-giving-metrics"><article class="chord-metric-card"><span>Filtered total</span><strong>₱{{ giving_summary.total|floatformat:2 }}</strong><small>{{ giving_summary.records }} linked record{{ giving_summary.records|pluralize }}</small></article>{% for summary in fund_summaries %}<article class="chord-metric-card"><span>{{ summary.fund__name }}</span><strong>₱{{ summary.total|floatformat:2 }}</strong><small>{{ summary.records }} contribution{{ summary.records|pluralize }}</small></article>{% endfor %}</div>
+  <section class="chord-panel chord-directory-panel" aria-labelledby="my-giving-ledger"><div class="chord-panel__header"><div><h2 id="my-giving-ledger">Linked contributions</h2><p class="chord-panel__note">This is a personal history, not a payment or tax-receipt service.</p></div></div><div class="table-responsive chord-table-wrap"><table class="table chord-my-giving-table align-middle mb-0"><thead><tr><th scope="col">Date</th><th scope="col">Fund</th><th scope="col">Amount</th><th scope="col">Method</th></tr></thead><tbody>{% for contribution in contributions %}<tr><td>{{ contribution.contributed_on|date:"d M Y" }}</td><td>{{ contribution.fund.name }}</td><td class="chord-money">₱{{ contribution.amount|floatformat:2 }}</td><td><span class="chord-status chord-status--info">{{ contribution.get_method_display }}</span></td></tr>{% empty %}<tr><td colspan="4"><div class="chord-empty-state">No contributions are linked to your member record for this period.</div></td></tr>{% endfor %}</tbody></table></div></section>
+  <div class="chord-pagination-wrap">{% include "includes/pagination.html" %}</div>
 {% endblock %}

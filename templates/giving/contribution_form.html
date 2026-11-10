@@ -1,11 +1,7 @@
 {% extends "base.html" %}
-{% block title %}Contribution | CHORD{% endblock %}
+{% block title %}{% if object %}Edit{% else %}Record{% endif %} contribution | CHORD{% endblock %}
 {% block content %}
-  <h1 class="h3">{% if object %}Edit{% else %}Record{% endif %} contribution</h1>
-  <div class="alert alert-info">Donor and amount information is restricted to authorized giving administrators. Use the anonymous option only when no member should be linked.</div>
-  <form method="post" class="card card-body">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <div><button class="btn btn-primary" type="submit">Save contribution</button> <a class="btn btn-outline-secondary" href="{% url 'giving:contribution-list' %}">Cancel</a></div>
-  </form>
+  <div class="chord-page-heading"><div><p class="chord-eyebrow">Giving records</p><h1>{% if object %}Edit{% else %}Record{% endif %} contribution</h1><p>Maintain a confidential manual contribution record and its audit trail.</p></div><div class="chord-page-actions"><a class="btn btn-outline-primary" href="{% url 'giving:contribution-list' %}">Cancel</a><button class="btn btn-primary" type="submit" form="contribution-form">Save contribution</button></div></div>
+  <div class="chord-guidance-banner"><strong>Confidential financial record</strong><span>This saves a contribution record, not a payment. Use anonymous only when no member identity should be retained.</span></div>
+  <form id="contribution-form" method="post" class="chord-panel chord-form-panel">{% csrf_token %}{% if form.non_field_errors %}<div class="errorlist">{{ form.non_field_errors }}</div>{% endif %}<div class="chord-form-grid">{% include "includes/form_field.html" with field=form.member %}{% include "includes/form_field.html" with field=form.fund %}{% include "includes/form_field.html" with field=form.amount %}{% include "includes/form_field.html" with field=form.contributed_on %}{% include "includes/form_field.html" with field=form.method %}{% include "includes/form_field.html" with field=form.reference %}<div class="chord-form-field chord-form-field--full">{% include "includes/form_field.html" with field=form.notes %}</div></div><div class="form-check chord-registration-toggle chord-anonymous-toggle">{{ form.anonymous_donor }}{{ form.anonymous_donor.label_tag }}{% for error in form.anonymous_donor.errors %}<span class="chord-field-error">{{ error }}</span>{% endfor %}</div><div class="chord-form-actions"><button class="btn btn-primary" type="submit">Save contribution</button><a class="btn btn-link" href="{% url 'giving:contribution-list' %}">Cancel</a></div></form>
 {% endblock %}

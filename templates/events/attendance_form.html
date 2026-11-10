@@ -1,6 +1,21 @@
 {% extends "base.html" %}
 {% block title %}Attendance · {{ event.title }} | CHORD{% endblock %}
 {% block content %}
-  <div class="chord-page-heading"><div><p class="chord-eyebrow"><a href="{% url 'events:detail' event.public_id %}">{{ event.title }}</a></p><h1>Attendance</h1><p>Record attendance for registered or waitlisted participants in this event.</p></div><div class="chord-page-actions"><a class="btn btn-outline-primary" href="{% url 'events:detail' event.public_id %}">Cancel</a><button class="btn btn-primary" type="submit" form="attendance-form">Save attendance</button></div></div>
-  <form id="attendance-form" method="post" class="chord-panel chord-attendance-panel">{% csrf_token %}{{ formset.management_form }}{% if formset.non_form_errors %}<div class="errorlist">{{ formset.non_form_errors }}</div>{% endif %}<div class="chord-panel__header"><div><h2>Participant roster</h2><p class="chord-panel__note">Cancelled registrations are excluded. Changes apply only to this event.</p></div></div><div class="table-responsive chord-table-wrap"><table class="table chord-roster-table align-middle mb-0"><thead><tr><th scope="col">Member</th><th scope="col">Attendance status</th></tr></thead><tbody>{% for form in formset %}<tr><td>{{ form.participant }}{{ form.participant.errors }}<strong>{{ form.initial.participant.member.full_name }}</strong></td><td>{{ form.attendance_status }}{% for error in form.attendance_status.errors %}<span class="chord-field-error">{{ error }}</span>{% endfor %}</td></tr>{% empty %}<tr><td colspan="2"><div class="chord-empty-state">No active participants are available for attendance.</div></td></tr>{% endfor %}</tbody></table></div><div class="chord-form-actions"><button class="btn btn-primary" type="submit">Save attendance</button><a class="btn btn-link" href="{% url 'events:detail' event.public_id %}">Cancel</a></div></form>
+  <div class="chord-page-heading">
+    <div><p class="chord-eyebrow"><a href="{% url 'events:attendance-overview' %}">Attendance</a></p><h1>{{ event.title }}</h1><p>{{ event.starts_at|date:"l, d F Y · g:i A" }} · Record attendance for active event participants.</p></div>
+    <div class="chord-page-actions"><a class="btn btn-outline-primary" href="{% url 'events:detail' event.public_id %}">Cancel</a><button class="btn btn-primary" type="submit" form="attendance-form">Save attendance</button></div>
+  </div>
+  <div class="chord-metric-grid chord-attendance-metrics">
+    <article class="chord-metric-card"><span>Participants</span><strong>{{ attendance_summary.participants }}</strong><small>Registered or waitlisted</small></article>
+    <article class="chord-metric-card"><span>Present</span><strong>{{ attendance_summary.present }}</strong><small>Currently recorded</small></article>
+    <article class="chord-metric-card"><span>Absent</span><strong>{{ attendance_summary.absent }}</strong><small>Currently recorded</small></article>
+    <article class="chord-metric-card"><span>Not recorded</span><strong>{{ attendance_summary.not_recorded }}</strong><small>Awaiting an update</small></article>
+  </div>
+  <form id="attendance-form" method="post" class="chord-panel chord-attendance-panel">
+    {% csrf_token %}{{ formset.management_form }}
+    {% if formset.non_form_errors %}<div class="errorlist">{{ formset.non_form_errors }}</div>{% endif %}
+    <div class="chord-panel__header"><div><h2>Participant roster</h2><p class="chord-panel__note">Cancelled registrations are excluded. Changes apply only to this event.</p></div></div>
+    <div class="table-responsive chord-table-wrap"><table class="table chord-roster-table align-middle mb-0"><thead><tr><th scope="col">Member</th><th scope="col">Attendance status</th></tr></thead><tbody>{% for form in formset %}<tr><td>{{ form.participant }}{{ form.participant.errors }}<strong>{{ form.initial.participant.member.full_name }}</strong></td><td>{{ form.attendance_status }}{% for error in form.attendance_status.errors %}<span class="chord-field-error">{{ error }}</span>{% endfor %}</td></tr>{% empty %}<tr><td colspan="2"><div class="chord-empty-state">No active participants are available for attendance.</div></td></tr>{% endfor %}</tbody></table></div>
+    <div class="chord-form-actions"><button class="btn btn-primary" type="submit">Save attendance</button><a class="btn btn-link" href="{% url 'events:detail' event.public_id %}">Cancel</a></div>
+  </form>
 {% endblock %}

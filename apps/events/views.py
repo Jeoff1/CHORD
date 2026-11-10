@@ -1,9 +1,12 @@
+from uuid import UUID
+
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied, ValidationError
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.dateparse import parse_date
 from django.views import View
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
@@ -15,6 +18,7 @@ from .models import Event, EventParticipant
 from .services import (
     can_manage_event,
     cancel_registration,
+    manageable_events_for,
     record_event_attendance,
     register_member,
     synchronize_linked_schedules,
@@ -102,6 +106,126 @@ class EventListView(AuthenticatedPermissionRequiredMixin, ListView):
                 "pagination_query": params.urlencode(),
             }
         )
+        return context
+
+
+class AttendanceOverviewView(AuthenticatedPermissionRequiredMixin, ListView):
+    permission_required = (
+        "events.record_event_attendance",
+        "events.change_eventparticipant",
+    )
+    model = Event
+    template_name = "events/attendance_overview.html"
+    context_object_name = "attendance_events"
+    paginate_by = 20
+
+    def get_queryset(self):
+        queryset = manageable_events_for(self.request.user)
+        selected_event = self.request.GET.get("event", "").strip()
+        try:
+            selected_event = str(UUID(selected_event)) if selected_event else ""
+        except ValueError:
+            selected_event = ""
+        date_from = parse_date(self.request.GET.get("date_from", ""))
+        date_to = parse_date(self.request.GET.get("date_to", ""))
+        if selected_event:
+            queryset = queryset.filter(public_id=selected_event)
+        if date_from:
+            queryset = queryset.filter(starts_at__date__gte=date_from)
+        if date_to:
+            queryset = queryset.filter(starts_at__date__lte=date_to)
+        self.filtered_events = queryset
+        self.selected_event = selected_event
+        self.date_from = date_from
+        self.date_to = date_to
+        active_registration = ~Q(
+            participants__registration_status=(
+                EventParticipant.RegistrationStatus.CANCELLED
+            )
+        )
+        recorded_attendance = ~Q(
+            participants__attendance_status=(
+                EventParticipant.AttendanceStatus.NOT_RECORDED
+            )
+        )
+        return queryset.annotate(
+            participant_count=Count(
+                "participants", filter=active_registration, distinct=True
+            ),
+            present_count=Count(
+                "participants",
+                filter=(
+                    active_registration
+                    & Q(
+                        participants__attendance_status=(
+                            EventParticipant.AttendanceStatus.PRESENT
+                        )
+                    )
+                ),
+                distinct=True,
+            ),
+            absent_count=Count(
+                "participants",
+                filter=(
+                    active_registration
+                    & Q(
+                        participants__attendance_status=(
+                            EventParticipant.AttendanceStatus.ABSENT
+                        )
+                    )
+                ),
+                distinct=True,
+            ),
+            recorded_count=Count(
+                "participants",
+                filter=active_registration & recorded_attendance,
+                distinct=True,
+            ),
+        ).order_by("-starts_at", "-id")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        participants = EventParticipant.objects.filter(
+            event__in=self.filtered_events
+        ).exclude(registration_status=EventParticipant.RegistrationStatus.CANCELLED)
+        context.update(
+            {
+                "attendance_summary": participants.aggregate(
+                    participants=Count("pk"),
+                    present=Count(
+                        "pk",
+                        filter=Q(
+                            attendance_status=(
+                                EventParticipant.AttendanceStatus.PRESENT
+                            )
+                        ),
+                    ),
+                    absent=Count(
+                        "pk",
+                        filter=Q(
+                            attendance_status=(EventParticipant.AttendanceStatus.ABSENT)
+                        ),
+                    ),
+                    not_recorded=Count(
+                        "pk",
+                        filter=Q(
+                            attendance_status=(
+                                EventParticipant.AttendanceStatus.NOT_RECORDED
+                            )
+                        ),
+                    ),
+                ),
+                "attendance_event_choices": manageable_events_for(
+                    self.request.user
+                ).order_by("-starts_at", "-id")[:100],
+                "selected_event": self.selected_event,
+                "date_from": self.date_from,
+                "date_to": self.date_to,
+            }
+        )
+        params = self.request.GET.copy()
+        params.pop("page", None)
+        context["pagination_query"] = params.urlencode()
         return context
 
 
@@ -333,6 +457,35 @@ class EventAttendanceView(AuthenticatedPermissionRequiredMixin, View):
             for participant in participants
         ]
 
+    def get_context(self, *, event, formset, participants):
+        return {
+            "event": event,
+            "formset": formset,
+            "attendance_summary": participants.aggregate(
+                participants=Count("pk"),
+                present=Count(
+                    "pk",
+                    filter=Q(
+                        attendance_status=EventParticipant.AttendanceStatus.PRESENT
+                    ),
+                ),
+                absent=Count(
+                    "pk",
+                    filter=Q(
+                        attendance_status=EventParticipant.AttendanceStatus.ABSENT
+                    ),
+                ),
+                not_recorded=Count(
+                    "pk",
+                    filter=Q(
+                        attendance_status=(
+                            EventParticipant.AttendanceStatus.NOT_RECORDED
+                        )
+                    ),
+                ),
+            ),
+        }
+
     def get(self, request, *args, **kwargs):
         event = self.get_event()
         participants = self.get_participants(event)
@@ -340,7 +493,15 @@ class EventAttendanceView(AuthenticatedPermissionRequiredMixin, View):
             initial=self.get_initial(participants),
             form_kwargs={"participant_queryset": participants},
         )
-        return render(request, self.template_name, {"event": event, "formset": formset})
+        return render(
+            request,
+            self.template_name,
+            self.get_context(
+                event=event,
+                formset=formset,
+                participants=participants,
+            ),
+        )
 
     def post(self, request, *args, **kwargs):
         event = self.get_event()
@@ -357,4 +518,12 @@ class EventAttendanceView(AuthenticatedPermissionRequiredMixin, View):
             )
             messages.success(request, "Event attendance was recorded.")
             return redirect("events:detail", public_id=event.public_id)
-        return render(request, self.template_name, {"event": event, "formset": formset})
+        return render(
+            request,
+            self.template_name,
+            self.get_context(
+                event=event,
+                formset=formset,
+                participants=participants,
+            ),
+        )

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Attendance | CHORD{% endblock %}
+{% block content %}
+  <div class="chord-page-heading">
+    <div><p class="chord-eyebrow">Community operations</p><h1>Attendance</h1><p>A thoughtful record of attendance for events you are authorized to manage.</p></div>
+    <div class="chord-page-actions"><a class="btn btn-outline-primary" href="{% url 'events:list' %}">Open calendar</a></div>
+  </div>
+
+  <form method="get" class="chord-panel chord-attendance-filters" aria-label="Filter attendance history">
+    <div class="chord-form-field"><label for="attendance-event">Event</label><select id="attendance-event" class="form-select" name="event"><option value="">All manageable events</option>{% for event in attendance_event_choices %}<option value="{{ event.public_id }}"{% if selected_event == event.public_id|stringformat:"s" %} selected{% endif %}>{{ event.title }} · {{ event.starts_at|date:"d M Y" }}</option>{% endfor %}</select></div>
+    <div class="chord-form-field"><label for="attendance-date-from">From</label><input id="attendance-date-from" class="form-control" type="date" name="date_from" value="{{ date_from|date:'Y-m-d' }}"></div>
+    <div class="chord-form-field"><label for="attendance-date-to">To</label><input id="attendance-date-to" class="form-control" type="date" name="date_to" value="{{ date_to|date:'Y-m-d' }}"></div>
+    <button class="btn btn-primary" type="submit">Apply filters</button>
+    {% if selected_event or date_from or date_to %}<a class="btn btn-link" href="{% url 'events:attendance-overview' %}">Clear</a>{% endif %}
+  </form>
+
+  <div class="chord-metric-grid chord-attendance-metrics">
+    <article class="chord-metric-card"><span>Participants</span><strong>{{ attendance_summary.participants }}</strong><small>Active event registrations</small></article>
+    <article class="chord-metric-card"><span>Present</span><strong>{{ attendance_summary.present }}</strong><small>Recorded present</small></article>
+    <article class="chord-metric-card"><span>Absent</span><strong>{{ attendance_summary.absent }}</strong><small>Recorded absent</small></article>
+    <article class="chord-metric-card"><span>Not recorded</span><strong>{{ attendance_summary.not_recorded }}</strong><small>Still awaiting attendance</small></article>
+  </div>
+
+  <section class="chord-panel chord-directory-panel" aria-labelledby="attendance-history-heading">
+    <div class="chord-panel__header"><div><h2 id="attendance-history-heading">Attendance history</h2><p class="chord-panel__note">Each row uses the existing event participant record; no parallel attendance ledger is created.</p></div></div>
+    <div class="table-responsive chord-table-wrap">
+      <table class="table chord-attendance-history-table align-middle mb-0">
+        <thead><tr><th scope="col">Event</th><th scope="col">Date</th><th scope="col">Participants</th><th scope="col">Present</th><th scope="col">Absent</th><th scope="col">Recorded</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+        <tbody>
+          {% for event in attendance_events %}
+            <tr>
+              <td><a href="{% url 'events:detail' event.public_id %}"><strong>{{ event.title }}</strong><small>{{ event.get_event_type_display }}{% if event.ministry %} · {{ event.ministry.name }}{% endif %}</small></a></td>
+              <td>{{ event.starts_at|date:"d M Y" }}<small>{{ event.starts_at|date:"g:i A" }}</small></td>
+              <td>{{ event.participant_count }}</td><td><span class="chord-status chord-status--success">{{ event.present_count }}</span></td><td><span class="chord-status chord-status--danger">{{ event.absent_count }}</span></td><td>{{ event.recorded_count }} / {{ event.participant_count }}</td>
+              <td class="text-end"><a class="btn btn-sm btn-outline-primary" href="{% url 'events:attendance' event.public_id %}">Record</a></td>
+            </tr>
+          {% empty %}<tr><td colspan="7"><div class="chord-empty-state">No manageable events match these attendance filters.</div></td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <div class="chord-pagination-wrap">{% include "includes/pagination.html" %}</div>
+  <div class="chord-guidance-banner chord-calendar-boundary"><strong>Attendance scope</strong><span>Only existing event participants are included. Full-member rosters, first-time guests, exports, and automatic attendance are not implemented.</span></div>
+{% endblock %}

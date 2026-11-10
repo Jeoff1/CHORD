@@ -83,3 +83,23 @@ See [[Screen-Implementation-Tracker]], [[Development-Log]], and
 See [[Screen-Implementation-Tracker]], [[Development-Log]],
 [[../03-Modules/Ministry-Management]], and
 [[../03-Modules/Events-Attendance]].
+
+## 2026-11-10 - Phase 7.3 attendance and giving screen group
+
+- Reused local rendered Attendance and Giving Records references; no Figma MCP
+  call or source-file modification occurred.
+- Translated the Attendance composition into a permission-scoped history and
+  event-recording flow backed only by current event participants. Replaced the
+  unsupported full-roster/guest/export controls with truthful scope guidance.
+- Translated Giving Records into actual filtered totals, confidential ledger
+  rows, fund categories, manual contribution forms, and a private member view.
+  Omitted design-only service linkage, reconciliation, reports, and export.
+- Reused the established metric cards, panels, form controls, tables, badges,
+  guidance banners, pagination, sidebar, and responsive breakpoints; added only
+  attendance/giving layout styles not already expressed by shared components.
+- Preserved text-based statuses and semantic labels so meaning is not conveyed
+  by color alone. Dense secondary columns collapse on small screens while core
+  event, donor/fund, amount, and action information remains available.
+
+See [[Screen-Implementation-Tracker]], [[Development-Log]],
+[[../03-Modules/Events-Attendance]], and [[../03-Modules/Giving]].

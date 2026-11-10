@@ -1109,6 +1109,92 @@ h6 {
   min-width: 10rem;
 }
 
+.chord-attendance-filters,
+.chord-member-giving-filters {
+  align-items: end;
+  display: grid;
+  gap: var(--chord-space-3);
+  grid-template-columns: minmax(16rem, 2fr) repeat(2, minmax(10rem, 1fr)) auto auto;
+  margin-bottom: var(--chord-space-5);
+  padding: var(--chord-space-4);
+}
+
+.chord-attendance-filters .chord-form-field label,
+.chord-giving-filters .chord-form-field label,
+.chord-member-giving-filters .chord-form-field label {
+  color: var(--chord-color-muted);
+  font-size: var(--chord-text-xs);
+}
+
+.chord-attendance-metrics .chord-metric-card,
+.chord-giving-metrics .chord-metric-card,
+.chord-member-giving-metrics .chord-metric-card {
+  min-height: 8rem;
+}
+
+.chord-attendance-history-table a {
+  color: var(--chord-color-text);
+  text-decoration: none;
+}
+
+.chord-attendance-history-table a:hover {
+  color: var(--chord-color-primary);
+}
+
+.chord-attendance-history-table small,
+.chord-giving-table small,
+.chord-fund-table small {
+  color: var(--chord-color-muted);
+  display: block;
+  font-size: var(--chord-text-xs);
+  margin-top: var(--chord-space-1);
+}
+
+.chord-giving-filters {
+  align-items: end;
+  display: grid;
+  gap: var(--chord-space-3);
+  grid-template-columns: minmax(15rem, 2fr) repeat(4, minmax(9rem, 1fr));
+  margin-bottom: var(--chord-space-5);
+  padding: var(--chord-space-4);
+}
+
+.chord-giving-filters__search {
+  min-width: 0;
+}
+
+.chord-filter-actions {
+  display: flex;
+  gap: var(--chord-space-2);
+  grid-column: 1 / -1;
+  justify-content: flex-end;
+}
+
+.chord-giving-metrics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.chord-giving-metrics .chord-metric-card strong,
+.chord-member-giving-metrics .chord-metric-card strong {
+  font-size: clamp(1.35rem, 2vw, 2rem);
+}
+
+.chord-money {
+  color: var(--chord-color-primary-strong);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.chord-anonymous-toggle {
+  border-top: 1px solid var(--chord-color-border);
+  margin-top: var(--chord-space-5);
+  padding-top: var(--chord-space-4);
+}
+
+.chord-member-giving-metrics {
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+}
+
 .chord-sidebar-backdrop {
   background: rgba(35, 58, 50, 0.38);
   border: 0;
@@ -1438,8 +1524,19 @@ form p > small {
   }
 
   .chord-event-filters,
-  .chord-ministry-filters {
+  .chord-ministry-filters,
+  .chord-attendance-filters,
+  .chord-member-giving-filters {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .chord-giving-filters,
+  .chord-giving-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .chord-giving-filters__search {
+    grid-column: 1 / -1;
   }
 }
 
@@ -1519,8 +1616,32 @@ form p > small {
   .chord-calendar-card__details,
   .chord-capacity-summary,
   .chord-event-filters,
-  .chord-ministry-filters {
+  .chord-ministry-filters,
+  .chord-attendance-filters,
+  .chord-giving-filters,
+  .chord-giving-metrics,
+  .chord-member-giving-filters {
     grid-template-columns: 1fr;
+  }
+
+  .chord-giving-filters__search,
+  .chord-filter-actions {
+    grid-column: auto;
+  }
+
+  .chord-filter-actions {
+    justify-content: flex-start;
+  }
+
+  .chord-attendance-history-table th:nth-child(3),
+  .chord-attendance-history-table td:nth-child(3),
+  .chord-attendance-history-table th:nth-child(5),
+  .chord-attendance-history-table td:nth-child(5),
+  .chord-giving-table th:nth-child(5),
+  .chord-giving-table td:nth-child(5),
+  .chord-giving-table th:nth-child(6),
+  .chord-giving-table td:nth-child(6) {
+    display: none;
   }
 
   .chord-calendar-card__heading {

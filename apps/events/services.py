@@ -58,6 +58,16 @@ def can_manage_event(user, event):
     )
 
 
+def manageable_events_for(user):
+    """Return visible events the user is authorized to administer."""
+    queryset = visible_events_for(user)
+    if user.has_perm("events.manage_events"):
+        return queryset
+    if not user.has_perm("events.manage_ministry_events"):
+        return queryset.none()
+    return queryset.filter(ministry_id__in=led_ministry_ids(user))
+
+
 def participant_member_queryset(event):
     from apps.members.models import Member
 

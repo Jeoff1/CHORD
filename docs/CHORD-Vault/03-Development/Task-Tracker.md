@@ -101,9 +101,16 @@ Phase 7.2 is complete. Its shell is the foundation for the incremental Phase
   registration, participant, event-form, and attendance refinements
 - [x] Preserve ministry object scope and event audience/direct-URL restrictions
 - [x] Pass 23 ministry/event tests, 58 milestone regressions, and 129 full tests
+- [x] Milestone 4: Attendance and Giving refinement
+- [x] Add a permission-scoped attendance overview using existing event participants
+- [x] Add event/date filters, real attendance summaries, history, and status UI
+- [x] Add giving date/fund/method/search filters and actual financial summaries
+- [x] Refine confidential ledger, fund, contribution form, and member-history UI
+- [x] Verify direct-route attendance and financial-management denial
+- [x] Pass 35 targeted tests, 64 milestone regressions, and 137 full tests
 - [ ] Remaining mapped screen groups
 
-Phase 7.3 milestone 3 is complete. Do not begin the next screen group or Phase 8
+Phase 7.3 milestone 4 is complete. Do not begin the next screen group or Phase 8
 without explicit authorization.
 
 See [[Development-Roadmap]], [[Known-Issues]], and

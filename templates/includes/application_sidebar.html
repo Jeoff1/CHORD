@@ -24,6 +24,9 @@
       {% if perms.members.view_member_directory %}
         <a class="chord-nav-link{% if shell_nav_section == 'members' %} is-active{% endif %}" href="{% url 'members:list' %}"{% if shell_nav_section == 'members' %} aria-current="page"{% endif %}>Members</a>
       {% endif %}
+      {% if perms.events.record_event_attendance and perms.events.change_eventparticipant %}
+        <a class="chord-nav-link{% if shell_nav_section == 'attendance' %} is-active{% endif %}" href="{% url 'events:attendance-overview' %}"{% if shell_nav_section == 'attendance' %} aria-current="page"{% endif %}>Attendance</a>
+      {% endif %}
       {% if perms.ministries.view_ministry_directory %}
         <a class="chord-nav-link{% if shell_nav_section == 'ministries' %} is-active{% endif %}" href="{% url 'ministries:list' %}"{% if shell_nav_section == 'ministries' %} aria-current="page"{% endif %}>Ministries &amp; volunteers</a>
       {% endif %}

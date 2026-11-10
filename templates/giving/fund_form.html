@@ -1,10 +1,6 @@
 {% extends "base.html" %}
-{% block title %}Giving fund | CHORD{% endblock %}
+{% block title %}{% if object %}Edit{% else %}Add{% endif %} giving fund | CHORD{% endblock %}
 {% block content %}
-  <h1 class="h3">{% if object %}Edit{% else %}Add{% endif %} giving fund</h1>
-  <form method="post" class="card card-body">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <div><button class="btn btn-primary" type="submit">Save fund</button> <a class="btn btn-outline-secondary" href="{% url 'giving:fund-list' %}">Cancel</a></div>
-  </form>
+  <div class="chord-page-heading"><div><p class="chord-eyebrow">Giving funds</p><h1>{% if object %}Edit{% else %}Add{% endif %} giving fund</h1><p>Maintain a clear category for contribution reporting and historical records.</p></div><div class="chord-page-actions"><a class="btn btn-outline-primary" href="{% url 'giving:fund-list' %}">Cancel</a><button class="btn btn-primary" type="submit" form="fund-form">Save fund</button></div></div>
+  <form id="fund-form" method="post" class="chord-panel chord-form-panel">{% csrf_token %}{% if form.non_field_errors %}<div class="errorlist">{{ form.non_field_errors }}</div>{% endif %}<div class="chord-form-grid"><div class="chord-form-field chord-form-field--full">{% include "includes/form_field.html" with field=form.name %}</div><div class="chord-form-field chord-form-field--full">{% include "includes/form_field.html" with field=form.description %}</div></div><div class="form-check chord-registration-toggle chord-anonymous-toggle">{{ form.is_active }}{{ form.is_active.label_tag }}{% for error in form.is_active.errors %}<span class="chord-field-error">{{ error }}</span>{% endfor %}</div><div class="chord-form-actions"><button class="btn btn-primary" type="submit">Save fund</button><a class="btn btn-link" href="{% url 'giving:fund-list' %}">Cancel</a></div></form>
 {% endblock %}

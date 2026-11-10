@@ -30,6 +30,13 @@ Status: **Core completed in Phase 5; Phase 7.3 UI refined (2026-11-10)**
 - Permission-aware create/edit, participant, and attendance forms with clear
   validation and empty states
 - Deterministic pagination and selected related data for efficient rendering
+- Permission-scoped attendance overview and history using existing event
+  participant records
+- Manageable-event and date-range filters with real participant, present,
+  absent, and not-recorded summaries
+- Separate role-aware Attendance navigation for authorized administrators and
+  ministry leaders
+- Responsive attendance history and per-event forms with semantic status pills
 
 ## Phase 4 integration
 

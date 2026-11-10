@@ -3,6 +3,7 @@ SECTION_LABELS = {
     "accounts": "Account administration",
     "profile": "Access & profile",
     "members": "Members",
+    "attendance": "Attendance",
     "ministries": "Ministries & volunteers",
     "events": "Calendar",
     "giving": "Giving records",
@@ -31,6 +32,8 @@ def application_shell(request):
             section = "accounts"
         else:
             section = "profile"
+    elif app_name == "events" and url_name in {"attendance", "attendance-overview"}:
+        section = "attendance"
     elif app_name == "worship":
         if url_name == "song-assignments" or url_name.startswith("plan-"):
             section = "plans"

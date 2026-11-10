@@ -1,6 +1,6 @@
 # Known Issues
 
-No critical or high-severity blocker remains after Phase 7.3 Milestone 3.
+No critical or high-severity blocker remains after Phase 7.3 Milestone 4.
 
 ## Medium
 
@@ -26,7 +26,8 @@ No critical or high-severity blocker remains after Phase 7.3 Milestone 3.
    schedules remain supported by design.
 5. Recurrence and outbound event notifications are not implemented. Current
    events represent individual occurrences.
-6. Giving totals and exports are intentionally deferred to Phase 7 reporting.
+6. Filtered giving totals and fund summaries are implemented. Ledger export,
+   reconciliation, tax receipts, and broader giving reports remain deferred.
 7. Spotify playback depends on Spotify, the browser, location, account state,
    and third-party cookie/media policies. CHORD provides an ordinary Spotify
    link when embedded playback is unavailable.
