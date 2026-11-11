@@ -1424,6 +1424,243 @@ h6 {
   padding-top: var(--chord-space-3);
 }
 
+/* Worship planning screens */
+.chord-plan-metrics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.chord-plan-filters {
+  grid-template-columns: minmax(16rem, 2fr) minmax(11rem, 1fr) auto auto;
+}
+
+.chord-plan-directory {
+  display: grid;
+  gap: var(--chord-space-4);
+}
+
+.chord-plan-card {
+  background: var(--chord-color-surface);
+  border: 1px solid var(--chord-color-border);
+  border-radius: var(--chord-radius-card);
+  box-shadow: var(--chord-shadow-card);
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.chord-plan-card__date {
+  align-items: center;
+  background: var(--chord-color-primary-soft);
+  color: var(--chord-color-primary);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--chord-space-4);
+  text-transform: uppercase;
+}
+
+.chord-plan-card__date span,
+.chord-plan-card__date small {
+  font-size: var(--chord-text-xs);
+  font-weight: 700;
+}
+
+.chord-plan-card__date strong {
+  font-size: 2rem;
+  line-height: 1.1;
+}
+
+.chord-plan-card__body {
+  padding: var(--chord-space-5);
+}
+
+.chord-plan-card__heading,
+.chord-plan-card__facts,
+.chord-setlist-item__heading,
+.chord-setlist-item__music,
+.chord-setlist-item__metadata,
+.chord-setlist-item__resources,
+.chord-setlist-item__actions {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--chord-space-3);
+}
+
+.chord-plan-card__heading {
+  justify-content: space-between;
+}
+
+.chord-plan-card__heading h2 {
+  font-size: var(--chord-text-lg);
+  margin: 0;
+}
+
+.chord-plan-card__heading h2 a,
+.chord-setlist-item__heading h3 a {
+  color: var(--chord-color-text);
+  text-decoration: none;
+}
+
+.chord-plan-card__heading h2 a:hover,
+.chord-setlist-item__heading h3 a:hover {
+  color: var(--chord-color-primary);
+}
+
+.chord-plan-card__heading p,
+.chord-plan-card__notes {
+  color: var(--chord-color-muted);
+  font-size: var(--chord-text-sm);
+  margin: var(--chord-space-1) 0 0;
+}
+
+.chord-plan-card__facts {
+  border-bottom: 1px solid var(--chord-color-border);
+  border-top: 1px solid var(--chord-color-border);
+  color: var(--chord-color-muted);
+  font-size: var(--chord-text-xs);
+  margin: var(--chord-space-3) 0;
+  padding: var(--chord-space-3) 0;
+}
+
+.chord-plan-card__notes {
+  margin-bottom: var(--chord-space-3);
+}
+
+.chord-plan-state-banner {
+  align-items: flex-start;
+  background: var(--chord-color-info-bg);
+  border-radius: var(--chord-radius-card);
+  color: var(--chord-color-info-text);
+  display: flex;
+  gap: var(--chord-space-4);
+  justify-content: space-between;
+  margin-bottom: var(--chord-space-5);
+  padding: var(--chord-space-4) var(--chord-space-5);
+}
+
+.chord-plan-state-banner div,
+.chord-plan-state-banner span {
+  display: block;
+}
+
+.chord-plan-state-banner span,
+.chord-plan-state-banner small {
+  font-size: var(--chord-text-sm);
+  margin-top: var(--chord-space-1);
+}
+
+.chord-plan-state-banner--ready {
+  background: var(--chord-color-primary-soft);
+  color: var(--chord-color-primary-strong);
+}
+
+.chord-plan-state-banner--preparing {
+  background: var(--chord-color-warning-bg);
+  color: var(--chord-color-warning-text);
+}
+
+.chord-plan-state-banner--cancelled {
+  background: var(--chord-color-danger-bg);
+  color: var(--chord-color-danger-text);
+}
+
+.chord-plan-layout {
+  align-items: start;
+  display: grid;
+  gap: var(--chord-space-5);
+  grid-template-columns: minmax(0, 2fr) minmax(19rem, 1fr);
+}
+
+.chord-plan-main,
+.chord-plan-aside {
+  display: grid;
+  gap: var(--chord-space-5);
+}
+
+.chord-setlist {
+  border-top: 1px solid var(--chord-color-border);
+}
+
+.chord-setlist-item {
+  border-bottom: 1px solid var(--chord-color-border);
+  display: grid;
+  gap: var(--chord-space-3);
+  grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+  padding: var(--chord-space-4) 0;
+}
+
+.chord-setlist-item:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.chord-setlist-item__position {
+  align-items: center;
+  background: var(--chord-color-primary-soft);
+  border-radius: var(--chord-radius-control);
+  color: var(--chord-color-primary);
+  display: flex;
+  font-weight: 700;
+  height: 2.5rem;
+  justify-content: center;
+  width: 2.5rem;
+}
+
+.chord-setlist-item__heading {
+  justify-content: space-between;
+}
+
+.chord-setlist-item__heading h3 {
+  font-size: var(--chord-text-md);
+  margin: 0;
+}
+
+.chord-setlist-item__heading p,
+.chord-setlist-item__notes,
+.chord-setlist-item__assignments {
+  color: var(--chord-color-muted);
+  font-size: var(--chord-text-sm);
+  margin: var(--chord-space-1) 0 0;
+}
+
+.chord-setlist-item__music {
+  color: var(--chord-color-muted);
+  font-size: var(--chord-text-xs);
+}
+
+.chord-setlist-item__metadata,
+.chord-setlist-item__resources {
+  margin-top: var(--chord-space-3);
+}
+
+.chord-setlist-item__assignments {
+  display: grid;
+  gap: var(--chord-space-1);
+}
+
+.chord-setlist-item__actions {
+  align-content: flex-start;
+  flex-direction: column;
+}
+
+.chord-setlist-item__actions form,
+.chord-setlist-item__actions .btn {
+  width: 100%;
+}
+
+.chord-plan-form-layout {
+  align-items: start;
+  display: grid;
+  gap: var(--chord-space-5);
+  grid-template-columns: minmax(0, 2fr) minmax(20rem, 1fr);
+}
+
+.chord-plan-form-aside {
+  display: grid;
+  gap: var(--chord-space-5);
+}
+
 .chord-sidebar-backdrop {
   background: rgba(35, 58, 50, 0.38);
   border: 0;
@@ -1777,6 +2014,19 @@ form p > small {
   .chord-announcement-grid {
     grid-template-columns: 1fr;
   }
+
+  .chord-plan-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .chord-plan-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .chord-plan-layout,
+  .chord-plan-form-layout {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 575.98px) {
@@ -1869,6 +2119,11 @@ form p > small {
     grid-template-columns: 1fr;
   }
 
+  .chord-plan-metrics,
+  .chord-plan-filters {
+    grid-template-columns: 1fr;
+  }
+
   .chord-giving-filters__search,
   .chord-filter-actions {
     grid-column: auto;
@@ -1899,6 +2154,35 @@ form p > small {
 
   .chord-rehearsal-card__body {
     padding: var(--chord-space-4);
+  }
+
+  .chord-plan-card {
+    grid-template-columns: 4.25rem minmax(0, 1fr);
+  }
+
+  .chord-plan-card__body {
+    padding: var(--chord-space-4);
+  }
+
+  .chord-plan-state-banner,
+  .chord-plan-card__heading,
+  .chord-setlist-item__heading {
+    flex-direction: column;
+  }
+
+  .chord-setlist-item {
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+  }
+
+  .chord-setlist-item__actions {
+    flex-direction: row;
+    grid-column: 1 / -1;
+    padding-left: 3.25rem;
+  }
+
+  .chord-setlist-item__actions form,
+  .chord-setlist-item__actions .btn {
+    width: auto;
   }
 
   .chord-rehearsal-card__heading,

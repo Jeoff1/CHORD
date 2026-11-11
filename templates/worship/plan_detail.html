@@ -1,24 +1,49 @@
 {% extends "base.html" %}
 {% block title %}{{ plan.title }} | CHORD{% endblock %}
 {% block content %}
-  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-    <h1 class="h3 mb-0">{{ plan.title }}</h1>
-    <div>{% if perms.worship.manage_worship_plans and perms.worship.change_worshipplan %}<a class="btn btn-outline-primary" href="{% url 'worship:plan-edit' plan.public_id %}">Edit plan</a>{% endif %} {% if perms.worship.manage_worship_plans and perms.worship.add_plansong %}<a class="btn btn-primary" href="{% url 'worship:plan-song-add' plan.public_id %}">Add song</a>{% endif %}</div>
+  <div class="chord-page-heading chord-plan-heading">
+    <div><p class="chord-eyebrow"><a href="{% url 'worship:plan-list' %}">Service plans</a></p><h1>{{ plan.title }}</h1><p>{{ plan.service_datetime|date:"l, d F Y · g:i A" }}{% if plan.location %} · {{ plan.location }}{% endif %}</p></div>
+    <div class="chord-page-actions">{% if perms.worship.manage_worship_plans and perms.worship.change_worshipplan %}<a class="btn btn-outline-primary" href="{% url 'worship:plan-edit' plan.public_id %}">Edit plan</a>{% endif %}{% if perms.worship.manage_worship_plans and perms.worship.add_plansong %}<a class="btn btn-primary" href="{% url 'worship:plan-song-add' plan.public_id %}">Add song</a>{% endif %}</div>
   </div>
-  <dl class="row card card-body shadow-sm"><dt class="col-sm-3">Service</dt><dd class="col-sm-9">{{ plan.service_datetime }}</dd><dt class="col-sm-3">Location</dt><dd class="col-sm-9">{{ plan.location|default:"—" }}</dd><dt class="col-sm-3">Preparation status</dt><dd class="col-sm-9">{{ plan.get_status_display }}</dd><dt class="col-sm-3">Preparation notes</dt><dd class="col-sm-9">{{ plan.preparation_notes|linebreaksbr|default:"—" }}</dd></dl>
-  <section class="card shadow-sm mt-4"><div class="card-body">
-    <h2 class="h5">Setlist and preparation resources</h2>
-    <div class="table-responsive"><table class="table align-middle mb-0">
-      <thead><tr><th>#</th><th>Song</th><th>Key</th><th>Resources</th><th>Choir assignments</th><th></th></tr></thead>
-      <tbody>{% for item in plan.setlist_items.all %}<tr>
-        <td>{{ item.position }}</td>
-        <td><a href="{% url 'worship:song-detail' item.song.public_id %}">{{ item.song }}</a>{% if item.song.spotify_url %}<br><a class="small" href="{{ item.song.spotify_url }}" target="_blank" rel="noopener noreferrer">Open on Spotify</a>{% endif %}{% if item.notes %}<br><small class="text-muted">{{ item.notes }}</small>{% endif %}</td>
-        <td>{{ item.planned_key|default:item.song.default_key|default:"—" }}</td>
-        <td style="min-width: 15rem">{% include "worship/includes/song_resources.html" with song=item.song %}</td>
-        <td>{% for assignment in item.assignments.all %}{{ assignment.enrollment.member.full_name }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</td>
-        <td class="text-end text-nowrap">{% if perms.worship.manage_song_assignments and perms.worship.change_songassignment %}<a class="btn btn-sm btn-outline-secondary" href="{% url 'worship:song-assignments' plan.public_id item.pk %}">Assign</a>{% endif %}{% if perms.worship.manage_worship_plans and perms.worship.change_plansong %}<form method="post" action="{% url 'worship:plan-song-move' plan.public_id item.pk 'up' %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-outline-secondary" aria-label="Move up">↑</button></form><form method="post" action="{% url 'worship:plan-song-move' plan.public_id item.pk 'down' %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-outline-secondary" aria-label="Move down">↓</button></form>{% endif %}{% if perms.worship.manage_worship_plans and perms.worship.delete_plansong %}<form method="post" action="{% url 'worship:plan-song-remove' plan.public_id item.pk %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-outline-danger">Remove</button></form>{% endif %}</td>
-      </tr>{% empty %}<tr><td colspan="6">No songs have been added.</td></tr>{% endfor %}</tbody>
-    </table></div>
-  </div></section>
-  {% if perms.worship.view_choir_roster %}<section class="card shadow-sm mt-4"><div class="card-body"><h2 class="h5">Choir participation</h2><ul class="mb-0">{% for participation in plan.choir_participations.all %}<li>{{ participation.enrollment.member.full_name }} — {{ participation.enrollment.get_voice_part_display }}</li>{% empty %}<li>No choir participants assigned.</li>{% endfor %}</ul></div></section>{% endif %}
+
+  <div class="chord-plan-state-banner {% if plan.status == 'ready' %}chord-plan-state-banner--ready{% elif plan.status == 'preparing' %}chord-plan-state-banner--preparing{% elif plan.status == 'cancelled' %}chord-plan-state-banner--cancelled{% endif %}"><div><strong>Preparation status · {{ plan.get_status_display }}</strong><span>{% if plan.status == 'ready' %}This plan has been marked ready by an authorized planner.{% elif plan.status == 'preparing' %}Setlist and participant preparation are still in progress.{% elif plan.status == 'completed' %}This service plan is retained as completed history.{% elif plan.status == 'cancelled' %}This service plan is cancelled and retained for history.{% else %}This plan remains a draft until an authorized planner changes its status.{% endif %}</span></div><small>CHORD does not currently provide approval, versioning, or team-notification workflows.</small></div>
+
+  <div class="chord-plan-layout">
+    <div class="chord-plan-main">
+      <section class="chord-panel chord-setlist-panel" aria-labelledby="plan-setlist-heading">
+        <div class="chord-panel__header"><div><h2 id="plan-setlist-heading">Ordered song setlist</h2><p class="chord-panel__note">Existing songs only · Reorder with the supported up/down controls.</p></div>{% if perms.worship.manage_worship_plans and perms.worship.add_plansong %}<a href="{% url 'worship:plan-song-add' plan.public_id %}">Add song</a>{% endif %}</div>
+        <div class="chord-setlist">
+          {% for item in plan.setlist_items.all %}
+            <article class="chord-setlist-item">
+              <div class="chord-setlist-item__position" aria-label="Position {{ item.position }}">{{ item.position }}</div>
+              <div class="chord-setlist-item__content">
+                <div class="chord-setlist-item__heading"><div><h3><a href="{% url 'worship:song-detail' item.song.public_id %}">{{ item.song.title }}</a></h3><p>{{ item.song.artist|default:"Artist not recorded" }}</p></div><div class="chord-setlist-item__music"><span><strong>{{ item.planned_key|default:item.song.default_key|default:"—" }}</strong> key</span>{% if item.song.tempo_bpm %}<span><strong>{{ item.song.tempo_bpm }}</strong> BPM</span>{% endif %}</div></div>
+                <div class="chord-setlist-item__metadata"><span class="chord-status chord-status--info">{{ item.song.get_category_display }}</span>{% for theme in item.song.themes %}<span class="chord-status chord-status--muted">{{ theme|title }}</span>{% endfor %}</div>
+                {% if item.notes %}<p class="chord-setlist-item__notes">Preparation note: {{ item.notes }}</p>{% endif %}
+                <div class="chord-setlist-item__assignments"><strong>{% if can_view_full_team %}Choir assignments{% else %}Your assignment{% endif %}</strong><span>{% for assignment in item.assignments.all %}{{ assignment.enrollment.member.full_name }}{% if assignment.notes %} · {{ assignment.notes }}{% endif %}{% if not forloop.last %}; {% endif %}{% empty %}No assignment recorded.{% endfor %}</span></div>
+                <div class="chord-setlist-item__resources">{% if item.song.spotify_url %}<a class="btn btn-sm btn-outline-primary" href="{{ item.song.spotify_url }}" target="_blank" rel="noopener noreferrer">Open on Spotify</a>{% endif %}{% include "worship/includes/song_resources.html" with song=item.song %}</div>
+              </div>
+              {% if perms.worship.manage_song_assignments or perms.worship.manage_worship_plans %}
+                <div class="chord-setlist-item__actions">
+                  {% if perms.worship.manage_song_assignments and perms.worship.change_songassignment %}<a class="btn btn-sm btn-outline-primary" href="{% url 'worship:song-assignments' plan.public_id item.pk %}">Assignments</a>{% endif %}
+                  {% if perms.worship.manage_worship_plans and perms.worship.change_plansong %}{% if not forloop.first %}<form method="post" action="{% url 'worship:plan-song-move' plan.public_id item.pk 'up' %}">{% csrf_token %}<button class="btn btn-sm btn-outline-primary" type="submit" aria-label="Move {{ item.song.title }} up">Move up</button></form>{% endif %}{% if not forloop.last %}<form method="post" action="{% url 'worship:plan-song-move' plan.public_id item.pk 'down' %}">{% csrf_token %}<button class="btn btn-sm btn-outline-primary" type="submit" aria-label="Move {{ item.song.title }} down">Move down</button></form>{% endif %}{% endif %}
+                  {% if perms.worship.manage_worship_plans and perms.worship.delete_plansong %}<form method="post" action="{% url 'worship:plan-song-remove' plan.public_id item.pk %}">{% csrf_token %}<button class="btn btn-sm btn-outline-danger" type="submit">Remove</button></form>{% endif %}
+                </div>
+              {% endif %}
+            </article>
+          {% empty %}<div class="chord-empty-state"><strong>No songs have been added</strong><span>Authorized planners can add existing library songs to begin this setlist.</span></div>{% endfor %}
+        </div>
+      </section>
+
+      <section class="chord-panel" aria-labelledby="plan-notes-heading"><div class="chord-panel__header"><div><h2 id="plan-notes-heading">Preparation notes</h2><p class="chord-panel__note">Shared plan guidance recorded by authorized worship planners.</p></div></div><div class="chord-long-copy">{{ plan.preparation_notes|linebreaksbr|default:"No preparation notes have been added." }}</div></section>
+    </div>
+
+    <aside class="chord-plan-aside">
+      <section class="chord-panel" aria-labelledby="plan-team-heading"><div class="chord-panel__header"><div><h2 id="plan-team-heading">Choir participation</h2><p class="chord-panel__note">{% if can_view_full_team %}Existing plan participants.{% else %}Only your linked participation is shown.{% endif %}</p></div></div>{% if can_view_full_team %}<div class="chord-affiliation-list">{% for participation in plan.choir_participations.all %}<div><strong>{{ participation.enrollment.member.full_name }}</strong><small>{{ participation.enrollment.get_voice_part_display }} · {{ participation.enrollment.get_status_display }}</small></div>{% empty %}<div class="chord-empty-state">No choir participants are assigned.</div>{% endfor %}</div>{% elif own_participation %}<div class="chord-summary-identity"><span class="chord-person-row__avatar" aria-hidden="true">{{ own_participation.enrollment.member.first_name|slice:":1" }}{{ own_participation.enrollment.member.last_name|slice:":1" }}</span><span><strong>{{ own_participation.enrollment.member.full_name }}</strong><small>{{ own_participation.enrollment.get_voice_part_display }} · {{ own_participation.enrollment.get_status_display }}</small></span></div>{% else %}<div class="chord-empty-state">No participation is available to this account.</div>{% endif %}</section>
+
+      <section class="chord-panel" aria-labelledby="plan-summary-heading"><div class="chord-panel__header"><h2 id="plan-summary-heading">Service summary</h2></div><dl class="chord-summary-list"><div><dt>Status</dt><dd><span class="chord-status {% if plan.status == 'ready' %}chord-status--success{% elif plan.status == 'preparing' %}chord-status--warning{% elif plan.status == 'cancelled' %}chord-status--danger{% else %}chord-status--info{% endif %}">{{ plan.get_status_display }}</span></dd></div><div><dt>Setlist</dt><dd>{{ setlist_count }} song{{ setlist_count|pluralize }}</dd></div><div><dt>Choir</dt><dd>{{ participant_count }} participant{{ participant_count|pluralize }}</dd></div><div><dt>{% if can_view_full_team %}Assignments{% else %}Your assignments{% endif %}</dt><dd>{{ assignment_count }}</dd></div><div><dt>Calendar</dt><dd>{% if plan.event and linked_event_visible %}<a href="{% url 'events:detail' plan.event.public_id %}">{{ plan.event.title }}</a>{% elif plan.event %}Linked restricted event{% else %}Standalone plan{% endif %}</dd></div>{% if plan.created_by %}<div><dt>Created by</dt><dd>{{ plan.created_by.get_full_name|default:plan.created_by.username }}</dd></div>{% endif %}</dl></section>
+
+      <div class="chord-guidance-banner"><strong>Current planning scope</strong><span>CHORD supports song setlists and choir participation. Generic service items, approvals, versions, conflict detection, and team sharing are not implemented.</span></div>
+    </aside>
+  </div>
 {% endblock %}

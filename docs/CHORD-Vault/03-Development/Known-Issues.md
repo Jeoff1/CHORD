@@ -1,6 +1,6 @@
 # Known Issues
 
-No critical or high-severity blocker remains after Phase 7.3 Milestone 5.
+No critical or high-severity blocker remains after Phase 7.3 Milestone 6.
 
 ## Medium
 
@@ -51,6 +51,10 @@ No critical or high-severity blocker remains after Phase 7.3 Milestone 5.
     5 consistently applies the audited shared design system, but an exact
     choir-screen visual comparison is unavailable. Authenticated desktop/mobile
     review remains manual.
+14. Worship plans currently model ordered songs and choir participation, not a
+    generic order of service, worship-team positions, item durations, approval
+    versions, sharing state, or assignment conflicts shown in Figma. Those
+    require separately authorized backend domains.
 
 ## Resolved
 

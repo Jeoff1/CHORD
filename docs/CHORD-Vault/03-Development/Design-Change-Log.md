@@ -121,3 +121,24 @@ See [[Screen-Implementation-Tracker]], [[Development-Log]],
 
 See [[Screen-Implementation-Tracker]], [[Development-Log]], and
 [[../03-Modules/Choir-Worship-Management]].
+
+## 2026-11-10 - Phase 7.3 worship-planning screen group
+
+- Used the locally rendered Approved Service Plan region from the exported
+  `CHORD.svg`; Figma MCP remained unused and the source design was unchanged.
+- Adapted the design's service heading, state banner, ordered set, team panel,
+  and service summary to CHORD's existing WorshipPlan, PlanSong, choir
+  participation, assignment, event, Spotify, and protected-resource data.
+- Presented existing preparation states truthfully instead of representing
+  them as an approval workflow. Approval/version history, sharing,
+  notifications, and conflict controls were omitted because the backend does
+  not support them.
+- Omitted generic order-of-service items, per-item durations, and worship-team
+  positions rather than inventing records outside the current song-set and
+  choir domain.
+- Reused shared panels, cards, badges, buttons, forms, definition grids, and
+  responsive breakpoints. The two-column detail becomes a single flow on
+  narrow screens while setlist actions remain functional and accessible.
+
+See [[Screen-Implementation-Tracker]], [[Development-Log]], and
+[[../03-Modules/Choir-Worship-Management]].

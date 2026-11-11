@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from apps.accounts.models import Role, UserRole
+from apps.events.models import Event
 from apps.members.models import Member
 
 from .models import (
@@ -653,3 +654,145 @@ class WorshipPlanningWorkflowTests(TestCase):
         ordinary = User.objects.create_user("ordinary-planner", password=PASSWORD)
         self.client.force_login(ordinary)
         self.assertEqual(self.client.get(reverse("worship:plan-add")).status_code, 403)
+
+    def test_plan_directory_segments_status_and_scoped_counts(self):
+        ready_plan = WorshipPlan.objects.create(
+            title="Ready evening worship",
+            service_datetime=future_datetime(3),
+            status=WorshipPlan.Status.READY,
+            created_by=self.worship_leader,
+        )
+        previous_plan = WorshipPlan.objects.create(
+            title="Previous worship",
+            service_datetime=timezone.now() - timedelta(days=7),
+            status=WorshipPlan.Status.COMPLETED,
+            created_by=self.worship_leader,
+        )
+        self.client.force_login(self.worship_leader)
+
+        upcoming_response = self.client.get(
+            reverse("worship:plan-list"), {"status": WorshipPlan.Status.READY}
+        )
+        previous_response = self.client.get(
+            reverse("worship:plan-list"), {"timing": "previous"}
+        )
+
+        self.assertContains(upcoming_response, ready_plan.title)
+        self.assertNotContains(upcoming_response, self.plan.title)
+        self.assertNotContains(upcoming_response, previous_plan.title)
+        self.assertContains(previous_response, previous_plan.title)
+        self.assertNotContains(previous_response, ready_plan.title)
+        self.assertEqual(upcoming_response.context["plan_summary"]["all"], 3)
+        self.assertEqual(upcoming_response.context["plan_summary"]["ready"], 1)
+
+    def test_member_plan_screen_hides_management_and_other_assignments(self):
+        PlanChoirParticipation.objects.create(
+            plan=self.plan,
+            enrollment=self.other_enrollment,
+        )
+        item = PlanSong.objects.create(plan=self.plan, song=self.song_one, position=1)
+        SongAssignment.objects.create(plan_song=item, enrollment=self.enrollment)
+        SongAssignment.objects.create(plan_song=item, enrollment=self.other_enrollment)
+        self.client.force_login(self.member_user)
+
+        response = self.client.get(
+            reverse("worship:plan-detail", args=(self.plan.public_id,))
+        )
+
+        self.assertContains(response, self.member.full_name)
+        self.assertNotContains(response, self.other_member.full_name)
+        self.assertNotContains(
+            response, reverse("worship:plan-edit", args=(self.plan.public_id,))
+        )
+        self.assertNotContains(
+            response, reverse("worship:plan-song-add", args=(self.plan.public_id,))
+        )
+        self.assertNotContains(response, "Move up")
+        self.assertNotContains(response, "Remove")
+
+    def test_setlist_move_and_remove_endpoints_preserve_order(self):
+        first = PlanSong.objects.create(plan=self.plan, song=self.song_one, position=1)
+        second = PlanSong.objects.create(plan=self.plan, song=self.song_two, position=2)
+        self.client.force_login(self.worship_leader)
+
+        move_response = self.client.post(
+            reverse(
+                "worship:plan-song-move",
+                args=(self.plan.public_id, second.pk, "up"),
+            )
+        )
+        remove_response = self.client.post(
+            reverse(
+                "worship:plan-song-remove",
+                args=(self.plan.public_id, first.pk),
+            )
+        )
+
+        self.assertRedirects(
+            move_response,
+            reverse("worship:plan-detail", args=(self.plan.public_id,)),
+        )
+        self.assertRedirects(
+            remove_response,
+            reverse("worship:plan-detail", args=(self.plan.public_id,)),
+        )
+        second.refresh_from_db()
+        self.assertEqual(second.position, 1)
+        self.assertFalse(PlanSong.objects.filter(pk=first.pk).exists())
+
+    def test_plan_forms_render_refined_workflows(self):
+        self.client.force_login(self.worship_leader)
+
+        plan_response = self.client.get(reverse("worship:plan-add"))
+        song_response = self.client.get(
+            reverse("worship:plan-song-add", args=(self.plan.public_id,))
+        )
+
+        self.assertContains(plan_response, 'id="worship-plan-form"')
+        self.assertContains(song_response, 'id="plan-song-form"')
+        self.assertContains(song_response, self.plan.title)
+
+    def test_plan_creation_uses_linked_worship_event_schedule(self):
+        event_start = future_datetime(5)
+        event = Event.objects.create(
+            title="Linked Sunday service",
+            event_type=Event.Type.WORSHIP_SERVICE,
+            starts_at=event_start,
+            ends_at=event_start + timedelta(hours=2),
+            location="Main sanctuary",
+            status=Event.Status.PUBLISHED,
+            visibility=Event.Visibility.CHURCH,
+            created_by=self.worship_leader,
+        )
+        self.client.force_login(self.worship_leader)
+
+        response = self.client.post(
+            reverse("worship:plan-add"),
+            {
+                "event": event.pk,
+                "title": "Event-linked plan",
+                "service_datetime": "",
+                "location": "",
+                "status": WorshipPlan.Status.PREPARING,
+                "preparation_notes": "Use the event schedule",
+                "choir_participants": [str(self.enrollment.pk)],
+            },
+        )
+
+        created = WorshipPlan.objects.get(title="Event-linked plan")
+        self.assertRedirects(
+            response, reverse("worship:plan-detail", args=(created.public_id,))
+        )
+        self.assertEqual(created.event, event)
+        self.assertEqual(created.service_datetime, event.starts_at)
+        self.assertEqual(created.location, event.location)
+
+    def test_ordinary_user_cannot_view_plan_direct_url(self):
+        ordinary = User.objects.create_user("ordinary-plan-viewer", password=PASSWORD)
+        self.client.force_login(ordinary)
+
+        response = self.client.get(
+            reverse("worship:plan-detail", args=(self.plan.public_id,))
+        )
+
+        self.assertEqual(response.status_code, 403)

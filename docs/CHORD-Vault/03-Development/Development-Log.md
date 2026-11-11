@@ -438,3 +438,41 @@ See [[Screen-Implementation-Tracker]], [[Design-Change-Log]],
 See [[Screen-Implementation-Tracker]], [[Design-Change-Log]],
 [[../03-Modules/Choir-Worship-Management]], and
 [[../04-Testing/Phase-7-Test-Results]].
+
+## 2026-11-10 - Phase 7.3 milestone 6 worship planning
+
+- **References:** Rendered the Approved Service Plan region from the local
+  exported `static/assets/CHORD.svg`; no Figma MCP call or source-design change
+  was made.
+- **Directory and detail:** Added permission-scoped upcoming/previous/all
+  segments, search and status filters, live plan summaries, responsive cards,
+  preparation-state guidance, linked visible events, and a structured service
+  detail layout.
+- **Setlists and participation:** Refined the ordered song set with key, tempo,
+  category, themes, notes, assignments, Spotify, protected resources, and the
+  existing move/remove controls. Choir participation and assignments retain
+  their existing privacy scope.
+- **Forms:** Refined service-plan and existing-song forms using shared design
+  components while preserving event-derived scheduling, transactional
+  participant updates, validation, and current routes.
+- **Security:** Administrators and Worship Leaders retain management access;
+  Choir Leaders and participating Choir Members retain their established
+  object-level access. Ordinary users are denied direct plan access, and a
+  linked event is exposed only when its visibility rules allow it.
+- **ORM/refactoring:** Selected creator/event relations, prefetched setlists,
+  songs, resources, participants, and assignments, annotated directory counts,
+  applied deterministic ordering, and consolidated repeated widget styling.
+- **Tests:** Worship-planning/resource tests passed 16/16 in 20.322 seconds;
+  worship/choir/dashboard/shell regressions passed 59/59 in 43.554 seconds;
+  and the complete PostgreSQL suite passed 149/149 in 85.690 seconds.
+- **Visual limitation:** The exported SVG reference was rendered locally.
+  Authenticated desktop/mobile application screenshot comparison remains an
+  appropriate manual browser follow-up.
+- **Boundary:** Generic order-of-service items, per-item durations, approval
+  and version history, plan sharing/notifications, worship-team positions,
+  conflict detection, post-service feedback, and recommendation behavior were
+  not implemented.
+
+See [[Screen-Implementation-Tracker]], [[Design-Change-Log]],
+[[../03-Modules/Choir-Worship-Management]], and
+[[../04-Testing/Phase-7-Test-Results]].

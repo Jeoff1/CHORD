@@ -15,6 +15,7 @@ from django.views.generic import (
 
 from apps.accounts.mixins import AuthenticatedPermissionRequiredMixin
 from apps.accounts.models import Role
+from apps.events.services import visible_events_for
 from apps.members.models import Member
 
 from .chordpro import parse_chordpro
@@ -774,7 +775,7 @@ class SongResourcePreviewView(AuthenticatedPermissionRequiredMixin, View):
 
 class WorshipPlanQuerysetMixin:
     def get_queryset(self):
-        queryset = WorshipPlan.objects.select_related("created_by")
+        queryset = WorshipPlan.objects.select_related("created_by", "event")
         if self.request.user.has_perm(
             "worship.manage_worship_plans"
         ) or self.request.user.has_perm("worship.manage_choir"):
@@ -796,27 +797,64 @@ class WorshipPlanListView(
     paginate_by = 25
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset = (
+            super()
+            .get_queryset()
+            .annotate(
+                setlist_count=Count("setlist_items", distinct=True),
+                participant_count=Count("choir_participations", distinct=True),
+            )
+        )
         query = self.request.GET.get("q", "").strip()
         status = self.request.GET.get("status", "").strip()
+        timing = self.request.GET.get("timing", "upcoming").strip()
         if query:
             queryset = queryset.filter(
-                Q(title__icontains=query) | Q(location__icontains=query)
+                Q(title__icontains=query)
+                | Q(location__icontains=query)
+                | Q(event__title__icontains=query)
             )
         if status in WorshipPlan.Status.values:
             queryset = queryset.filter(status=status)
+        now = timezone.now()
+        if timing == "previous":
+            queryset = queryset.filter(service_datetime__lt=now).order_by(
+                "-service_datetime", "-id"
+            )
+        elif timing != "all":
+            timing = "upcoming"
+            queryset = queryset.filter(service_datetime__gte=now).order_by(
+                "service_datetime", "id"
+            )
+        else:
+            queryset = queryset.order_by("-service_datetime", "-id")
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         params = self.request.GET.copy()
         params.pop("page", None)
+        selected_timing = self.request.GET.get("timing", "upcoming")
+        if selected_timing not in {"upcoming", "previous", "all"}:
+            selected_timing = "upcoming"
+        now = timezone.now()
+        scoped_plans = WorshipPlanQuerysetMixin.get_queryset(self)
         context.update(
             {
                 "query": self.request.GET.get("q", ""),
                 "selected_status": self.request.GET.get("status", ""),
+                "selected_timing": selected_timing,
                 "status_choices": WorshipPlan.Status.choices,
                 "pagination_query": params.urlencode(),
+                "plan_summary": scoped_plans.aggregate(
+                    all=Count("pk"),
+                    upcoming=Count("pk", filter=Q(service_datetime__gte=now)),
+                    previous=Count("pk", filter=Q(service_datetime__lt=now)),
+                    ready=Count("pk", filter=Q(status=WorshipPlan.Status.READY)),
+                    preparing=Count(
+                        "pk", filter=Q(status=WorshipPlan.Status.PREPARING)
+                    ),
+                ),
             }
         )
         return context
@@ -858,6 +896,41 @@ class WorshipPlanDetailView(
                 "choir_participations__enrollment__member",
             )
         )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        setlist_items = list(self.object.setlist_items.all())
+        participations = list(self.object.choir_participations.all())
+        can_view_full_team = self.request.user.has_perm("worship.view_choir_roster")
+        can_manage_assignments = self.request.user.has_perm(
+            "worship.manage_song_assignments"
+        )
+        assignment_count = sum(len(item.assignments.all()) for item in setlist_items)
+        context.update(
+            {
+                "assignment_count": assignment_count,
+                "can_manage_assignments": can_manage_assignments,
+                "can_view_full_team": can_view_full_team,
+                "linked_event_visible": bool(
+                    self.object.event_id
+                    and visible_events_for(self.request.user)
+                    .filter(pk=self.object.event_id)
+                    .exists()
+                ),
+                "own_participation": next(
+                    (
+                        participation
+                        for participation in participations
+                        if participation.enrollment.member.user_id
+                        == self.request.user.pk
+                    ),
+                    None,
+                ),
+                "participant_count": len(participations),
+                "setlist_count": len(setlist_items),
+            }
+        )
+        return context
 
 
 class WorshipPlanManageMixin(AuthenticatedPermissionRequiredMixin):
@@ -937,6 +1010,7 @@ class PlanSongCreateView(AuthenticatedPermissionRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["plan"] = self.get_plan()
+        context["setlist_count"] = self.get_plan().setlist_items.count()
         return context
 
     def get_success_url(self):

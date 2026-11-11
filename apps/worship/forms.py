@@ -20,8 +20,8 @@ from .services import sync_plan_participants, sync_song_assignments
 from .spotify import normalize_spotify_track
 
 
-def style_choir_fields(fields):
-    """Apply the shared CHORD controls to choir-facing forms."""
+def style_chord_fields(fields):
+    """Apply the shared CHORD controls to worship and choir forms."""
     for field in fields.values():
         widget = field.widget
         if isinstance(widget, forms.HiddenInput):
@@ -53,7 +53,7 @@ class ChoirEnrollmentForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        style_choir_fields(self.fields)
+        style_chord_fields(self.fields)
         unavailable_ids = ChoirEnrollment.objects.exclude(pk=self.instance.pk).values(
             "member_id"
         )
@@ -84,7 +84,7 @@ class RehearsalForm(forms.ModelForm):
 
     def __init__(self, *args, actor, **kwargs):
         super().__init__(*args, **kwargs)
-        style_choir_fields(self.fields)
+        style_chord_fields(self.fields)
         events = visible_events_for(actor).filter(event_type=Event.Type.REHEARSAL)
         available_events = Q(rehearsal__isnull=True)
         if self.instance.pk:
@@ -122,7 +122,7 @@ class AttendanceEntryForm(forms.Form):
 
     def __init__(self, *args, enrollment_queryset=None, **kwargs):
         super().__init__(*args, **kwargs)
-        style_choir_fields(self.fields)
+        style_chord_fields(self.fields)
         if enrollment_queryset is not None:
             self.fields["enrollment"].queryset = enrollment_queryset
 
@@ -142,7 +142,7 @@ class ChoirAnnouncementForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        style_choir_fields(self.fields)
+        style_chord_fields(self.fields)
 
 
 class SongForm(forms.ModelForm):
@@ -251,12 +251,16 @@ class WorshipPlanForm(forms.ModelForm):
 
     def __init__(self, *args, actor, **kwargs):
         super().__init__(*args, **kwargs)
+        style_chord_fields(self.fields)
         events = visible_events_for(actor).filter(event_type=Event.Type.WORSHIP_SERVICE)
         available_events = Q(worship_plan__isnull=True)
         if self.instance.pk:
             available_events |= Q(worship_plan=self.instance)
         events = events.filter(available_events)
         self.fields["event"].queryset = events
+        self.fields[
+            "event"
+        ].help_text = "Optional. A linked worship-service event supplies the canonical date, time, and location."
         self.fields["service_datetime"].required = False
         available_filter = Q(status=ChoirEnrollment.Status.ACTIVE)
         if self.instance.pk:
@@ -267,6 +271,9 @@ class WorshipPlanForm(forms.ModelForm):
             .distinct()
         )
         self.fields["choir_participants"].queryset = active_enrollments
+        self.fields[
+            "choir_participants"
+        ].help_text = "Select active choir enrollments participating in this service."
         if self.instance.pk:
             self.fields[
                 "choir_participants"
@@ -304,7 +311,14 @@ class PlanSongForm(forms.ModelForm):
 
     def __init__(self, *args, plan, **kwargs):
         super().__init__(*args, **kwargs)
+        style_chord_fields(self.fields)
         self.plan = plan
+        self.fields[
+            "song"
+        ].help_text = "Choose an existing song from the authorized library."
+        self.fields[
+            "planned_key"
+        ].help_text = "Optional service key; leave blank to use the song's default key."
 
     def clean_song(self):
         song = self.cleaned_data["song"]
@@ -323,7 +337,7 @@ class SongAssignmentForm(forms.Form):
 
     def __init__(self, *args, plan_song, actor, **kwargs):
         super().__init__(*args, **kwargs)
-        style_choir_fields(self.fields)
+        style_chord_fields(self.fields)
         self.plan_song = plan_song
         self.actor = actor
         self.fields["enrollments"].queryset = ChoirEnrollment.objects.filter(

@@ -116,9 +116,16 @@ Phase 7.2 is complete. Its shell is the foundation for the incremental Phase
 - [x] Refine audience-scoped announcements and song-assignment preparation
 - [x] Verify Choir Leader, Choir Member, and Worship Leader access boundaries
 - [x] Pass 53 worship/resource/dashboard/shell regressions and 143 full tests
+- [x] Milestone 6: Worship Planning refinement
+- [x] Add scoped upcoming/previous/all plan directory, filters, and summaries
+- [x] Refine service details, preparation states, linked events, and plan forms
+- [x] Refine ordered song setlists, metadata, Spotify, and protected resources
+- [x] Preserve transactional add, move, remove, participant, and assignment flows
+- [x] Verify member-only plan/assignment visibility and unauthorized direct denial
+- [x] Pass 16 targeted, 59 milestone regression, and 149 full tests
 - [ ] Remaining mapped screen groups
 
-Phase 7.3 milestone 5 is complete. Do not begin the next screen group or Phase 8
+Phase 7.3 milestone 6 is complete. Do not begin the next screen group or Phase 8
 without explicit authorization.
 
 See [[Development-Roadmap]], [[Known-Issues]], and

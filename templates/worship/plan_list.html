@@ -1,3 +1,44 @@
 {% extends "base.html" %}
-{% block title %}Worship plans | CHORD{% endblock %}
-{% block content %}<div class="d-flex justify-content-between align-items-center mb-3"><h1 class="h3 mb-0">Worship service plans</h1>{% if perms.worship.manage_worship_plans and perms.worship.add_worshipplan %}<a class="btn btn-primary" href="{% url 'worship:plan-add' %}">Create plan</a>{% endif %}</div><form method="get" class="row g-2 mb-3"><div class="col-md-6"><input class="form-control" type="search" name="q" value="{{ query }}" placeholder="Title or location" aria-label="Search worship plans"></div><div class="col-md-4"><select class="form-select" name="status" aria-label="Plan status"><option value="">All statuses</option>{% for value, label in status_choices %}<option value="{{ value }}"{% if selected_status == value %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></div><div class="col-md-2"><button class="btn btn-outline-primary w-100" type="submit">Filter</button></div></form><div class="list-group shadow-sm">{% for plan in plans %}<a class="list-group-item list-group-item-action" href="{% url 'worship:plan-detail' plan.public_id %}"><div class="d-flex justify-content-between"><strong>{{ plan.title }}</strong><span class="badge text-bg-secondary">{{ plan.get_status_display }}</span></div><div>{{ plan.service_datetime }}{% if plan.location %} · {{ plan.location }}{% endif %}</div></a>{% empty %}<div class="list-group-item">No worship plans found.</div>{% endfor %}</div><div class="mt-3">{% include "includes/pagination.html" %}</div>{% endblock %}
+{% block title %}Worship service plans | CHORD{% endblock %}
+{% block content %}
+  <div class="chord-page-heading">
+    <div><p class="chord-eyebrow">Worship planning</p><h1>Service plans</h1><p>Prepare ordered song setlists, choir participation, and resources for upcoming worship.</p></div>
+    {% if perms.worship.manage_worship_plans and perms.worship.add_worshipplan %}<div class="chord-page-actions"><a class="btn btn-primary" href="{% url 'worship:plan-add' %}">Create service plan</a></div>{% endif %}
+  </div>
+
+  <div class="chord-metric-grid chord-plan-metrics">
+    <article class="chord-metric-card"><span>Upcoming</span><strong>{{ plan_summary.upcoming }}</strong><small>Visible future service plans</small></article>
+    <article class="chord-metric-card"><span>Preparing</span><strong>{{ plan_summary.preparing }}</strong><small>Preparation still in progress</small></article>
+    <article class="chord-metric-card"><span>Ready</span><strong>{{ plan_summary.ready }}</strong><small>Marked ready by an authorized planner</small></article>
+    <article class="chord-metric-card"><span>All visible plans</span><strong>{{ plan_summary.all }}</strong><small>Limited by your existing access</small></article>
+  </div>
+
+  <nav class="chord-section-tabs chord-event-tabs" aria-label="Service plan timing">
+    <a href="?timing=upcoming{% if query %}&amp;q={{ query|urlencode }}{% endif %}{% if selected_status %}&amp;status={{ selected_status|urlencode }}{% endif %}"{% if selected_timing == 'upcoming' %} class="is-active" aria-current="page"{% endif %}>Upcoming <span>{{ plan_summary.upcoming }}</span></a>
+    <a href="?timing=previous{% if query %}&amp;q={{ query|urlencode }}{% endif %}{% if selected_status %}&amp;status={{ selected_status|urlencode }}{% endif %}"{% if selected_timing == 'previous' %} class="is-active" aria-current="page"{% endif %}>Previous <span>{{ plan_summary.previous }}</span></a>
+    <a href="?timing=all{% if query %}&amp;q={{ query|urlencode }}{% endif %}{% if selected_status %}&amp;status={{ selected_status|urlencode }}{% endif %}"{% if selected_timing == 'all' %} class="is-active" aria-current="page"{% endif %}>All plans <span>{{ plan_summary.all }}</span></a>
+  </nav>
+
+  <form method="get" class="chord-directory-filters chord-plan-filters" aria-label="Filter worship service plans">
+    <input type="hidden" name="timing" value="{{ selected_timing }}">
+    <div class="chord-directory-filters__search"><label class="visually-hidden" for="plan-search">Search service plans</label><input id="plan-search" class="form-control" type="search" name="q" value="{{ query }}" placeholder="Search title, location, or linked event"></div>
+    <div><label class="visually-hidden" for="plan-status">Preparation status</label><select id="plan-status" class="form-select" name="status"><option value="">All statuses</option>{% for value, label in status_choices %}<option value="{{ value }}"{% if selected_status == value %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+    <button class="btn btn-outline-primary" type="submit">Apply filters</button>
+    {% if query or selected_status %}<a class="btn btn-link" href="{% url 'worship:plan-list' %}?timing={{ selected_timing }}">Clear</a>{% endif %}
+  </form>
+
+  <section class="chord-plan-directory" aria-label="{{ selected_timing|title }} worship service plans">
+    {% for plan in plans %}
+      <article class="chord-plan-card">
+        <div class="chord-plan-card__date"><span>{{ plan.service_datetime|date:"D" }}</span><strong>{{ plan.service_datetime|date:"d" }}</strong><small>{{ plan.service_datetime|date:"M Y" }}</small></div>
+        <div class="chord-plan-card__body">
+          <div class="chord-plan-card__heading"><div><h2><a href="{% url 'worship:plan-detail' plan.public_id %}">{{ plan.title }}</a></h2><p>{{ plan.service_datetime|date:"g:i A" }}{% if plan.location %} · {{ plan.location }}{% endif %}</p></div><span class="chord-status {% if plan.status == 'ready' %}chord-status--success{% elif plan.status == 'preparing' %}chord-status--warning{% elif plan.status == 'cancelled' %}chord-status--danger{% elif plan.status == 'completed' %}chord-status--info{% else %}chord-status--muted{% endif %}">{{ plan.get_status_display }}</span></div>
+          <div class="chord-plan-card__facts"><span><strong>{{ plan.setlist_count }}</strong> setlist song{{ plan.setlist_count|pluralize }}</span><span><strong>{{ plan.participant_count }}</strong> choir participant{{ plan.participant_count|pluralize }}</span><span>{% if plan.event %}<strong>Calendar linked</strong>{% else %}Standalone plan{% endif %}</span></div>
+          {% if plan.preparation_notes %}<p class="chord-plan-card__notes">{{ plan.preparation_notes|truncatewords:24 }}</p>{% endif %}
+          <a class="chord-text-link" href="{% url 'worship:plan-detail' plan.public_id %}">Open service plan <span aria-hidden="true">&rarr;</span></a>
+        </div>
+      </article>
+    {% empty %}<div class="chord-panel chord-empty-state chord-empty-state--panel"><strong>No service plans found</strong><span>There are no visible worship plans matching the selected timing and filters.</span></div>{% endfor %}
+  </section>
+  <div class="chord-pagination-wrap">{% include "includes/pagination.html" %}</div>
+{% endblock %}

@@ -95,3 +95,25 @@ The UI therefore uses the audited CHORD desktop system and existing shared
 components. The separate Inter/amber mobile practice design was not made global.
 No notification service, new playback system, practice controls, automatic
 chord generation, or recommendation behavior was added.
+
+## Phase 7.3 milestone 6 worship-planning interface
+
+- Permission-scoped upcoming, previous, and all-plan directory with search,
+  preparation-status filters, actual summaries, and deterministic pagination
+- Service detail patterned after the exported Approved Service Plan frame while
+  retaining CHORD's real preparation statuses rather than approval/version state
+- Existing church-event association shown only as a link when the event is also
+  visible to the current account
+- Ordered song setlist with key, tempo, category, themes, preparation notes,
+  Spotify links, protected resources, and privacy-filtered assignments
+- Existing up/down ordering and removal controls retained instead of adding
+  unsupported drag-and-drop behavior
+- Choir participation panel shows the full team only to roster-authorized users;
+  Choir Members receive their own linked participation and assignments
+- Refined create/edit plan, participant-selection, and add-song forms using the
+  shared design system and existing transactional services
+
+The Figma frame's generic non-song order items, approval identity, version
+history, sharing/notification controls, worship-team position model, duration,
+and conflict detection have no supporting domain and remain unimplemented. No
+automatic song selection, recommendation UI, or Phase 8 behavior was added.

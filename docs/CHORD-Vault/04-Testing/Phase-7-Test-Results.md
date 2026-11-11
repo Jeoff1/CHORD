@@ -1,7 +1,7 @@
 # Phase 7 Test Results
 
 Verified: **2026-11-10**
-Current scope: **Phase 7.3 milestone 5 - choir management**
+Current scope: **Phase 7.3 milestone 6 - worship planning**
 
 ## Automated results
 
@@ -9,9 +9,9 @@ Current scope: **Phase 7.3 milestone 5 - choir management**
 | --- | --- |
 | `manage.py check` | Pass - no issues |
 | `makemigrations --check --dry-run` | Pass - no model drift |
-| Choir, worship-resource, dashboard, and shell regressions | Pass - 53 tests in 31.327 seconds |
-| Protected rehearsal resource recheck | Pass - 2 tests in 1.332 seconds |
-| Full Django suite | Pass - 143 tests in 71.098 seconds |
+| Worship planning and resource integration | Pass - 16 tests in 20.322 seconds |
+| Worship, choir, resource, dashboard, and shell regressions | Pass - 59 tests in 43.554 seconds |
+| Full Django suite | Pass - 149 tests in 85.690 seconds |
 | PostgreSQL test database cleanup | Pass |
 | `ruff check .` | Pass |
 | `ruff format --check .` | Pass - 125 files compliant |
@@ -53,10 +53,17 @@ Current scope: **Phase 7.3 milestone 5 - choir management**
 - Worship Leaders can coordinate schedules and roster participation without
   receiving choir-announcement access they do not possess.
 - Rehearsal and assignment screens preserve Spotify and protected-resource access.
+- Plan directories enforce scoped upcoming/previous/status filtering and counts.
+- Linked worship events supply canonical date, time, and location through the
+  existing validated form.
+- Choir Members receive no plan-management controls or other members' assignments.
+- Unauthorized ordinary accounts receive HTTP 403 on direct plan access.
+- Plan forms and add-song forms render the shared design controls.
+- Move and remove endpoints preserve contiguous transactional setlist ordering.
+- Plan details retain Spotify links and protected resources from Phase 6.
 
-No models or migrations were added. Browser verification rendered the exported
-file for earlier screen groups, but it contains no dedicated choir-management
-frame. Authenticated application screenshot comparison remains a manual
-follow-up. Notifications, custom playback, advanced practice controls,
-automatic chord generation, and Phase 8 recommendation behavior remain outside
-this milestone.
+No models or migrations were added. The local Approved Service Plan frame was
+rendered and inspected; authenticated application screenshot comparison remains
+a manual follow-up. Generic service items, approval/version history, team
+sharing, conflicts, notifications, automatic song selection, and Phase 8
+recommendation behavior remain outside this milestone.

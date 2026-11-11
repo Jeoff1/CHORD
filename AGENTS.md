@@ -18,8 +18,9 @@
   future Phase 8 work without implementing recommendation behavior early.
 - Phases 1-6, the Phase 7.2 design-system/application-shell milestone, and Phase
   7.3 dashboard, member-management, ministry, church-event, attendance, giving,
-  and choir-management milestones 1-5 are complete. Continue Phase 7 only through explicitly
-  authorized screen groups; Phase 8 remains the only ML implementation phase.
+  and choir-management/worship-planning milestones 1-6 are complete. Continue
+  Phase 7 only through explicitly authorized screen groups; Phase 8 remains the
+  only ML implementation phase.
 - Use the exported `static/assets/CHORD.svg` as the visual reference while the
   Figma MCP read quota is unavailable. Inspect only the relevant screen region
   and never reproduce a screen as a single SVG image.

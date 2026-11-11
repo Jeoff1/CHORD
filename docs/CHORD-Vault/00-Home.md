@@ -37,13 +37,12 @@ CHORD's source-of-truth development notes.
 - [[04-Testing/Phase-6-Test-Results|Phase 6 Test Results]]
 - [[04-Testing/Phase-7-Test-Results|Phase 7 Test Results]]
 
-Current status: **PHASE 7.3 MILESTONE 5 COMPLETE.** Choir overview, protected
-membership roster, rehearsal schedules/details/attendance, announcements,
-enrollment forms, and song-assignment preparation now use the Phase 7.2 shell.
-Existing role permissions, member privacy, transactional attendance,
-permission-checked resources, Spotify links, and worship-plan relationships
-remain authoritative. All 143 tests, PostgreSQL test-database execution,
-migration consistency, Django checks, Ruff lint, and Ruff formatting passed on
-2026-11-10. Remaining screen groups and reports are separate milestones.
-Machine learning is reserved for Phase 8 and is neither implemented nor in
-progress.
+Current status: **PHASE 7.3 MILESTONE 6 COMPLETE.** Worship-plan directories,
+service details, preparation statuses, linked events, ordered setlists, choir
+participation, song assignments, forms, Spotify links, and protected resources
+now use the Phase 7.2 shell. Existing object access, transactional ordering,
+participant synchronization, and resource security remain authoritative. All
+149 tests, PostgreSQL test-database execution, migration consistency, Django
+checks, Ruff lint, and Ruff formatting passed on 2026-11-10. Remaining screen
+groups and reports are separate milestones. Machine learning is reserved for
+Phase 8 and is neither implemented nor in progress.

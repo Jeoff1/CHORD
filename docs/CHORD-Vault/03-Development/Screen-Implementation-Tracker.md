@@ -1,9 +1,9 @@
 # Screen Implementation Tracker
 
-**Phase 7.3 milestone 5 result:** Dashboard, member-management, ministry,
-church-event, attendance, giving, and choir-management screen groups complete.
-The shared shell remains the Phase 7.2 foundation; other Figma screens remain
-separate milestones.
+**Phase 7.3 milestone 6 result:** Dashboard, member-management, ministry,
+church-event, attendance, giving, choir-management, and worship-planning screen
+groups complete. The shared shell remains the Phase 7.2 foundation; other Figma
+screens remain separate milestones.
 
 Every existing authenticated Django screen now inherits the role-aware shell,
 header, responsive drawer, design tokens, and shared Bootstrap refinements from
@@ -22,7 +22,7 @@ header, responsive drawer, design tokens, and shared Bootstrap refinements from
 | Scheduling & bookings · Paid booking checkout | Not implemented; no navigation added |
 | Scheduling & bookings · Confirmation and receipt | Not implemented; no navigation added |
 | Worship planning · Song library | Existing screen inherits shell/tokens; detailed Figma screen work not started |
-| Worship planning · Approved service plan | Existing plan screen inherits shell/tokens; approval/version features remain a gap |
+| Worship planning · Approved service plan | **Implemented for the current domain in 7.3 milestone 6:** scoped upcoming/previous directory, filters and summaries, preparation-state detail, linked events, ordered song setlist, choir participation, assignments, Spotify/resources, and refined forms. Generic service items, approval/version history, sharing, and conflicts remain backend gaps. |
 | Worship planning · Post-service feedback | Not implemented; requires separate backend scope |
 | Worship planning · Song recommendations | Reserved for Phase 8; not implemented and no navigation added |
 | Song practice initial MOBILE view | Existing protected resources unchanged; specialized Inter/amber practice UI not started |
@@ -127,5 +127,21 @@ See [[Phase-7-Figma-Design-Audit]], [[Design-System]], and [[Task-Tracker]].
 - Automatic reminders, outbound communication, attendance export, practice
   controls, chord generation, and recommendation behavior were not simulated.
 
-The next recommended screen group is Worship Planning. Do not begin it without
+## Phase 7.3 milestone 6 boundaries
+
+- The local Approved Service Plan frame was rendered from `CHORD.svg` without
+  Figma MCP or source-design changes. Its layout informed the service heading,
+  state banner, ordered setlist, team sidebar, and service summary.
+- CHORD's status is preparation state, not approval. No approved-by identity,
+  version number, sharing state, team notification, or conflict warning was
+  fabricated.
+- The order of service remains an ordered song setlist because generic prayer,
+  message, offering, duration, and non-song service-item models do not exist.
+- Plan directories and counts use the existing permission-scoped queryset;
+  Choir Members still receive only participating plans and their own assignment
+  names. Restricted linked events are not exposed as working direct links.
+- Add, move, remove, participant synchronization, and song assignment continue
+  through the existing atomic services and permissions.
+
+The next recommended screen group is Song Library and Resources. Do not begin it without
 explicit authorization.
