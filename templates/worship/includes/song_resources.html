@@ -5,7 +5,7 @@
         <span>{{ resource.title }}</span>
         <small class="text-muted">{{ resource.get_resource_type_display }}</small>
         {% if resource.file %}
-          {% if resource.is_previewable %}<a class="btn btn-sm btn-outline-primary" href="{% url 'worship:song-resource-preview' resource.pk %}">View</a>{% endif %}
+          {% if resource.is_previewable %}<a class="btn btn-sm btn-outline-primary" href="{% url 'worship:song-resource-preview' resource.pk %}{% if plan_song and resource.preview_kind == 'chordpro' %}?plan_song={{ plan_song.pk }}{% endif %}">View</a>{% endif %}
           <a class="btn btn-sm btn-outline-secondary" href="{% url 'worship:song-resource-download' resource.pk %}">Download</a>
         {% else %}
           <a class="btn btn-sm btn-outline-primary" href="{{ resource.external_url }}" target="_blank" rel="noopener noreferrer">Open source</a>

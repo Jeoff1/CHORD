@@ -134,6 +134,24 @@ class ChordProParserTests(TestCase):
         self.assertEqual(parsed["blocks"][0]["text"], "Chorus")
         self.assertEqual(parsed["blocks"][1]["segments"][0]["chord"], "G")
 
+    def test_parser_transposes_chords_and_key_by_semitones(self):
+        parsed = parse_chordpro(
+            "{key: G}\n[G]Grace [Em7]so [C/E]free [N.C.]now", semitones=3
+        )
+        self.assertIn(("Key", "Bb"), parsed["metadata"])
+        chords = [s["chord"] for s in parsed["blocks"][0]["segments"]]
+        self.assertEqual(chords, ["Bb", "Gm7", "Eb/G", "N.C."])
+
+    def test_parser_transposes_down_with_wraparound(self):
+        parsed = parse_chordpro("[C]Grace [F#m]now", semitones=-2)
+        chords = [s["chord"] for s in parsed["blocks"][0]["segments"]]
+        self.assertEqual(chords, ["Bb", "Em"])
+
+    def test_parser_leaves_annotation_brackets_untransposed(self):
+        parsed = parse_chordpro("[Bridge]Grace [Esus4]now [Cmaj7]free", semitones=1)
+        chords = [s["chord"] for s in parsed["blocks"][0]["segments"]]
+        self.assertEqual(chords, ["Bridge", "Fsus4", "Dbmaj7"])
+
 
 class SongResourcePhaseSixTests(TestCase):
     def setUp(self):
@@ -209,6 +227,61 @@ class SongResourcePhaseSixTests(TestCase):
             self.assertContains(response, "Key")
             self.assertContains(response, ">G<", html=False)
             self.assertContains(response, ">C<", html=False)
+
+    def test_chordpro_preview_transposes_to_setlist_planned_key(self):
+        self.song.default_key = "G"
+        self.song.save()
+        plan = WorshipPlan.objects.create(
+            title="Transposed service", service_datetime=future_datetime(2)
+        )
+        plan_song = PlanSong.objects.create(
+            plan=plan, song=self.song, position=1, planned_key="A"
+        )
+        with (
+            TemporaryDirectory() as protected_root,
+            override_settings(PROTECTED_MEDIA_ROOT=protected_root),
+        ):
+            resource = self.create_file_resource(
+                "chart.chordpro", b"{key: G}\n[G]Grace [C]abounds"
+            )
+            url = reverse("worship:song-resource-preview", args=(resource.pk,))
+            self.client.force_login(self.leader)
+
+            planned = self.client.get(url, {"plan_song": plan_song.pk})
+            self.assertContains(planned, ">A<", html=False)
+            self.assertContains(planned, ">D<", html=False)
+            self.assertNotContains(planned, ">G<", html=False)
+
+            shifted = self.client.get(
+                url, {"plan_song": plan_song.pk, "transpose": "-2"}
+            )
+            self.assertContains(shifted, ">F<", html=False)
+            self.assertContains(shifted, ">Bb<", html=False)
+
+            untouched = self.client.get(url, {"transpose": "not-a-number"})
+            self.assertContains(untouched, ">G<", html=False)
+
+    def test_chordpro_preview_ignores_plan_the_viewer_cannot_see(self):
+        self.song.default_key = "G"
+        self.song.save()
+        plan = WorshipPlan.objects.create(
+            title="Private service", service_datetime=future_datetime(2)
+        )
+        plan_song = PlanSong.objects.create(
+            plan=plan, song=self.song, position=1, planned_key="A"
+        )
+        with (
+            TemporaryDirectory() as protected_root,
+            override_settings(PROTECTED_MEDIA_ROOT=protected_root),
+        ):
+            resource = self.create_file_resource("chart.chordpro", b"[G]Grace")
+            self.client.force_login(self.choir_member)
+            response = self.client.get(
+                reverse("worship:song-resource-preview", args=(resource.pk,)),
+                {"plan_song": plan_song.pk},
+            )
+            self.assertContains(response, ">G<", html=False)
+            self.assertNotContains(response, ">A<", html=False)
 
     def test_unsupported_word_preview_has_download_fallback(self):
         with (

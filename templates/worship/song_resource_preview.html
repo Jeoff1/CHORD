@@ -10,6 +10,12 @@
     <div class="alert alert-warning">This file cannot be displayed safely in the browser. Download the original to open it with an appropriate application.</div>
   {% elif chordpro %}
     <section class="card shadow-sm"><div class="card-body">
+      <nav class="d-flex flex-wrap align-items-center gap-2 mb-3" aria-label="Transpose chord sheet">
+        <a class="btn btn-sm btn-outline-secondary" href="?{% if plan_song %}plan_song={{ plan_song.pk }}&amp;{% endif %}transpose={{ transpose_down }}" aria-label="Transpose down one semitone">&minus;1</a>
+        <span>Transpose: {% if semitones > 0 %}+{% endif %}{{ semitones }}{% if plan_song.planned_key %} <small class="text-muted">(planned key {{ plan_song.planned_key }})</small>{% endif %}</span>
+        <a class="btn btn-sm btn-outline-secondary" href="?{% if plan_song %}plan_song={{ plan_song.pk }}&amp;{% endif %}transpose={{ transpose_up }}" aria-label="Transpose up one semitone">+1</a>
+        {% if semitones %}<a class="btn btn-sm btn-link" href="?transpose=0{% if plan_song %}&amp;plan_song={{ plan_song.pk }}{% endif %}">Original key</a>{% endif %}
+      </nav>
       {% if chordpro.metadata %}<dl class="row mb-4">{% for label, value in chordpro.metadata %}<dt class="col-sm-3">{{ label }}</dt><dd class="col-sm-9">{{ value }}</dd>{% endfor %}</dl>{% endif %}
       <div class="font-monospace overflow-x-auto" aria-label="ChordPro chord sheet">
         {% for block in chordpro.blocks %}

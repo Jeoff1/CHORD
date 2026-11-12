@@ -492,3 +492,19 @@ See [[Screen-Implementation-Tracker]], [[Design-Change-Log]],
 - Verification: full suite, PostgreSQL, Ruff lint/format, migration check.
 
 See [[../03-Modules/Church-Profile-Traditions]].
+
+## 2026-11-13 - Phase 7A ticket 11: ChordPro transposition
+
+- `parse_chordpro(content, semitones=...)` transposes chord tokens and the
+  `{key:}` directive. Annotation brackets such as `[Bridge]` and `[N.C.]` are
+  left as they are. Output spelling: C Db D Eb E F F# G Ab A Bb B.
+- The preview reads `?plan_song=<id>`. The default offset is the planned key's
+  root minus the song's default-key root; major or minor is ignored. The plan
+  must be visible to the viewer (`visible_worship_plans`); otherwise the offset
+  is 0. `?transpose=<n>` overrides the offset and wraps to -6..+5.
+- Setlist "View" links on plan detail carry `plan_song`. Opening the sheet from
+  the song page shows the original key. Non-ChordPro previews are unchanged.
+- Built test-first at the Phase 6 parser and Django test-client seams: 5 new
+  tests. Two-axis review: fixed annotation brackets being transposed and the
+  repeated wrap arithmetic.
+- Verification: full suite (163 tests), Ruff lint/format.
