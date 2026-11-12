@@ -134,3 +134,22 @@ See [[../03-Modules/Song-Resources-Chord-Sheets]] and
 See [[../03-Development/Design-System]],
 [[../03-Development/Branding-and-Assets]], and
 [[../03-Development/Screen-Implementation-Tracker]].
+
+## 2026-11-13 - Multi-tradition support (Phase 7A)
+
+- Pause the remaining Phase 7 screen work and introduce multi-tradition
+  support first, so later screens are built on the final model.
+- Single church per installation with a switchable Tradition on a Church
+  Profile; no tenant foreign keys. Multi-church hosting is future work.
+- Represent Traditions as data presets (modules, terminology, roles, service
+  templates and song slots, songbooks, themes, calendar), not per-tradition
+  code branches.
+- Replace the six fixed role codes with tradition-defined roles that remain
+  backed by Django permissions; server-side enforcement is unchanged.
+- Add Church Records and Church Calendar modules; no lectionary.
+- Give worship plans a required controlled theme; migrate song themes from
+  free strings to the controlled vocabulary.
+- Store copyrighted hymnals (INC, Catholic) as metadata only.
+- Keep ML locked; this phase only adds data Phase 8 will consume.
+
+See [[../01-Project/Multi-Tradition-Support]].
