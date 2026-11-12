@@ -6,20 +6,15 @@ DEFAULT_TRADITION_CODE = "alliance"
 
 
 def list_traditions():
-    return list(Tradition.objects.order_by("name"))
+    return list(Tradition.objects.all())
 
 
 def get_church_profile():
-    profile = (
-        ChurchProfile.objects.select_related("tradition")
-        .filter(pk=ChurchProfile.SINGLETON_ID)
-        .first()
+    """Return the Church Profile; a data migration creates it, this only self-heals."""
+    profile, _ = ChurchProfile.objects.select_related("tradition").get_or_create(
+        pk=ChurchProfile.SINGLETON_ID,
+        defaults={"tradition": Tradition.objects.get(code=DEFAULT_TRADITION_CODE)},
     )
-    if profile is None:
-        profile = ChurchProfile(
-            tradition=Tradition.objects.get(code=DEFAULT_TRADITION_CODE)
-        )
-        profile.save()
     return profile
 
 

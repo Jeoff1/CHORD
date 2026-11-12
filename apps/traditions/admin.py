@@ -12,3 +12,10 @@ class TraditionAdmin(admin.ModelAdmin):
 @admin.register(ChurchProfile)
 class ChurchProfileAdmin(admin.ModelAdmin):
     list_display = ("name", "tradition", "updated_at")
+    readonly_fields = ("updated_at", "updated_by")
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False

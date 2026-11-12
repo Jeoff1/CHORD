@@ -476,3 +476,19 @@ See [[Screen-Implementation-Tracker]], [[Design-Change-Log]],
 See [[Screen-Implementation-Tracker]], [[Design-Change-Log]],
 [[../03-Modules/Choir-Worship-Management]], and
 [[../04-Testing/Phase-7-Test-Results]].
+
+## 2026-11-13 - Phase 7A ticket 01: Church Profile and Traditions
+
+- Planned Phase 7A (multi-tradition support) and paused remaining Phase 7
+  screens. See [[../01-Project/Multi-Tradition-Support]].
+- Added `apps.traditions` with Tradition presets, the singleton Church
+  Profile, the tradition-config service, and the administrator-only
+  `/church/` screen; the shell shows the active church and Tradition.
+- Built test-first at the agreed seams (Django test client and the
+  tradition-config service): 9 new tests.
+- Two-axis code review: fixed the singleton race (data migration plus
+  `get_or_create`), blocked admin add/delete, required the matching change
+  permission, and added tests for data kept on switch.
+- Verification: full suite, PostgreSQL, Ruff lint/format, migration check.
+
+See [[../03-Modules/Church-Profile-Traditions]].
