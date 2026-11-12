@@ -52,8 +52,8 @@ class ContributionModelTests(TestCase):
 
 class GivingPermissionTests(TestCase):
     def setUp(self):
-        self.administrator = create_role_user("admin", Role.Code.CHURCH_ADMINISTRATOR)
-        self.member_user = create_role_user("member", Role.Code.CHURCH_MEMBER)
+        self.administrator = create_role_user("admin", "church_administrator")
+        self.member_user = create_role_user("member", "church_member")
         self.member = Member.objects.create(
             user=self.member_user,
             first_name="Church",
@@ -91,9 +91,7 @@ class GivingPermissionTests(TestCase):
 
 class GivingWorkflowTests(TestCase):
     def test_recording_contribution_creates_audit_event(self):
-        administrator = create_role_user(
-            "administrator", Role.Code.CHURCH_ADMINISTRATOR
-        )
+        administrator = create_role_user("administrator", "church_administrator")
         member = Member.objects.create(
             first_name="Recorded",
             last_name="Donor",
@@ -122,7 +120,7 @@ class GivingWorkflowTests(TestCase):
         self.assertEqual(audit_event.actor, administrator)
 
     def test_anonymous_contribution_is_not_in_member_history(self):
-        member_user = create_role_user("member-user", Role.Code.CHURCH_MEMBER)
+        member_user = create_role_user("member-user", "church_member")
         Member.objects.create(
             user=member_user,
             first_name="Private",
@@ -140,7 +138,7 @@ class GivingWorkflowTests(TestCase):
         self.assertNotContains(response, "20.00")
 
     def test_updating_contribution_creates_field_name_only_audit(self):
-        administrator = create_role_user("audit-admin", Role.Code.CHURCH_ADMINISTRATOR)
+        administrator = create_role_user("audit-admin", "church_administrator")
         member = Member.objects.create(first_name="Audit", last_name="Donor")
         fund = Fund.objects.create(name="Audit fund")
         contribution = Contribution.objects.create(
@@ -173,10 +171,8 @@ class GivingWorkflowTests(TestCase):
 
 class GivingUIRefinementTests(TestCase):
     def setUp(self):
-        self.administrator = create_role_user(
-            "giving-ui-admin", Role.Code.CHURCH_ADMINISTRATOR
-        )
-        self.member_user = create_role_user("giving-ui-member", Role.Code.CHURCH_MEMBER)
+        self.administrator = create_role_user("giving-ui-admin", "church_administrator")
+        self.member_user = create_role_user("giving-ui-member", "church_member")
         self.member = Member.objects.create(
             user=self.member_user,
             first_name="Giving UI",

@@ -58,7 +58,7 @@ class MemberModelTests(TestCase):
 class MemberPermissionTests(TestCase):
     def setUp(self):
         self.administrator = User.objects.create_user("member-admin", password=PASSWORD)
-        admin_role = Role.objects.get(code=Role.Code.CHURCH_ADMINISTRATOR)
+        admin_role = Role.objects.get(code="church_administrator")
         UserRole.objects.create(user=self.administrator, role=admin_role)
 
     def test_church_administrator_has_scoped_member_permissions(self):
@@ -78,7 +78,7 @@ class MemberDirectoryTests(TestCase):
         self.administrator = User.objects.create_user(
             "directory-admin", password=PASSWORD
         )
-        admin_role = Role.objects.get(code=Role.Code.CHURCH_ADMINISTRATOR)
+        admin_role = Role.objects.get(code="church_administrator")
         UserRole.objects.create(user=self.administrator, role=admin_role)
         self.active_member = Member.objects.create(
             first_name="Alpha",
@@ -206,7 +206,7 @@ class MemberDirectoryTests(TestCase):
 
     def test_email_search_requires_sensitive_permission(self):
         viewer = User.objects.create_user("directory-viewer", password=PASSWORD)
-        role = Role.objects.get(code=Role.Code.MINISTRY_LEADER)
+        role = Role.objects.get(code="ministry_leader")
         directory_permission = Permission.objects.get(
             content_type__app_label="members",
             codename="view_member_directory",
@@ -220,7 +220,7 @@ class MemberDirectoryTests(TestCase):
 
     def test_limited_directory_view_does_not_render_contact_columns(self):
         viewer = User.objects.create_user("privacy-viewer", password=PASSWORD)
-        role = Role.objects.get(code=Role.Code.MINISTRY_LEADER)
+        role = Role.objects.get(code="ministry_leader")
         role.permissions.add(
             Permission.objects.get(
                 content_type__app_label="members",
@@ -268,7 +268,7 @@ class MemberAccessTests(TestCase):
 
     def test_directory_only_view_hides_sensitive_fields(self):
         viewer = User.objects.create_user("limited-viewer", password=PASSWORD)
-        role = Role.objects.get(code=Role.Code.MINISTRY_LEADER)
+        role = Role.objects.get(code="ministry_leader")
         role.permissions.add(
             Permission.objects.get(
                 content_type__app_label="members",
@@ -300,7 +300,7 @@ class MemberProfileScreenTests(TestCase):
         )
         UserRole.objects.create(
             user=self.administrator,
-            role=Role.objects.get(code=Role.Code.CHURCH_ADMINISTRATOR),
+            role=Role.objects.get(code="church_administrator"),
         )
         self.member = Member.objects.create(
             first_name="Sofia",
@@ -367,7 +367,7 @@ class MemberProfileScreenTests(TestCase):
 
     def test_profile_attendance_respects_event_visibility(self):
         viewer = User.objects.create_user("profile-viewer", password=PASSWORD)
-        role = Role.objects.get(code=Role.Code.MINISTRY_LEADER)
+        role = Role.objects.get(code="ministry_leader")
         role.permissions.add(
             Permission.objects.get(
                 content_type__app_label="members",
@@ -407,7 +407,7 @@ class MemberManagementTests(TestCase):
         self.administrator = User.objects.create_user(
             "management-admin", password=PASSWORD
         )
-        admin_role = Role.objects.get(code=Role.Code.CHURCH_ADMINISTRATOR)
+        admin_role = Role.objects.get(code="church_administrator")
         UserRole.objects.create(user=self.administrator, role=admin_role)
         self.client.force_login(self.administrator)
 
@@ -454,7 +454,7 @@ class MemberManagementTests(TestCase):
         self.assertEqual(event.fields_changed, ["membership_status"])
 
     def test_create_requires_add_and_sensitive_permissions(self):
-        admin_role = Role.objects.get(code=Role.Code.CHURCH_ADMINISTRATOR)
+        admin_role = Role.objects.get(code="church_administrator")
         admin_role.permissions.remove(
             Permission.objects.get(
                 content_type__app_label="members",
@@ -470,7 +470,7 @@ class MemberManagementTests(TestCase):
 
     def test_update_requires_change_and_sensitive_permissions(self):
         member = Member.objects.create(first_name="Protected", last_name="Member")
-        admin_role = Role.objects.get(code=Role.Code.CHURCH_ADMINISTRATOR)
+        admin_role = Role.objects.get(code="church_administrator")
         admin_role.permissions.remove(
             Permission.objects.get(
                 content_type__app_label="members",

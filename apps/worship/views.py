@@ -14,9 +14,7 @@ from django.views.generic import (
 )
 
 from apps.accounts.mixins import AuthenticatedPermissionRequiredMixin
-from apps.accounts.models import Role
 from apps.events.services import visible_events_for
-from apps.members.models import Member
 
 from .chordpro import key_offset, parse_chordpro, wrap_semitones
 from .forms import (
@@ -43,6 +41,7 @@ from .models import (
 )
 from .services import (
     add_plan_song,
+    choir_leaders,
     move_plan_song,
     record_rehearsal_attendance,
     remove_plan_song,
@@ -106,13 +105,7 @@ class ChoirActivityView(AuthenticatedPermissionRequiredMixin, TemplateView):
                 "can_view_announcements": can_view_announcements,
                 "can_view_roster": can_view_roster,
                 "current_announcement_count": announcements.count(),
-                "choir_leaders": Member.objects.filter(
-                    user__is_active=True,
-                    user__roles__code=Role.Code.CHOIR_LEADER,
-                )
-                .select_related("user")
-                .distinct()
-                .order_by("last_name", "first_name"),
+                "choir_leaders": choir_leaders(),
                 "choir_summary": choir_summary,
                 "own_enrollment": ChoirEnrollment.objects.select_related("member")
                 .filter(member__user=self.request.user)
@@ -160,13 +153,7 @@ class ChoirRosterView(AuthenticatedPermissionRequiredMixin, ListView):
                 "selected_voice": self.request.GET.get("voice_part", ""),
                 "query": self.request.GET.get("q", ""),
                 "pagination_query": params.urlencode(),
-                "choir_leaders": Member.objects.filter(
-                    user__is_active=True,
-                    user__roles__code=Role.Code.CHOIR_LEADER,
-                )
-                .select_related("user")
-                .distinct()
-                .order_by("last_name", "first_name"),
+                "choir_leaders": choir_leaders(),
                 "roster_summary": ChoirEnrollment.objects.aggregate(
                     total=Count("pk"),
                     active=Count("pk", filter=Q(status=ChoirEnrollment.Status.ACTIVE)),

@@ -92,7 +92,7 @@
       <section class="chord-panel" aria-labelledby="choir-leaders-heading">
         <div class="chord-panel__header"><h2 id="choir-leaders-heading">Choir leaders</h2></div>
         <div class="chord-affiliation-list">
-          {% for leader in choir_leaders %}<div><strong>{{ leader.full_name }}</strong><small>Active Choir Leader account</small></div>{% empty %}<div class="chord-empty-state">No active Choir Leader account is linked to a member record.</div>{% endfor %}
+          {% for leader in choir_leaders %}<div><strong>{{ leader.full_name }}</strong><small>Manages the choir</small></div>{% empty %}<div class="chord-empty-state">No active account that manages the choir is linked to a member record.</div>{% endfor %}
         </div>
       </section>
       <div class="chord-guidance-banner"><strong>Protected choir information</strong><span>Members see only their own attendance and song assignments. Roster management remains limited to authorized leaders.</span></div>

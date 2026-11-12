@@ -35,8 +35,8 @@
       <div class="chord-pagination-wrap">{% include "includes/pagination.html" %}</div>
     </div>
     <aside class="chord-profile-aside">
-      <section class="chord-panel" aria-labelledby="roster-leaders-heading"><div class="chord-panel__header"><h2 id="roster-leaders-heading">Choir leaders</h2></div><div class="chord-affiliation-list">{% for leader in choir_leaders %}<div><strong>{{ leader.full_name }}</strong><small>Active Choir Leader account</small></div>{% empty %}<div class="chord-empty-state">No active Choir Leader account is linked to a member record.</div>{% endfor %}</div></section>
-      <div class="chord-guidance-banner"><strong>Role and enrollment are distinct</strong><span>A Choir Member or Choir Leader account role controls access. Enrollment records voice part and participation.</span></div>
+      <section class="chord-panel" aria-labelledby="roster-leaders-heading"><div class="chord-panel__header"><h2 id="roster-leaders-heading">Choir leaders</h2></div><div class="chord-affiliation-list">{% for leader in choir_leaders %}<div><strong>{{ leader.full_name }}</strong><small>Manages the choir</small></div>{% empty %}<div class="chord-empty-state">No active account that manages the choir is linked to a member record.</div>{% endfor %}</div></section>
+      <div class="chord-guidance-banner"><strong>Role and enrollment are distinct</strong><span>Account roles control access. Enrollment records voice part and participation.</span></div>
     </aside>
   </div>
 {% endblock %}

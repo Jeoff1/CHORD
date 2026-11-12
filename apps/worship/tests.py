@@ -108,20 +108,20 @@ class WorshipModelTests(TestCase):
 
 class PhaseFourRolePermissionTests(TestCase):
     def test_worship_leader_has_planning_but_not_choir_management(self):
-        user = create_role_user("worship-leader", Role.Code.WORSHIP_LEADER)
+        user = create_role_user("worship-leader", "worship_leader")
         self.assertTrue(user.has_perm("worship.manage_song_library"))
         self.assertTrue(user.has_perm("worship.manage_worship_plans"))
         self.assertFalse(user.has_perm("worship.manage_choir"))
 
     def test_choir_leader_can_manage_choir_but_not_song_library(self):
-        user = create_role_user("choir-leader", Role.Code.CHOIR_LEADER)
+        user = create_role_user("choir-leader", "choir_leader")
         self.assertTrue(user.has_perm("worship.manage_choir"))
         self.assertTrue(user.has_perm("worship.record_rehearsal_attendance"))
         self.assertTrue(user.has_perm("worship.view_song_library"))
         self.assertFalse(user.has_perm("worship.manage_song_library"))
 
     def test_choir_member_has_participant_views_only(self):
-        user = create_role_user("choir-participant", Role.Code.CHOIR_MEMBER)
+        user = create_role_user("choir-participant", "choir_member")
         self.assertTrue(user.has_perm("worship.view_choir_schedule"))
         self.assertTrue(user.has_perm("worship.view_song_resources"))
         self.assertFalse(user.has_perm("worship.view_choir_roster"))
@@ -130,8 +130,8 @@ class PhaseFourRolePermissionTests(TestCase):
 
 class ChoirWorkflowTests(TestCase):
     def setUp(self):
-        self.leader = create_role_user("choir-lead", Role.Code.CHOIR_LEADER)
-        self.member_user = create_role_user("choir-user", Role.Code.CHOIR_MEMBER)
+        self.leader = create_role_user("choir-lead", "choir_leader")
+        self.member_user = create_role_user("choir-user", "choir_member")
         self.member = Member.objects.create(
             user=self.member_user,
             first_name="Active",
@@ -261,7 +261,7 @@ class ChoirWorkflowTests(TestCase):
         self.assertNotContains(response, other_member.full_name)
 
     def test_worship_leader_can_coordinate_schedule_without_announcement_access(self):
-        worship_leader = create_role_user("choir-coordinator", Role.Code.WORSHIP_LEADER)
+        worship_leader = create_role_user("choir-coordinator", "worship_leader")
         ChoirAnnouncement.objects.create(
             title="Choir leader private notice",
             body="Restricted announcement",
@@ -279,7 +279,7 @@ class ChoirWorkflowTests(TestCase):
         self.assertNotContains(response, reverse("worship:announcement-list"))
 
     def test_choir_dashboard_discloses_only_members_own_assignments(self):
-        other_user = create_role_user("other-choir-user", Role.Code.CHOIR_MEMBER)
+        other_user = create_role_user("other-choir-user", "choir_member")
         other_member = Member.objects.create(
             user=other_user,
             first_name="Other",
@@ -425,8 +425,8 @@ class ChoirWorkflowTests(TestCase):
 
 class SongLibraryWorkflowTests(TestCase):
     def setUp(self):
-        self.leader = create_role_user("worship-song-lead", Role.Code.WORSHIP_LEADER)
-        self.choir_member = create_role_user("song-viewer", Role.Code.CHOIR_MEMBER)
+        self.leader = create_role_user("worship-song-lead", "worship_leader")
+        self.choir_member = create_role_user("song-viewer", "choir_member")
 
     def test_worship_leader_creates_normalized_song_metadata(self):
         self.client.force_login(self.leader)
@@ -501,10 +501,10 @@ class SongLibraryWorkflowTests(TestCase):
 
 class WorshipPlanningWorkflowTests(TestCase):
     def setUp(self):
-        self.worship_leader = create_role_user("planner", Role.Code.WORSHIP_LEADER)
-        self.choir_leader = create_role_user("assignment-lead", Role.Code.CHOIR_LEADER)
-        self.member_user = create_role_user("plan-singer", Role.Code.CHOIR_MEMBER)
-        self.other_user = create_role_user("other-singer", Role.Code.CHOIR_MEMBER)
+        self.worship_leader = create_role_user("planner", "worship_leader")
+        self.choir_leader = create_role_user("assignment-lead", "choir_leader")
+        self.member_user = create_role_user("plan-singer", "choir_member")
+        self.other_user = create_role_user("other-singer", "choir_member")
         self.member = Member.objects.create(
             user=self.member_user,
             first_name="Plan",

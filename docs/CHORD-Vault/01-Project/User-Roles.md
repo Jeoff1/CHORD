@@ -1,9 +1,24 @@
 # User Roles
 
-CHORD seeds six common roles, plus Tradition roles that only grant access
-while their Tradition is active (see
-[[../03-Modules/Church-Profile-Traditions]]). Users may have multiple roles when their real
-responsibilities require it.
+CHORD seeds six common roles plus each Tradition's own roles. A Tradition
+role grants access only while its Tradition is active (see
+[[../03-Modules/Church-Profile-Traditions]]). Users may have multiple roles
+when their real responsibilities require it.
+
+All roles are defined as data in the role catalogue
+(`apps/traditions/roles.py`) and synchronized after every migrate. Code never
+checks a role code: access is checked through Django permissions, and "who
+holds a capability" is answered by `services.users_with_permission(perm)`
+(e.g. the choir-leader lists use `worship.manage_choir`, so a Parish Priest or
+Church Administrator also appears there).
+
+| Tradition | Preset roles (permission set reused) |
+| --- | --- |
+| Alliance | Senior Pastor (Church Administrator), Head Deacon (Ministry Leader) |
+| Iglesia Ni Cristo | Minister (Church Administrator), Head Deacon (Ministry Leader) |
+| Roman Catholic | Parish Priest (Church Administrator), Music Director (Worship Leader) |
+
+Common roles:
 
 | Role | Responsibility boundary |
 | --- | --- |
