@@ -1,13 +1,13 @@
 {% extends "base.html" %}
-{% block title %}Worship service plans | CHORD{% endblock %}
+{% block title %}{{ tradition_terms.service }} plans | CHORD{% endblock %}
 {% block content %}
   <div class="chord-page-heading">
-    <div><p class="chord-eyebrow">Worship planning</p><h1>Service plans</h1><p>Prepare ordered song setlists, choir participation, and resources for upcoming worship.</p></div>
-    {% if perms.worship.manage_worship_plans and perms.worship.add_worshipplan %}<div class="chord-page-actions"><a class="btn btn-primary" href="{% url 'worship:plan-add' %}">Create service plan</a></div>{% endif %}
+    <div><p class="chord-eyebrow">Worship planning</p><h1>{{ tradition_terms.service }} plans</h1><p>Prepare ordered song setlists, choir participation, and resources for upcoming worship.</p></div>
+    {% if perms.worship.manage_worship_plans and perms.worship.add_worshipplan %}<div class="chord-page-actions"><a class="btn btn-primary" href="{% url 'worship:plan-add' %}">Create {{ tradition_terms.service }} plan</a></div>{% endif %}
   </div>
 
   <div class="chord-metric-grid chord-plan-metrics">
-    <article class="chord-metric-card"><span>Upcoming</span><strong>{{ plan_summary.upcoming }}</strong><small>Visible future service plans</small></article>
+    <article class="chord-metric-card"><span>Upcoming</span><strong>{{ plan_summary.upcoming }}</strong><small>Visible future {{ tradition_terms.service }} plans</small></article>
     <article class="chord-metric-card"><span>Preparing</span><strong>{{ plan_summary.preparing }}</strong><small>Preparation still in progress</small></article>
     <article class="chord-metric-card"><span>Ready</span><strong>{{ plan_summary.ready }}</strong><small>Marked ready by an authorized planner</small></article>
     <article class="chord-metric-card"><span>All visible plans</span><strong>{{ plan_summary.all }}</strong><small>Limited by your existing access</small></article>
@@ -35,7 +35,7 @@
           <div class="chord-plan-card__heading"><div><h2><a href="{% url 'worship:plan-detail' plan.public_id %}">{{ plan.title }}</a></h2><p>{{ plan.service_datetime|date:"g:i A" }}{% if plan.location %} · {{ plan.location }}{% endif %}</p></div><span class="chord-status {% if plan.status == 'ready' %}chord-status--success{% elif plan.status == 'preparing' %}chord-status--warning{% elif plan.status == 'cancelled' %}chord-status--danger{% elif plan.status == 'completed' %}chord-status--info{% else %}chord-status--muted{% endif %}">{{ plan.get_status_display }}</span></div>
           <div class="chord-plan-card__facts"><span><strong>{{ plan.setlist_count }}</strong> setlist song{{ plan.setlist_count|pluralize }}</span><span><strong>{{ plan.participant_count }}</strong> choir participant{{ plan.participant_count|pluralize }}</span><span>{% if plan.event %}<strong>Calendar linked</strong>{% else %}Standalone plan{% endif %}</span></div>
           {% if plan.preparation_notes %}<p class="chord-plan-card__notes">{{ plan.preparation_notes|truncatewords:24 }}</p>{% endif %}
-          <a class="chord-text-link" href="{% url 'worship:plan-detail' plan.public_id %}">Open service plan <span aria-hidden="true">&rarr;</span></a>
+          <a class="chord-text-link" href="{% url 'worship:plan-detail' plan.public_id %}">Open {{ tradition_terms.service }} plan <span aria-hidden="true">&rarr;</span></a>
         </div>
       </article>
     {% empty %}<div class="chord-panel chord-empty-state chord-empty-state--panel"><strong>No service plans found</strong><span>There are no visible worship plans matching the selected timing and filters.</span></div>{% endfor %}

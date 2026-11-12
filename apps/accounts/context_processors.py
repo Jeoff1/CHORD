@@ -1,3 +1,5 @@
+from apps.traditions.services import term
+
 SECTION_LABELS = {
     "overview": "Overview",
     "church": "Church profile",
@@ -51,7 +53,11 @@ def application_shell(request):
             "traditions": "church",
         }.get(app_name, "")
 
+    if section == "plans" and request.user.is_authenticated:
+        label = f"{term('service')} plans"
+    else:
+        label = SECTION_LABELS.get(section, "Church workspace")
     return {
         "shell_nav_section": section,
-        "shell_section_label": SECTION_LABELS.get(section, "Church workspace"),
+        "shell_section_label": label,
     }

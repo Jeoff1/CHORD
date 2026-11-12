@@ -8,6 +8,8 @@ class Tradition(models.Model):
     code = models.SlugField(max_length=50, unique=True)
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True)
+    terminology = models.JSONField(default=dict, blank=True)
+    default_modules = models.JSONField(default=list, blank=True)
 
     class Meta:
         ordering = ["name"]
@@ -24,6 +26,11 @@ class ChurchProfile(models.Model):
     name = models.CharField(max_length=150, default="My Church")
     tradition = models.ForeignKey(
         Tradition, on_delete=models.PROTECT, related_name="church_profiles"
+    )
+    module_overrides = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Module code to enabled flag, where it differs from the preset.",
     )
     updated_at = models.DateTimeField(auto_now=True)
     updated_by = models.ForeignKey(

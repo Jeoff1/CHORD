@@ -508,3 +508,18 @@ See [[../03-Modules/Church-Profile-Traditions]].
   tests. Two-axis review: fixed annotation brackets being transposed and the
   repeated wrap arithmetic.
 - Verification: full suite (163 tests), Ruff lint/format.
+
+## 2026-11-13 - Phase 7A ticket 02: Tradition terminology and module toggles
+
+- Tradition presets gained `terminology` and `default_modules`; the Church
+  Profile gained `module_overrides` (migrations 0004, 0005).
+- Service-plan navigation and headings read the active Tradition's term
+  (Worship Service, Pagsamba, Mass).
+- Church administrators toggle modules on `/church/`. `ModuleGateMiddleware`
+  returns 404 for disabled namespaces; a module-scoped template `perms` and
+  `ModuleScopedPerms` hide their links. Permission checks are unchanged.
+- Built test-first at the tradition-config service and Django test-client
+  seams: 12 new tests. Two-axis review: replaced per-link sidebar checks with
+  one scoped `perms` wrapper, moved the header label to the service, and
+  applied terms to the remaining plan strings.
+- Verification: full suite (174 tests), Ruff lint/format, migration check.
