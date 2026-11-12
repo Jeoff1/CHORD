@@ -2,7 +2,7 @@
 {% block title %}Church profile | CHORD{% endblock %}
 {% block content %}
   <h1 class="h3">Church profile</h1>
-  <p class="text-muted">The tradition configures CHORD's terminology, roles, services, songs and calendar.</p>
+  <p class="text-muted">Choose the Christian tradition this church follows.</p>
   <form method="post" class="card card-body shadow-sm">
     {% csrf_token %}
     {% for field in form %}

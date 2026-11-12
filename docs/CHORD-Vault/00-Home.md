@@ -20,6 +20,7 @@ CHORD's source-of-truth development notes.
 - [[03-Modules/Ministry-Management|Ministry Management]]
 - [[03-Modules/Events-Attendance|Events and Attendance]]
 - [[03-Modules/Giving|Giving]]
+- [[03-Modules/Church-Profile-Traditions|Church Profile and Traditions]]
 - [[03-Development/Development-Roadmap|Development Roadmap]]
 - [[03-Development/Phase-7-Figma-Design-Audit|Phase 7 Figma Design Audit]]
 - [[03-Development/Design-System|Design System]]

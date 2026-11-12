@@ -9,7 +9,10 @@ from .forms import ChurchProfileForm
 
 
 class ChurchProfileUpdateView(AuthenticatedPermissionRequiredMixin, UpdateView):
-    permission_required = "traditions.manage_church_profile"
+    permission_required = (
+        "traditions.manage_church_profile",
+        "traditions.change_churchprofile",
+    )
     form_class = ChurchProfileForm
     template_name = "traditions/church_profile_form.html"
     success_url = reverse_lazy("traditions:church-profile")
