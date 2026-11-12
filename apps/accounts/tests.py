@@ -32,9 +32,13 @@ class DatabaseConnectionTests(TestCase):
 
 
 class RoleModelTests(TestCase):
-    def test_all_six_roles_are_seeded(self):
+    def test_all_six_roles_are_seeded_as_common_roles(self):
         self.assertSetEqual(
-            set(Role.objects.values_list("code", flat=True)),
+            set(
+                Role.objects.filter(tradition__isnull=True).values_list(
+                    "code", flat=True
+                )
+            ),
             set(Role.Code.values),
         )
 

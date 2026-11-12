@@ -33,7 +33,16 @@ Phase 7A tickets 01-02. App: `apps.traditions`. Route: `/church/`.
 - **Shell**: the header shows "church name · Tradition"; the sidebar shows a
   permission-backed Church profile link.
 
+- **Tradition roles** (ticket 03): `Role.tradition` is optional; empty means a
+  common role. The six original roles stay common. Presets add their own
+  roles (synchronized after migrate in `accounts/signals.py`, reusing a common
+  role's permission set): Roman Catholic Parish Priest / Music Director,
+  Alliance Senior Pastor / Head Deacon, Iglesia Ni Cristo Minister / Head
+  Deacon. `Role.objects.in_effect()` (common + active Tradition) drives the
+  permission backend, `User.has_role`, and the assignable roles on the account
+  form; an inactive Tradition's roles grant nothing but stay assigned.
+
 ## Not yet
 
-Tradition roles, songbooks, themes, templates,
+Songbooks, themes, templates,
 calendar, and records arrive in tickets 03-13. See [[../01-Project/Phase-7A-Spec]].
