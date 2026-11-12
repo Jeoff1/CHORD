@@ -536,3 +536,13 @@ See [[../03-Modules/Church-Profile-Traditions]].
 - Built test-first at the `has_perm` and account test-client seams: 6 new
   tests.
 - Verification: full suite (180 tests), Ruff lint/format, migration check.
+
+## 2026-11-13 - Phase 7A ticket 04: Tradition roles, migrate callers
+
+- The role catalogue (common and preset roles, descriptions, permission maps)
+  moved to `apps/traditions/roles.py`; `synchronize_roles` reads it.
+- Removed `Role.Code` and `User.has_role`. Choir-leader lists resolve holders
+  of `worship.manage_choir` via `services.users_with_permission()`.
+- Tests use plain role-code strings; a new access matrix checks every common
+  and preset role's full permission set under each of the three Traditions.
+- Verification: full suite, Ruff lint/format, migration check.

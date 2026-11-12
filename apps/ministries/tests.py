@@ -50,7 +50,7 @@ class MinistryModelTests(TestCase):
 
 class MinistryPermissionTests(TestCase):
     def setUp(self):
-        self.leader = create_role_user("ministry-leader", Role.Code.MINISTRY_LEADER)
+        self.leader = create_role_user("ministry-leader", "ministry_leader")
         self.leader_member = Member.objects.create(
             user=self.leader,
             first_name="Ministry",
@@ -84,7 +84,7 @@ class MinistryPermissionTests(TestCase):
         self.assertEqual(denied.status_code, 403)
 
     def test_regular_member_cannot_manage_ministry(self):
-        member_user = create_role_user("church-member", Role.Code.CHURCH_MEMBER)
+        member_user = create_role_user("church-member", "church_member")
         self.client.force_login(member_user)
         response = self.client.get(
             reverse("ministries:edit", args=(self.led_ministry.public_id,))
@@ -94,9 +94,7 @@ class MinistryPermissionTests(TestCase):
 
 class MinistryWorkflowTests(TestCase):
     def test_administrator_can_create_ministry(self):
-        administrator = create_role_user(
-            "administrator", Role.Code.CHURCH_ADMINISTRATOR
-        )
+        administrator = create_role_user("administrator", "church_administrator")
         self.client.force_login(administrator)
         response = self.client.post(
             reverse("ministries:add"),
@@ -114,7 +112,7 @@ class MinistryWorkflowTests(TestCase):
         self.assertEqual(ministry.created_by, administrator)
 
     def test_leader_can_add_member_but_cannot_assign_another_leader(self):
-        leader = create_role_user("assigned-leader", Role.Code.MINISTRY_LEADER)
+        leader = create_role_user("assigned-leader", "ministry_leader")
         leader_member = Member.objects.create(
             user=leader,
             first_name="Assigned",
@@ -172,9 +170,7 @@ class MinistryWorkflowTests(TestCase):
 
 class MinistryUIRefinementTests(TestCase):
     def test_administrator_can_filter_inactive_ministries(self):
-        administrator = create_role_user(
-            "directory-admin", Role.Code.CHURCH_ADMINISTRATOR
-        )
+        administrator = create_role_user("directory-admin", "church_administrator")
         Ministry.objects.create(name="Active Directory Team")
         Ministry.objects.create(
             name="Archived Directory Team",
@@ -191,7 +187,7 @@ class MinistryUIRefinementTests(TestCase):
         self.assertNotContains(response, "Active Directory Team")
 
     def test_directory_shows_leader_but_hides_roster_from_regular_member(self):
-        user = create_role_user("directory-member", Role.Code.CHURCH_MEMBER)
+        user = create_role_user("directory-member", "church_member")
         leader = Member.objects.create(first_name="Visible", last_name="Leader")
         ministry = Ministry.objects.create(name="Community Care")
         MinistryMembership.objects.create(
@@ -211,7 +207,7 @@ class MinistryUIRefinementTests(TestCase):
         self.assertNotContains(detail, "Membership roster")
 
     def test_ministry_detail_lists_only_visible_upcoming_events(self):
-        user = create_role_user("event-directory-member", Role.Code.CHURCH_MEMBER)
+        user = create_role_user("event-directory-member", "church_member")
         ministry = Ministry.objects.create(name="Event Ministry")
         other_ministry = Ministry.objects.create(name="Private Event Ministry")
         starts_at = timezone.now() + timedelta(days=2)

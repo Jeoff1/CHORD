@@ -24,16 +24,6 @@ class Role(models.Model):
     while its Tradition is the active one.
     """
 
-    class Code(models.TextChoices):
-        """Codes of the six common roles (legacy helpers; see ticket 04)."""
-
-        CHURCH_ADMINISTRATOR = "church_administrator", "Church Administrator"
-        MINISTRY_LEADER = "ministry_leader", "Ministry Leader"
-        WORSHIP_LEADER = "worship_leader", "Worship Leader"
-        CHOIR_LEADER = "choir_leader", "Choir Leader"
-        CHOIR_MEMBER = "choir_member", "Choir Member"
-        CHURCH_MEMBER = "church_member", "Church Member"
-
     code = models.SlugField(max_length=64, unique=True)
     name = models.CharField(max_length=64)
     description = models.TextField(blank=True)
@@ -75,11 +65,6 @@ class User(AbstractUser):
             ("assign_roles", "Can assign roles to users"),
             ("deactivate_accounts", "Can deactivate user accounts"),
         )
-
-    def has_role(self, *role_codes):
-        if not self.is_authenticated or not self.is_active:
-            return False
-        return self.roles.in_effect().filter(code__in=role_codes).exists()
 
 
 class UserRole(models.Model):

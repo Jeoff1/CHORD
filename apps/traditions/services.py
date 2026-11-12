@@ -20,6 +20,34 @@ BASE_TERMS = {
 }
 
 
+def role_catalogue():
+    """Every role definition (common and preset) CHORD synchronizes."""
+    from .roles import role_catalogue as catalogue
+
+    return catalogue()
+
+
+def roles_in_effect():
+    """Roles in effect: the common roles plus the active Tradition's roles."""
+    from apps.accounts.models import Role
+
+    return Role.objects.in_effect(get_active_tradition())
+
+
+def users_with_permission(perm):
+    """Active users granted ``perm`` ("app_label.codename") by an in-effect role."""
+    from django.contrib.auth import get_user_model
+
+    app_label, codename = perm.split(".", 1)
+    granting = roles_in_effect().filter(
+        permissions__content_type__app_label=app_label,
+        permissions__codename=codename,
+    )
+    return (
+        get_user_model().objects.filter(is_active=True, roles__in=granting).distinct()
+    )
+
+
 def list_traditions():
     return list(Tradition.objects.all())
 

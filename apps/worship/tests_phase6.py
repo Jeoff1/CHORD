@@ -91,7 +91,7 @@ class SpotifyValidationTests(TestCase):
         )
 
     def test_song_create_rejects_album_link_and_renders_embed_for_track(self):
-        leader = create_role_user("spotify-leader", Role.Code.WORSHIP_LEADER)
+        leader = create_role_user("spotify-leader", "worship_leader")
         self.client.force_login(leader)
         base_data = {
             "title": "Embedded song",
@@ -155,8 +155,8 @@ class ChordProParserTests(TestCase):
 
 class SongResourcePhaseSixTests(TestCase):
     def setUp(self):
-        self.leader = create_role_user("resource-leader", Role.Code.WORSHIP_LEADER)
-        self.choir_member = create_role_user("resource-member", Role.Code.CHOIR_MEMBER)
+        self.leader = create_role_user("resource-leader", "worship_leader")
+        self.choir_member = create_role_user("resource-member", "choir_member")
         self.ordinary = User.objects.create_user("resource-ordinary", password=PASSWORD)
         self.song = Song.objects.create(
             title="Resource song", category=Song.Category.HYMN
@@ -344,8 +344,8 @@ class SongResourcePhaseSixTests(TestCase):
 
 class ResourceIntegrationTests(TestCase):
     def setUp(self):
-        self.choir_leader = create_role_user("prep-leader", Role.Code.CHOIR_LEADER)
-        self.member_user = create_role_user("prep-member", Role.Code.CHOIR_MEMBER)
+        self.choir_leader = create_role_user("prep-leader", "choir_leader")
+        self.member_user = create_role_user("prep-member", "choir_member")
         self.member = Member.objects.create(
             user=self.member_user,
             first_name="Prepared",

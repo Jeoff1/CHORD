@@ -1,6 +1,9 @@
 from django.db import transaction
 from django.db.models import Max
 
+from apps.members.models import Member
+from apps.traditions.services import users_with_permission
+
 from .models import (
     PlanChoirParticipation,
     PlanSong,
@@ -162,3 +165,10 @@ def record_rehearsal_attendance(*, rehearsal, entries, actor):
                 "recorded_by": actor,
             },
         )
+
+
+def choir_leaders():
+    """Linked members whose in-effect roles let them manage the choir."""
+    return Member.objects.filter(
+        user__in=users_with_permission("worship.manage_choir")
+    ).order_by("last_name", "first_name")

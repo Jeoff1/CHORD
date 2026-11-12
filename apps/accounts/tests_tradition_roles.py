@@ -39,7 +39,9 @@ class TraditionRoleAccessTests(TestCase):
 
         self.assertFalse(priest.has_perm("accounts.manage_accounts"))
         self.assertFalse(priest.has_perm("events.view_event"))
-        self.assertFalse(priest.has_role("rc_parish_priest"))
+        self.assertFalse(
+            priest.roles.in_effect().filter(code="rc_parish_priest").exists()
+        )
 
     def test_switching_tradition_moves_access_between_preset_roles(self):
         activate_tradition("alliance")
@@ -54,12 +56,12 @@ class TraditionRoleAccessTests(TestCase):
         for code in ("alliance", "roman-catholic", "iglesia-ni-cristo"):
             with self.subTest(tradition=code):
                 activate_tradition(code)
-                leader = reload_user(
-                    make_user(f"leader-{code}", Role.Code.WORSHIP_LEADER)
-                )
+                leader = reload_user(make_user(f"leader-{code}", "worship_leader"))
                 self.assertTrue(leader.has_perm("worship.manage_worship_plans"))
                 self.assertFalse(leader.has_perm("accounts.manage_accounts"))
-                self.assertTrue(leader.has_role(Role.Code.WORSHIP_LEADER))
+                self.assertTrue(
+                    leader.roles.in_effect().filter(code="worship_leader").exists()
+                )
 
 
 class TraditionRoleAssignmentTests(TestCase):
@@ -67,7 +69,7 @@ class TraditionRoleAssignmentTests(TestCase):
 
     def setUp(self):
         activate_tradition("alliance")
-        self.client.force_login(make_user("admin", Role.Code.CHURCH_ADMINISTRATOR))
+        self.client.force_login(make_user("admin", "church_administrator"))
 
     def create_account(self, role_code):
         return self.client.post(
@@ -86,7 +88,9 @@ class TraditionRoleAssignmentTests(TestCase):
 
         self.assertRedirects(response, reverse("accounts:user-list"))
         newcomer = get_user_model().objects.get(username="newcomer")
-        self.assertTrue(newcomer.has_role("alliance_head_deacon"))
+        self.assertTrue(
+            newcomer.roles.in_effect().filter(code="alliance_head_deacon").exists()
+        )
         self.assertTrue(newcomer.has_perm("ministries.manage_assigned_ministries"))
 
     def test_inactive_tradition_roles_are_not_offered(self):

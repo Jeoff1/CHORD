@@ -69,7 +69,7 @@ class EventModelTests(TestCase):
 
 class EventVisibilityTests(TestCase):
     def setUp(self):
-        self.user = create_role_user("member", Role.Code.CHURCH_MEMBER)
+        self.user = create_role_user("member", "church_member")
         self.member = Member.objects.create(
             user=self.user,
             first_name="Church",
@@ -109,7 +109,7 @@ class EventVisibilityTests(TestCase):
 
 class EventLeadershipTests(TestCase):
     def setUp(self):
-        self.leader = create_role_user("leader", Role.Code.MINISTRY_LEADER)
+        self.leader = create_role_user("leader", "ministry_leader")
         leader_member = Member.objects.create(
             user=self.leader,
             first_name="Event",
@@ -198,8 +198,8 @@ class EventLeadershipTests(TestCase):
 
 class EventRegistrationTests(TestCase):
     def setUp(self):
-        self.first_user = create_role_user("first", Role.Code.CHURCH_MEMBER)
-        self.second_user = create_role_user("second", Role.Code.CHURCH_MEMBER)
+        self.first_user = create_role_user("first", "church_member")
+        self.second_user = create_role_user("second", "church_member")
         self.first = Member.objects.create(
             user=self.first_user,
             first_name="First",
@@ -239,7 +239,7 @@ class EventRegistrationTests(TestCase):
         )
 
     def test_user_without_member_record_cannot_register(self):
-        user = create_role_user("no-record", Role.Code.CHURCH_MEMBER)
+        user = create_role_user("no-record", "church_member")
         self.client.force_login(user)
         response = self.client.post(
             reverse("events:registration", args=(self.event.public_id,))
@@ -284,9 +284,7 @@ class EventRegistrationTests(TestCase):
 
 class EventUIRefinementTests(TestCase):
     def test_event_directory_segments_and_capacity_counts(self):
-        administrator = create_role_user(
-            "calendar-admin", Role.Code.CHURCH_ADMINISTRATOR
-        )
+        administrator = create_role_user("calendar-admin", "church_administrator")
         upcoming = create_event(
             title="Capacity Gathering",
             registration_required=True,
@@ -324,7 +322,7 @@ class EventUIRefinementTests(TestCase):
         self.assertNotContains(past_response, "Capacity Gathering")
 
     def test_member_does_not_see_event_management_actions(self):
-        user = create_role_user("calendar-member", Role.Code.CHURCH_MEMBER)
+        user = create_role_user("calendar-member", "church_member")
         Member.objects.create(
             user=user,
             first_name="Calendar",
@@ -346,7 +344,7 @@ class EventUIRefinementTests(TestCase):
 class AttendanceOverviewTests(TestCase):
     def setUp(self):
         self.administrator = create_role_user(
-            "attendance-admin", Role.Code.CHURCH_ADMINISTRATOR
+            "attendance-admin", "church_administrator"
         )
         self.event = create_event(title="Attendance Summary Event")
         self.present_member = Member.objects.create(
@@ -404,7 +402,7 @@ class AttendanceOverviewTests(TestCase):
         self.assertContains(response, self.event.title)
 
     def test_regular_member_cannot_access_attendance_management(self):
-        member_user = create_role_user("attendance-member", Role.Code.CHURCH_MEMBER)
+        member_user = create_role_user("attendance-member", "church_member")
         self.client.force_login(member_user)
 
         overview = self.client.get(reverse("events:attendance-overview"))
@@ -418,9 +416,7 @@ class AttendanceOverviewTests(TestCase):
 
 class EventWorshipIntegrationTests(TestCase):
     def test_event_update_synchronizes_linked_worship_plan(self):
-        administrator = create_role_user(
-            "administrator", Role.Code.CHURCH_ADMINISTRATOR
-        )
+        administrator = create_role_user("administrator", "church_administrator")
         event = create_event(event_type=Event.Type.WORSHIP_SERVICE)
         plan = WorshipPlan.objects.create(
             title="Sunday plan",

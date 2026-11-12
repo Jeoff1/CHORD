@@ -43,7 +43,7 @@ class DashboardScreenTests(TestCase):
 
     def test_administrator_dashboard_uses_real_cross_module_data(self):
         administrator = User.objects.create_user("dashboard-admin", password=PASSWORD)
-        self.assign_role(administrator, Role.Code.CHURCH_ADMINISTRATOR)
+        self.assign_role(administrator, "church_administrator")
         member = Member.objects.create(
             first_name="Maria",
             last_name="Santos",
@@ -83,7 +83,7 @@ class DashboardScreenTests(TestCase):
             last_name="Reyes",
             password=PASSWORD,
         )
-        self.assign_role(user, Role.Code.CHOIR_MEMBER)
+        self.assign_role(user, "choir_member")
         member = Member.objects.create(
             user=user,
             first_name="Sofia",

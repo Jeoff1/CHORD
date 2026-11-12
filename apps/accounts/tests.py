@@ -39,19 +39,26 @@ class RoleModelTests(TestCase):
                     "code", flat=True
                 )
             ),
-            set(Role.Code.values),
+            {
+                "church_administrator",
+                "ministry_leader",
+                "worship_leader",
+                "choir_leader",
+                "choir_member",
+                "church_member",
+            },
         )
 
     def test_user_can_have_multiple_unique_roles(self):
         user = User.objects.create_user("member", password=PASSWORD)
-        choir_member = Role.objects.get(code=Role.Code.CHOIR_MEMBER)
-        church_member = Role.objects.get(code=Role.Code.CHURCH_MEMBER)
+        choir_member = Role.objects.get(code="choir_member")
+        church_member = Role.objects.get(code="church_member")
         UserRole.objects.create(user=user, role=choir_member)
         UserRole.objects.create(user=user, role=church_member)
 
         self.assertSetEqual(
             set(user.roles.values_list("code", flat=True)),
-            {Role.Code.CHOIR_MEMBER, Role.Code.CHURCH_MEMBER},
+            {"choir_member", "church_member"},
         )
         with self.assertRaises(IntegrityError), transaction.atomic():
             UserRole.objects.create(user=user, role=choir_member)
@@ -64,7 +71,7 @@ class RoleModelTests(TestCase):
 class RolePermissionTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user("administrator", password=PASSWORD)
-        self.admin_role = Role.objects.get(code=Role.Code.CHURCH_ADMINISTRATOR)
+        self.admin_role = Role.objects.get(code="church_administrator")
         UserRole.objects.create(user=self.user, role=self.admin_role)
 
     def test_church_administrator_receives_account_permissions(self):
@@ -217,7 +224,7 @@ class ApplicationShellTests(TestCase):
 
     def test_administrator_sees_permission_backed_navigation(self):
         administrator = User.objects.create_user("shell-admin", password=PASSWORD)
-        role = Role.objects.get(code=Role.Code.CHURCH_ADMINISTRATOR)
+        role = Role.objects.get(code="church_administrator")
         UserRole.objects.create(user=administrator, role=role)
         self.client.force_login(administrator)
 
@@ -231,7 +238,7 @@ class ApplicationShellTests(TestCase):
 
     def test_shell_marks_current_module_navigation(self):
         administrator = User.objects.create_user("section-admin", password=PASSWORD)
-        role = Role.objects.get(code=Role.Code.CHURCH_ADMINISTRATOR)
+        role = Role.objects.get(code="church_administrator")
         UserRole.objects.create(user=administrator, role=role)
         self.client.force_login(administrator)
 
@@ -252,7 +259,7 @@ class AccountManagementTests(TestCase):
     def setUp(self):
         self.member = User.objects.create_user("member", password=PASSWORD)
         self.administrator = User.objects.create_user("admin-user", password=PASSWORD)
-        admin_role = Role.objects.get(code=Role.Code.CHURCH_ADMINISTRATOR)
+        admin_role = Role.objects.get(code="church_administrator")
         UserRole.objects.create(user=self.administrator, role=admin_role)
 
     def test_regular_user_cannot_access_account_management(self):
@@ -276,7 +283,7 @@ class AccountManagementTests(TestCase):
         self.assertContains(response, "Next")
 
     def test_account_role_prefetch_avoids_n_plus_one_queries(self):
-        church_member = Role.objects.get(code=Role.Code.CHURCH_MEMBER)
+        church_member = Role.objects.get(code="church_member")
         UserRole.objects.create(user=self.member, role=church_member)
 
         with self.assertNumQueries(2):
@@ -285,7 +292,7 @@ class AccountManagementTests(TestCase):
                 list(user.roles.all())
 
     def test_account_create_requires_add_user_permission(self):
-        admin_role = Role.objects.get(code=Role.Code.CHURCH_ADMINISTRATOR)
+        admin_role = Role.objects.get(code="church_administrator")
         add_permission = Permission.objects.get(
             content_type__app_label="accounts",
             codename="add_user",
@@ -299,9 +306,7 @@ class AccountManagementTests(TestCase):
 
     def test_account_creation_assigns_multiple_roles_with_audit_record(self):
         self.client.force_login(self.administrator)
-        roles = Role.objects.filter(
-            code__in=(Role.Code.CHOIR_MEMBER, Role.Code.CHURCH_MEMBER)
-        )
+        roles = Role.objects.filter(code__in=("choir_member", "church_member"))
         response = self.client.post(
             reverse("accounts:user-add"),
             {
@@ -340,7 +345,11 @@ class AccountManagementTests(TestCase):
         self.assertRedirects(response, reverse("accounts:user-list"))
         self.administrator.refresh_from_db()
         self.assertTrue(self.administrator.is_active)
-        self.assertTrue(self.administrator.has_role(Role.Code.CHURCH_ADMINISTRATOR))
+        self.assertTrue(
+            self.administrator.roles.in_effect()
+            .filter(code="church_administrator")
+            .exists()
+        )
 
     def test_administrator_can_deactivate_another_account(self):
         self.client.force_login(self.administrator)
@@ -363,8 +372,8 @@ class AccountManagementTests(TestCase):
         )
 
     def test_account_update_reconciles_roles_and_preserves_assignment_audit(self):
-        church_member = Role.objects.get(code=Role.Code.CHURCH_MEMBER)
-        choir_member = Role.objects.get(code=Role.Code.CHOIR_MEMBER)
+        church_member = Role.objects.get(code="church_member")
+        choir_member = Role.objects.get(code="choir_member")
         UserRole.objects.create(
             user=self.member,
             role=church_member,

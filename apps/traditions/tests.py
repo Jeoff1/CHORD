@@ -43,7 +43,7 @@ class ChurchProfileViewTests(TestCase):
     url = reverse("traditions:church-profile")
 
     def test_administrator_switches_tradition_and_name(self):
-        self.client.force_login(make_user("admin", Role.Code.CHURCH_ADMINISTRATOR))
+        self.client.force_login(make_user("admin", "church_administrator"))
 
         response = self.client.post(
             self.url,
@@ -56,8 +56,8 @@ class ChurchProfileViewTests(TestCase):
 
     def test_switching_tradition_keeps_existing_data(self):
         Fund.objects.create(name="Building Fund")
-        member = make_user("member", Role.Code.CHURCH_MEMBER)
-        self.client.force_login(make_user("admin", Role.Code.CHURCH_ADMINISTRATOR))
+        member = make_user("member", "church_member")
+        self.client.force_login(make_user("admin", "church_administrator"))
 
         self.client.post(
             self.url,
@@ -65,10 +65,10 @@ class ChurchProfileViewTests(TestCase):
         )
 
         self.assertTrue(Fund.objects.filter(name="Building Fund").exists())
-        self.assertTrue(member.roles.filter(code=Role.Code.CHURCH_MEMBER).exists())
+        self.assertTrue(member.roles.filter(code="church_member").exists())
 
     def test_non_administrator_cannot_change_profile(self):
-        self.client.force_login(make_user("member", Role.Code.CHURCH_MEMBER))
+        self.client.force_login(make_user("member", "church_member"))
         self.assertEqual(self.client.get(self.url).status_code, 403)
         response = self.client.post(
             self.url, {"name": "Hijacked", "tradition": tradition("roman-catholic").pk}
@@ -84,17 +84,17 @@ class ChurchProfileViewTests(TestCase):
 
 class ApplicationShellTraditionTests(TestCase):
     def test_shell_shows_active_church_and_tradition(self):
-        self.client.force_login(make_user("member", Role.Code.CHURCH_MEMBER))
+        self.client.force_login(make_user("member", "church_member"))
         response = self.client.get(reverse("accounts:dashboard"))
         self.assertContains(response, "My Church")
         self.assertContains(response, "Alliance")
 
     def test_only_administrators_see_church_profile_link(self):
         link = reverse("traditions:church-profile")
-        self.client.force_login(make_user("member", Role.Code.CHURCH_MEMBER))
+        self.client.force_login(make_user("member", "church_member"))
         self.assertNotContains(self.client.get(reverse("accounts:dashboard")), link)
 
-        self.client.force_login(make_user("admin", Role.Code.CHURCH_ADMINISTRATOR))
+        self.client.force_login(make_user("admin", "church_administrator"))
         self.assertContains(self.client.get(reverse("accounts:dashboard")), link)
 
 
@@ -137,7 +137,7 @@ class ModuleToggleServiceTests(TestCase):
 
 class ModuleGatingHttpTests(TestCase):
     def setUp(self):
-        self.admin = make_user("admin", Role.Code.CHURCH_ADMINISTRATOR)
+        self.admin = make_user("admin", "church_administrator")
         self.client.force_login(self.admin)
 
     def test_disabled_module_url_returns_404_and_link_disappears(self):
@@ -170,7 +170,7 @@ class ModuleGatingHttpTests(TestCase):
         self.assertEqual(self.client.get(reverse("members:list")).status_code, 200)
 
     def test_permissions_stay_authoritative_for_enabled_modules(self):
-        self.client.force_login(make_user("member", Role.Code.CHURCH_MEMBER))
+        self.client.force_login(make_user("member", "church_member"))
         self.assertEqual(
             self.client.get(reverse("giving:contribution-list")).status_code, 403
         )
@@ -205,7 +205,7 @@ class ModuleGatingHttpTests(TestCase):
 
 class TerminologyHttpTests(TestCase):
     def test_switching_tradition_changes_navigation_and_headings(self):
-        self.client.force_login(make_user("admin", Role.Code.CHURCH_ADMINISTRATOR))
+        self.client.force_login(make_user("admin", "church_administrator"))
         plans = reverse("worship:plan-list")
         self.assertContains(self.client.get(plans), "Worship Service plans")
 
