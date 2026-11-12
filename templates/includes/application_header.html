@@ -8,6 +8,7 @@
     </nav>
   </div>
   <div class="chord-application-header__end">
+    {% if church_profile %}<span class="chord-church-identity">{{ church_profile.name }} &middot; {{ active_tradition.name }}</span>{% endif %}
     <time datetime="{% now 'Y-m-d' %}">{% now "D, d M Y" %}</time>
     <a class="chord-profile-shortcut" href="{% url 'accounts:profile' %}" aria-label="Open your profile">
       {% include "includes/user_avatar.html" %}

@@ -2210,3 +2210,9 @@ form p > small {
     transition-duration: 0.01ms !important;
   }
 }
+
+.chord-church-identity {
+  color: var(--chord-color-muted);
+  font-size: var(--chord-text-sm);
+  white-space: nowrap;
+}

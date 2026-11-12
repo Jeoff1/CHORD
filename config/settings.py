@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "apps.events.apps.EventsConfig",
     "apps.giving.apps.GivingConfig",
     "apps.worship.apps.WorshipConfig",
+    "apps.traditions.apps.TraditionsConfig",
 ]
 
 MIDDLEWARE = [
@@ -65,6 +66,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "apps.accounts.context_processors.application_shell",
+                "apps.traditions.context_processors.active_tradition",
             ],
         },
     },

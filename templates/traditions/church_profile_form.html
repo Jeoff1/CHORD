@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Church profile | CHORD{% endblock %}
+{% block content %}
+  <h1 class="h3">Church profile</h1>
+  <p class="text-muted">The tradition configures CHORD's terminology, roles, services, songs and calendar.</p>
+  <form method="post" class="card card-body shadow-sm">
+    {% csrf_token %}
+    {% for field in form %}
+      {% include "includes/form_field.html" %}
+    {% endfor %}
+    <div>
+      <button class="btn btn-primary" type="submit">Save church profile</button>
+    </div>
+  </form>
+{% endblock %}

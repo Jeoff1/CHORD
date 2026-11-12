@@ -16,6 +16,12 @@ ROLE_DESCRIPTIONS = {
 
 ROLE_PERMISSIONS = {
     Role.Code.CHURCH_ADMINISTRATOR: {
+        "traditions": {
+            "change_churchprofile",
+            "manage_church_profile",
+            "view_churchprofile",
+            "view_tradition",
+        },
         "accounts": {
             "add_user",
             "assign_roles",

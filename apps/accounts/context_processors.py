@@ -1,5 +1,6 @@
 SECTION_LABELS = {
     "overview": "Overview",
+    "church": "Church profile",
     "accounts": "Account administration",
     "profile": "Access & profile",
     "members": "Members",
@@ -47,6 +48,7 @@ def application_shell(request):
             "ministries": "ministries",
             "events": "events",
             "giving": "giving",
+            "traditions": "church",
         }.get(app_name, "")
 
     return {
