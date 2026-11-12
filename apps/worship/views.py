@@ -18,7 +18,7 @@ from apps.accounts.models import Role
 from apps.events.services import visible_events_for
 from apps.members.models import Member
 
-from .chordpro import parse_chordpro
+from .chordpro import key_offset, parse_chordpro, wrap_semitones
 from .forms import (
     AttendanceFormSet,
     ChoirAnnouncementForm,
@@ -765,24 +765,59 @@ class SongResourcePreviewView(AuthenticatedPermissionRequiredMixin, View):
                 resource.file.close()
             if not context["preview_unavailable"]:
                 if resource.preview_kind == "chordpro":
-                    context["chordpro"] = parse_chordpro(content)
+                    context.update(self.transposition(request, resource))
+                    context["chordpro"] = parse_chordpro(
+                        content, semitones=context["semitones"]
+                    )
                 else:
                     context["text_content"] = content
         else:
             context["preview_unavailable"] = True
         return render(request, self.template_name, context)
 
+    def transposition(self, request, resource):
+        """Resolve the semitone offset from the setlist item and the viewer's choice."""
+        plan_song = None
+        plan_song_id = request.GET.get("plan_song", "")
+        if plan_song_id.isdigit():
+            plan_song = PlanSong.objects.filter(
+                pk=plan_song_id,
+                song=resource.song,
+                plan__in=visible_worship_plans(request.user),
+            ).first()
+        planned_offset = (
+            key_offset(resource.song.default_key, plan_song.planned_key)
+            if plan_song
+            else 0
+        )
+        try:
+            semitones = int(request.GET["transpose"])
+        except KeyError, ValueError:
+            semitones = planned_offset
+        semitones = wrap_semitones(semitones)
+        return {
+            "plan_song": plan_song,
+            "semitones": semitones,
+            "transpose_down": wrap_semitones(semitones - 1),
+            "transpose_up": wrap_semitones(semitones + 1),
+        }
+
+
+def visible_worship_plans(user):
+    """Worship plans the user may see: all for managers, else their choir plans."""
+    queryset = WorshipPlan.objects.select_related("created_by", "event")
+    if user.has_perm("worship.manage_worship_plans") or user.has_perm(
+        "worship.manage_choir"
+    ):
+        return queryset
+    return queryset.filter(
+        choir_participations__enrollment__member__user=user
+    ).distinct()
+
 
 class WorshipPlanQuerysetMixin:
     def get_queryset(self):
-        queryset = WorshipPlan.objects.select_related("created_by", "event")
-        if self.request.user.has_perm(
-            "worship.manage_worship_plans"
-        ) or self.request.user.has_perm("worship.manage_choir"):
-            return queryset
-        return queryset.filter(
-            choir_participations__enrollment__member__user=self.request.user
-        ).distinct()
+        return visible_worship_plans(self.request.user)
 
 
 class WorshipPlanListView(
