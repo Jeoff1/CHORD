@@ -24,7 +24,9 @@ class ChordUserAdmin(UserAdmin):
 
 @admin.register(Role)
 class RoleAdmin(admin.ModelAdmin):
-    list_display = ("name", "code")
+    list_display = ("name", "code", "tradition")
+    list_filter = ("tradition",)
+    list_select_related = ("tradition",)
     search_fields = ("name", "code")
     filter_horizontal = ("permissions",)
 

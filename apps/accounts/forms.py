@@ -24,6 +24,10 @@ class RoleAssignmentMixin:
     def __init__(self, *args, actor=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.actor = actor
+        # Only common roles and the active Tradition's roles are assignable.
+        self.fields["roles"].queryset = Role.objects.in_effect().select_related(
+            "tradition"
+        )
         if self.instance.pk:
             self.fields["roles"].initial = self.instance.roles.all()
 
@@ -33,7 +37,8 @@ class RoleAssignmentMixin:
 
     def _save_roles(self, user):
         selected_roles = set(self.cleaned_data["roles"])
-        existing_roles = set(user.roles.all())
+        # Roles outside the assignable set (an inactive Tradition's) are kept.
+        existing_roles = set(user.roles.filter(pk__in=self.fields["roles"].queryset))
         UserRole.objects.filter(
             user=user,
             role__in=existing_roles - selected_roles,

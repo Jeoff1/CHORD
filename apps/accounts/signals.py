@@ -1,3 +1,5 @@
+from typing import NamedTuple
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from django.db.models.signals import post_migrate, post_save
@@ -282,6 +284,65 @@ ROLE_PERMISSIONS = {
 }
 
 
+class TraditionRole(NamedTuple):
+    tradition: str  # Tradition preset code
+    name: str
+    description: str
+    permissions_of: str  # common role whose permission set it reuses
+
+
+# Roles are synchronized here, not in a data migration, because permissions
+# only exist once every app has migrated.
+TRADITION_ROLES = {
+    "rc_parish_priest": TraditionRole(
+        "roman-catholic",
+        "Parish Priest",
+        "Leads the parish and administers CHORD.",
+        Role.Code.CHURCH_ADMINISTRATOR,
+    ),
+    "rc_music_director": TraditionRole(
+        "roman-catholic",
+        "Music Director",
+        "Plans liturgical music and manages the song library.",
+        Role.Code.WORSHIP_LEADER,
+    ),
+    "alliance_senior_pastor": TraditionRole(
+        "alliance",
+        "Senior Pastor",
+        "Leads the church and administers CHORD.",
+        Role.Code.CHURCH_ADMINISTRATOR,
+    ),
+    "alliance_head_deacon": TraditionRole(
+        "alliance",
+        "Head Deacon",
+        "Coordinates deacons, ministries and their activities.",
+        Role.Code.MINISTRY_LEADER,
+    ),
+    "inc_minister": TraditionRole(
+        "iglesia-ni-cristo",
+        "Minister",
+        "Leads the local congregation and administers CHORD.",
+        Role.Code.CHURCH_ADMINISTRATOR,
+    ),
+    "inc_head_deacon": TraditionRole(
+        "iglesia-ni-cristo",
+        "Head Deacon",
+        "Coordinates deacons, ministries and their activities.",
+        Role.Code.MINISTRY_LEADER,
+    ),
+}
+
+
+def _permissions_for(app_permissions):
+    query = Permission.objects.none()
+    for app_label, codenames in app_permissions.items():
+        query = query | Permission.objects.filter(
+            content_type__app_label=app_label,
+            codename__in=codenames,
+        )
+    return query
+
+
 @receiver(post_save, sender=get_user_model())
 def ensure_user_profile(sender, instance, created, **kwargs):
     if created:
@@ -290,19 +351,30 @@ def ensure_user_profile(sender, instance, created, **kwargs):
 
 @receiver(post_migrate)
 def synchronize_roles(sender, **kwargs):
-    roles = {}
+    from apps.traditions.models import Tradition
+
     for code, name in Role.Code.choices:
         role, _ = Role.objects.update_or_create(
             code=code,
-            defaults={"name": name, "description": ROLE_DESCRIPTIONS[code]},
+            defaults={
+                "name": name,
+                "description": ROLE_DESCRIPTIONS[code],
+                "tradition": None,
+            },
         )
-        roles[code] = role
+        role.permissions.set(_permissions_for(ROLE_PERMISSIONS.get(code, {})))
 
-    for role_code, app_permissions in ROLE_PERMISSIONS.items():
-        permission_query = Permission.objects.none()
-        for app_label, codenames in app_permissions.items():
-            permission_query = permission_query | Permission.objects.filter(
-                content_type__app_label=app_label,
-                codename__in=codenames,
-            )
-        roles[role_code].permissions.set(permission_query)
+    traditions = {t.code: t for t in Tradition.objects.all()}
+    for code, preset in TRADITION_ROLES.items():
+        tradition = traditions.get(preset.tradition)
+        if tradition is None:
+            continue
+        role, _ = Role.objects.update_or_create(
+            code=code,
+            defaults={
+                "name": preset.name,
+                "description": preset.description,
+                "tradition": tradition,
+            },
+        )
+        role.permissions.set(_permissions_for(ROLE_PERMISSIONS[preset.permissions_of]))

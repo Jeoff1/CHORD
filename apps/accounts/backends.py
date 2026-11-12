@@ -9,8 +9,10 @@ class RolePermissionBackend(ModelBackend):
         if obj is not None or not user_obj.is_active or user_obj.is_anonymous:
             return permissions
 
+        # Cached per user object (one request); a Tradition switch takes
+        # effect on the next request's freshly loaded user.
         if not hasattr(user_obj, "_role_perm_cache"):
-            role_permissions = user_obj.roles.values_list(
+            role_permissions = user_obj.roles.in_effect().values_list(
                 "permissions__content_type__app_label",
                 "permissions__codename",
             )

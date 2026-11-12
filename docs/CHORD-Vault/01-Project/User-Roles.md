@@ -1,6 +1,8 @@
 # User Roles
 
-CHORD seeds six roles. Users may have multiple roles when their real
+CHORD seeds six common roles, plus Tradition roles that only grant access
+while their Tradition is active (see
+[[../03-Modules/Church-Profile-Traditions]]). Users may have multiple roles when their real
 responsibilities require it.
 
 | Role | Responsibility boundary |

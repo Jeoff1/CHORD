@@ -523,3 +523,16 @@ See [[../03-Modules/Church-Profile-Traditions]].
   one scoped `perms` wrapper, moved the header label to the service, and
   applied terms to the remaining plan strings.
 - Verification: full suite (174 tests), Ruff lint/format, migration check.
+
+## 2026-11-13 - Phase 7A ticket 03: Tradition roles, expand
+
+- `Role` gained an optional `tradition`; `code` is a free slug (accounts
+  migration 0004 keeps the six existing roles common, so access is unchanged).
+- Presets define their own roles mapped to existing permission sets. Roles of
+  an inactive Tradition grant no permissions and fail `has_role`.
+- Administrators assign common and active-Tradition roles on the account form;
+  the Django admin lists and filters roles by Tradition. `Role.Code` and
+  `has_role` remain for ticket 04.
+- Built test-first at the `has_perm` and account test-client seams: 6 new
+  tests.
+- Verification: full suite (180 tests), Ruff lint/format, migration check.
