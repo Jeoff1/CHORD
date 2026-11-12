@@ -10,6 +10,7 @@ from apps.events.services import visible_events_for
 from apps.giving.models import Contribution
 from apps.members.models import Member
 from apps.ministries.models import Ministry, MinistryMembership
+from apps.traditions.services import ModuleScopedPerms, term
 from apps.worship.models import SongAssignment, WorshipPlan
 
 
@@ -19,20 +20,21 @@ def build_dashboard_context(user):
         "dashboard_roles": list(user.roles.all()),
         "dashboard_display_name": user.get_full_name() or user.username,
     }
+    perms = ModuleScopedPerms(user)
     if user.has_perm("accounts.manage_accounts"):
-        context.update(_build_administrator_context(user))
+        context.update(_build_administrator_context(user, perms))
     else:
-        context.update(_build_member_context(user))
+        context.update(_build_member_context(user, perms))
     return context
 
 
-def _build_administrator_context(user):
+def _build_administrator_context(user, perms):
     now = timezone.now()
     today = timezone.localdate()
     metrics = []
 
     upcoming_events = Event.objects.none()
-    if user.has_perm("events.view_event_calendar"):
+    if perms.has_perm("events.view_event_calendar"):
         upcoming_events = (
             visible_events_for(user)
             .filter(ends_at__gte=now)
@@ -48,7 +50,7 @@ def _build_administrator_context(user):
         )
 
     recent_members = Member.objects.none()
-    if user.has_perm("members.view_member_directory"):
+    if perms.has_perm("members.view_member_directory"):
         active_members = Member.objects.exclude(
             membership_status=Member.Status.INACTIVE
         )
@@ -63,7 +65,7 @@ def _build_administrator_context(user):
         )
         recent_members = Member.objects.order_by("-created_at", "-id")[:5]
 
-    if user.has_perm("ministries.view_ministry_directory"):
+    if perms.has_perm("ministries.view_ministry_directory"):
         metrics.append(
             {
                 "label": "Active ministries",
@@ -74,7 +76,7 @@ def _build_administrator_context(user):
         )
 
     upcoming_plans = WorshipPlan.objects.none()
-    if user.has_perm("worship.view_worship_plans"):
+    if perms.has_perm("worship.view_worship_plans"):
         upcoming_plans = WorshipPlan.objects.filter(service_datetime__gte=now).exclude(
             status__in=(WorshipPlan.Status.COMPLETED, WorshipPlan.Status.CANCELLED)
         )
@@ -88,27 +90,30 @@ def _build_administrator_context(user):
         )
 
     monthly_contributions = None
-    if user.has_perm("giving.manage_giving"):
+    if perms.has_perm("giving.manage_giving"):
         monthly_contributions = Contribution.objects.filter(
             contributed_on__gte=today.replace(day=1),
             contributed_on__lte=today,
         ).aggregate(total=Sum("amount"))["total"] or Decimal("0.00")
 
     quick_actions = []
-    if user.has_perms(("members.manage_members", "members.add_member")):
+    if perms.has_perms(("members.manage_members", "members.add_member")):
         quick_actions.append({"label": "Add member", "url": reverse("members:add")})
-    if user.has_perms(("events.manage_ministry_events", "events.add_event")):
+    if perms.has_perms(("events.manage_ministry_events", "events.add_event")):
         quick_actions.append({"label": "Add event", "url": reverse("events:add")})
-    if user.has_perms(("giving.record_contributions", "giving.add_contribution")):
+    if perms.has_perms(("giving.record_contributions", "giving.add_contribution")):
         quick_actions.append(
             {
                 "label": "Record contribution",
                 "url": reverse("giving:contribution-add"),
             }
         )
-    if user.has_perms(("worship.manage_worship_plans", "worship.add_worshipplan")):
+    if perms.has_perms(("worship.manage_worship_plans", "worship.add_worshipplan")):
         quick_actions.append(
-            {"label": "Create service plan", "url": reverse("worship:plan-add")}
+            {
+                "label": f"Create {term('service')} plan",
+                "url": reverse("worship:plan-add"),
+            }
         )
 
     return {
@@ -122,10 +127,10 @@ def _build_administrator_context(user):
     }
 
 
-def _build_member_context(user):
+def _build_member_context(user, perms):
     now = timezone.now()
     upcoming_events = Event.objects.none()
-    if user.has_perm("events.view_event_calendar"):
+    if perms.has_perm("events.view_event_calendar"):
         upcoming_events = visible_events_for(user).filter(ends_at__gte=now)[:5]
 
     try:
@@ -135,13 +140,13 @@ def _build_member_context(user):
 
     ministry_memberships = MinistryMembership.objects.none()
     assignments = SongAssignment.objects.none()
-    if member and user.has_perm("ministries.view_ministry_directory"):
+    if member and perms.has_perm("ministries.view_ministry_directory"):
         ministry_memberships = MinistryMembership.objects.filter(
             member=member,
             status=MinistryMembership.Status.ACTIVE,
             ministry__status=Ministry.Status.ACTIVE,
         ).select_related("ministry")[:5]
-    if member and user.has_perm("worship.view_worship_plans"):
+    if member and perms.has_perm("worship.view_worship_plans"):
         assignments = (
             SongAssignment.objects.filter(
                 enrollment__member=member,
@@ -156,15 +161,15 @@ def _build_member_context(user):
         quick_links.append(
             {"label": "View my member record", "url": reverse("members:my-record")}
         )
-    if user.has_perm("events.view_event_calendar"):
+    if perms.has_perm("events.view_event_calendar"):
         quick_links.append(
             {"label": "Browse the calendar", "url": reverse("events:list")}
         )
-    if user.has_perm("giving.view_own_contributions"):
+    if perms.has_perm("giving.view_own_contributions"):
         quick_links.append(
             {"label": "View my giving", "url": reverse("giving:my-contributions")}
         )
-    if user.has_perms(
+    if perms.has_perms(
         ("worship.view_choir_schedule", "worship.view_choir_announcements")
     ):
         quick_links.append(

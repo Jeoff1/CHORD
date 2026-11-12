@@ -4,10 +4,10 @@
 
 **Blocked by:** 01
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Terminology comes from the tradition-config service through one context processor
-- [ ] Each Tradition preset ships default module toggles
-- [ ] Disabled-module URLs return 404 through one shared mechanism
-- [ ] Permission checks stay authoritative regardless of toggles
-- [ ] HTTP-client tests cover switching Tradition and toggling a module
+- [x] Terminology comes from the tradition-config service through one context processor
+- [x] Each Tradition preset ships default module toggles
+- [x] Disabled-module URLs return 404 through one shared mechanism
+- [x] Permission checks stay authoritative regardless of toggles
+- [x] HTTP-client tests cover switching Tradition and toggling a module

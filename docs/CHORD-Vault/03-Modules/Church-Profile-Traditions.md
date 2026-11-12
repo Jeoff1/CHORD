@@ -1,6 +1,6 @@
 # Church Profile and Traditions
 
-Phase 7A ticket 01. App: `apps.traditions`. Route: `/church/`.
+Phase 7A tickets 01-02. App: `apps.traditions`. Route: `/church/`.
 
 ## What exists
 
@@ -16,10 +16,24 @@ Phase 7A ticket 01. App: `apps.traditions`. Route: `/church/`.
 - **Church Profile screen**: church administrators change the name and
   Tradition. Requires `traditions.manage_church_profile` and
   `traditions.change_churchprofile`. Switching keeps all data.
+- **Terminology** (ticket 02): each Tradition preset stores `terminology`
+  (e.g. `service` = Worship Service / Pagsamba / Mass). `services.terms()` and
+  `services.term(key)` read it; templates get `tradition_terms`. Service-plan
+  navigation, breadcrumb and headings use it.
+- **Module toggles** (ticket 02): gateable modules are the URL namespaces
+  `members`, `ministries`, `events`, `giving`, `worship`
+  (`services.MODULES`). Presets ship `default_modules` (all enabled today);
+  the Church Profile stores only `module_overrides`, which persist across a
+  Tradition switch. Administrators toggle modules on the Church Profile screen.
+- **Module gating**: `ModuleGateMiddleware` returns 404 for every URL in a
+  disabled module's namespace. The context processor replaces template `perms`
+  with a module-scoped wrapper, so permission-gated links to disabled modules
+  disappear everywhere; the dashboard uses `ModuleScopedPerms`. Views keep
+  their own permission checks, which stay authoritative.
 - **Shell**: the header shows "church name · Tradition"; the sidebar shows a
   permission-backed Church profile link.
 
 ## Not yet
 
-Terminology, module toggles, tradition roles, songbooks, themes, templates,
-calendar, and records arrive in tickets 02-13. See [[../01-Project/Phase-7A-Spec]].
+Tradition roles, songbooks, themes, templates,
+calendar, and records arrive in tickets 03-13. See [[../01-Project/Phase-7A-Spec]].

@@ -2,7 +2,7 @@
 {% block title %}{{ plan.title }} | CHORD{% endblock %}
 {% block content %}
   <div class="chord-page-heading chord-plan-heading">
-    <div><p class="chord-eyebrow"><a href="{% url 'worship:plan-list' %}">Service plans</a></p><h1>{{ plan.title }}</h1><p>{{ plan.service_datetime|date:"l, d F Y · g:i A" }}{% if plan.location %} · {{ plan.location }}{% endif %}</p></div>
+    <div><p class="chord-eyebrow"><a href="{% url 'worship:plan-list' %}">{{ tradition_terms.service }} plans</a></p><h1>{{ plan.title }}</h1><p>{{ plan.service_datetime|date:"l, d F Y · g:i A" }}{% if plan.location %} · {{ plan.location }}{% endif %}</p></div>
     <div class="chord-page-actions">{% if perms.worship.manage_worship_plans and perms.worship.change_worshipplan %}<a class="btn btn-outline-primary" href="{% url 'worship:plan-edit' plan.public_id %}">Edit plan</a>{% endif %}{% if perms.worship.manage_worship_plans and perms.worship.add_plansong %}<a class="btn btn-primary" href="{% url 'worship:plan-song-add' plan.public_id %}">Add song</a>{% endif %}</div>
   </div>
 
