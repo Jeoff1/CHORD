@@ -6,6 +6,8 @@ CHORD's source-of-truth development notes.
 - [[01-Project/Project-Requirements|Project Requirements]]
 - [[01-Project/Technology-Stack|Technology Stack]]
 - [[01-Project/User-Roles|User Roles]]
+- [[01-Project/Multi-Tradition-Support|Multi-Tradition Support]]
+- [[01-Project/Phase-7A-Spec|Phase 7A Spec]]
 - [[02-Architecture/Environment-Setup|Environment Setup]]
 - [[02-Architecture/Database-Configuration|Database Configuration]]
 - [[02-Architecture/Project-Structure|Project Structure]]
@@ -44,5 +46,6 @@ now use the Phase 7.2 shell. Existing object access, transactional ordering,
 participant synchronization, and resource security remain authoritative. All
 149 tests, PostgreSQL test-database execution, migration consistency, Django
 checks, Ruff lint, and Ruff formatting passed on 2026-11-10. Remaining screen
-groups and reports are separate milestones. Machine learning is reserved for
+groups and reports are separate milestones. Next: **Phase 7A Multi-Tradition Support** (planned; remaining Phase 7
+screens paused). Machine learning is reserved for
 Phase 8 and is neither implemented nor in progress.

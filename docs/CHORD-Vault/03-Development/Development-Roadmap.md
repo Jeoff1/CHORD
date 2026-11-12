@@ -11,7 +11,11 @@
    - Integration of events with rehearsals and worship plans
    - Confidential contribution recording and self-history
 6. **Phase 6: Song Resources and Chord Sheet Integration - Completed**
-7. **Phase 7: Dashboard, Reports, and UI/UX Refinement - Planned**
+7. **Phase 7: Dashboard, Reports, and UI/UX Refinement - In progress; paused
+   after 7.3 milestone 6**
+   - **Phase 7A: Multi-Tradition Support - Planned (next).** Roman Catholic,
+     Alliance, Iglesia Ni Cristo. See [[../01-Project/Multi-Tradition-Support]].
+   - Remaining Phase 7 screen groups resume after 7A.
 8. **Phase 8: Machine Learning Song Recommendation - Reserved; not started**
 9. **Phase 9: Final Testing, Security, and Deployment - Planned**
 
