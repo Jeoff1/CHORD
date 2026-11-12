@@ -25,5 +25,6 @@ urlpatterns = [
     path("events/", include("apps.events.urls")),
     path("giving/", include("apps.giving.urls")),
     path("worship/", include("apps.worship.urls")),
+    path("church/", include("apps.traditions.urls")),
     path("", include("apps.accounts.urls")),
 ]

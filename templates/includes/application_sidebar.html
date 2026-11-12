@@ -18,6 +18,9 @@
       <p class="chord-nav-heading">Workspace</p>
       <a class="chord-nav-link{% if shell_nav_section == 'overview' %} is-active{% endif %}" href="{% url 'accounts:dashboard' %}"{% if shell_nav_section == 'overview' %} aria-current="page"{% endif %}>Overview</a>
 
+      {% if perms.traditions.manage_church_profile %}
+        <a class="chord-nav-link{% if shell_nav_section == 'church' %} is-active{% endif %}" href="{% url 'traditions:church-profile' %}"{% if shell_nav_section == 'church' %} aria-current="page"{% endif %}>Church profile</a>
+      {% endif %}
       {% if perms.accounts.manage_accounts %}
         <a class="chord-nav-link{% if shell_nav_section == 'accounts' %} is-active{% endif %}" href="{% url 'accounts:user-list' %}"{% if shell_nav_section == 'accounts' %} aria-current="page"{% endif %}>Accounts</a>
       {% endif %}
