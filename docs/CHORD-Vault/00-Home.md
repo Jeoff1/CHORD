@@ -27,6 +27,7 @@ CHORD's source-of-truth development notes.
 - [[03-Development/Branding-and-Assets|Branding and Assets]]
 - [[03-Development/Screen-Implementation-Tracker|Screen Implementation Tracker]]
 - [[03-Development/Design-Change-Log|Design Change Log]]
+- [[03-Development/New-Church-Setup|New Church Setup]]
 - [[03-Development/Task-Tracker|Task Tracker]]
 - [[03-Development/Development-Log|Development Log]]
 - [[03-Development/Known-Issues|Known Issues]]
