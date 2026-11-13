@@ -484,7 +484,7 @@ class WorshipPlan(models.Model):
         default=Status.DRAFT,
     )
     preparation_notes = models.TextField(blank=True)
-    # Required for new plans (enforced by WorshipPlanForm); null for older plans.
+    # Required for new plans (WorshipPlan.clean); null for older plans.
     service_theme = models.ForeignKey(
         "traditions.Theme",
         null=True,
@@ -519,6 +519,14 @@ class WorshipPlan(models.Model):
             ("manage_worship_plans", "Can manage worship service plans"),
             ("view_worship_plans", "Can view worship service plans"),
         )
+
+    def clean(self):
+        super().clean()
+        # Plans saved before Service Themes existed stay valid without one.
+        if self._state.adding and not self.service_theme_id:
+            raise ValidationError(
+                {"service_theme": "Choose a Service Theme for a new worship plan."}
+            )
 
     def __str__(self):
         return f"{self.title} - {timezone.localtime(self.service_datetime):%Y-%m-%d}"

@@ -1,5 +1,8 @@
 from datetime import timedelta
 
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
@@ -52,7 +55,7 @@ class ServiceThemeTests(WorshipLeaderTestCase):
         response = self.client.post(
             reverse("worship:plan-add"), self.plan_data(service_theme=eucharist.pk)
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertIn("service_theme", response.context["form"].errors)
         self.assertFalse(WorshipPlan.objects.exists())
 
     def test_existing_plan_without_theme_can_still_be_edited(self):
@@ -101,3 +104,35 @@ class ServiceThemeTests(WorshipLeaderTestCase):
         self.assertContains(detail, self.grace.name)
         self.assertContains(detail, "Saved by Grace")
         self.assertContains(detail, "Titus 3:5")
+
+
+class ServiceThemeModelRuleTests(TestCase):
+    def test_new_plan_without_theme_fails_validation(self):
+        plan = WorshipPlan(title="New", service_datetime=when())
+        with self.assertRaises(ValidationError) as caught:
+            plan.full_clean(exclude=["created_by"])
+        self.assertIn("service_theme", caught.exception.message_dict)
+
+    def test_existing_unthemed_plan_still_validates(self):
+        plan = WorshipPlan.objects.create(title="Old", service_datetime=when())
+        plan.full_clean(exclude=["created_by"])
+
+    def test_admin_refuses_new_plan_without_theme(self):
+        admin = get_user_model().objects.create_superuser("root", password="x")
+        self.client.force_login(admin)
+        response = self.client.post(
+            reverse("admin:worship_worshipplan_add"),
+            {
+                "title": "Admin plan",
+                "service_datetime_0": when().strftime("%Y-%m-%d"),
+                "service_datetime_1": "10:00:00",
+                "status": WorshipPlan.Status.DRAFT,
+                "created_by": admin.pk,
+                "setlist_items-TOTAL_FORMS": "0",
+                "setlist_items-INITIAL_FORMS": "0",
+                "choir_participations-TOTAL_FORMS": "0",
+                "choir_participations-INITIAL_FORMS": "0",
+            },
+        )
+        self.assertIn("service_theme", response.context["adminform"].form.errors)
+        self.assertFalse(WorshipPlan.objects.exists())

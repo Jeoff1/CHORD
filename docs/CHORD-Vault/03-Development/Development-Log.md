@@ -582,5 +582,8 @@ See [[../03-Modules/Church-Profile-Traditions]].
 - `WorshipPlanForm` offers `available_themes()` (plus the plan's current
   Theme) and requires a Service Theme for new plans and for plans that already
   have one; older plans without a theme stay editable.
+- `WorshipPlan.clean()` refuses a new plan without a Service Theme, so the
+  admin and any validated creation path enforce it too; a DB constraint is
+  impossible because pre-existing plans legitimately have none.
 - Plan list shows the theme; plan detail shows theme, sermon and scripture.
-- Tests: `apps/worship/tests_service_theme.py` (7 HTTP-client tests).
+- Tests: `apps/worship/tests_service_theme.py` (7 HTTP-client tests, 3 model/admin tests).
