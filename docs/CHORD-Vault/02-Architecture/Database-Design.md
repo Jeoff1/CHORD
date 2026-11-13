@@ -58,7 +58,7 @@ validation without changing stored data.
   required authorization reference. Files use protected storage.
 - `worship_worshipplan` - service date/time, location, preparation status,
   notes, creator, setlist, and choir participation; Service Theme (nullable
-  PROTECT FK to `traditions_theme`, required by the form for new plans),
+  PROTECT FK to `traditions_theme`, required for new plans by `WorshipPlan.clean()`),
   sermon title and scripture reference.
 - `worship_plansong` - ordered setlist through model with planned key and notes.
 - `worship_planchoirparticipation` - unique plan/enrollment participation.
