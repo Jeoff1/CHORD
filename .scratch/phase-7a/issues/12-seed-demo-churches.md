@@ -4,9 +4,9 @@
 
 **Blocked by:** 02, 03, 04, 05, 06, 07, 08, 09, 10
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] The command supports roman-catholic, alliance and iglesia-ni-cristo
-- [ ] It is idempotent, tested by running it twice
-- [ ] Metadata-only songbooks contain no lyrics or sheets
-- [ ] Seed data contains no secrets and no real personal data
+- [x] The command supports roman-catholic, alliance and iglesia-ni-cristo
+- [x] It is idempotent, tested by running it twice
+- [x] Metadata-only songbooks contain no lyrics or sheets
+- [x] Seed data contains no secrets and no real personal data

@@ -51,6 +51,16 @@ Phase 7A tickets 01-02. App: `apps.traditions`. Route: `/church/`.
   `services.allowed_songbooks()` limits setlist song choices server-side.
   Songs where `is_metadata_only` is true refuse lyrics, chord-sheet and
   lead-sheet `SongResource`s (file or link); reference audio is still allowed.
+- **Demo churches** (ticket 12): `python manage.py seed_tradition
+  <roman-catholic|alliance|iglesia-ni-cristo> [--password ...]` loads a
+  fictional church (profile, role-holding users, members, songs tagged with
+  Themes, plans filling Song Slots, Church Records) from
+  `apps/traditions/demo.py` and makes that Tradition active. Presets (Themes,
+  templates, calendar, record types, songbooks) come from migrations. It is
+  idempotent (keyed by username, member name, song title + songbook, plan
+  title, record type + member + date). Accounts get unusable passwords unless
+  `--password` is given; emails use `example.com`; metadata-only songbooks get
+  titles only (INC uses placeholder titles).
 
 ## Not yet
 
