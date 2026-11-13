@@ -48,6 +48,14 @@ def users_with_permission(perm):
     )
 
 
+def allowed_songbooks(profile=None):
+    """Songbooks the active Tradition allows setlists to draw songs from."""
+    from apps.worship.models import Songbook
+
+    tradition = (profile or get_church_profile()).tradition
+    return Songbook.objects.filter(traditions=tradition)
+
+
 def list_traditions():
     return list(Tradition.objects.all())
 

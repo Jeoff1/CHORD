@@ -4,7 +4,7 @@
 
 **Blocked by:** 01
 
-**Status:** ready-for-agent
+**Status:** done
 
 - [ ] Role gains an optional Tradition, and codes are no longer limited to fixed choices
 - [ ] A data migration preserves every existing user's effective permissions

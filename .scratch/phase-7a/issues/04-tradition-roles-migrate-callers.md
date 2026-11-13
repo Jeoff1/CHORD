@@ -4,7 +4,7 @@
 
 **Blocked by:** 03
 
-**Status:** ready-for-agent
+**Status:** done
 
 - [ ] No references to the six fixed role codes remain outside migrations
 - [ ] Access tests pass under each of the three Traditions
