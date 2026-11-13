@@ -4,11 +4,11 @@
 
 **Blocked by:** 01
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Season and Occasion, each with a Tradition, name and date range
-- [ ] Presets ship Catholic Seasons, Alliance holidays and occasions, and INC Occasions
-- [ ] Administrators can edit dates (for movable feasts)
-- [ ] The tradition-config service returns the Season for a date, and returns none for INC
-- [ ] Worship plan screens show the derived Season
-- [ ] No lectionary
+- [x] Season and Occasion, each with a Tradition, name and date range
+- [x] Presets ship Catholic Seasons, Alliance holidays and occasions, and INC Occasions
+- [x] Administrators can edit dates (for movable feasts)
+- [x] The tradition-config service returns the Season for a date, and returns none for INC
+- [x] Worship plan screens show the derived Season
+- [x] No lectionary

@@ -33,3 +33,14 @@ class ChurchProfileForm(forms.ModelForm):
             self.cleaned_data["tradition"], set(self.cleaned_data["enabled_modules"])
         )
         return super().save(commit)
+
+
+class CalendarDatesForm(forms.ModelForm):
+    """Edits only the dates, so movable feasts can be corrected each year."""
+
+    class Meta:
+        fields = ["start_date", "end_date"]
+        widgets = {
+            "start_date": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
+            "end_date": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
+        }

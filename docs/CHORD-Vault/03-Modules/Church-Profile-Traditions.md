@@ -59,4 +59,9 @@ Themes (ticket 06): a common list plus each Tradition's own, served by
 worship plan picks a required Service Theme from it (ticket 07). Service Templates
 (ticket 08): each preset has templates with ordered Song Slots (Mass; Worship
 Service; Pagsamba), served by `services.available_service_templates()`.
-Calendar and records arrive in tickets 09-13. See [[../01-Project/Phase-7A-Spec]].
+Church Calendar (ticket 09): `traditions.Season` and `traditions.Occasion`
+(Tradition, name, inclusive start/end date) seeded for the 2026-27 church year
+(Catholic seasons; Alliance holidays and occasions; INC occasions only).
+`services.season_for(date)` resolves the active Tradition's Season (none for
+INC); `/church/calendar/` lists entries and lets church administrators edit
+dates for movable feasts. No lectionary. Records arrive in tickets 10-13. See [[../01-Project/Phase-7A-Spec]].

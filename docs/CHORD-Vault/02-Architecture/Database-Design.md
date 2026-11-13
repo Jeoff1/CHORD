@@ -66,6 +66,10 @@ validation without changing stored data.
   stays the authoritative order.
 - `traditions_servicetemplate` / `traditions_songslot` - each Tradition's
   service structures and their ordered, named Song Slots (seeded per preset).
+- `traditions_season` / `traditions_occasion` - the Church Calendar: each
+  Tradition's dated Seasons (non-overlapping per Tradition, enforced by
+  `Season.clean()`) and Occasions. A plan's Season is derived from its date,
+  not stored.
 - `worship_planchoirparticipation` - unique plan/enrollment participation.
 - `worship_songassignment` - unique plan-song/enrollment responsibility with
   assignment metadata.

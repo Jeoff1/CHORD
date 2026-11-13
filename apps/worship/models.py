@@ -535,6 +535,16 @@ class WorshipPlan(models.Model):
                 {"service_theme": "Choose a Service Theme for a new worship plan."}
             )
 
+    @property
+    def service_date(self):
+        return timezone.localdate(self.service_datetime)
+
+    def season(self, seasons=None):
+        """The active Tradition's Season this plan's date falls in, or None."""
+        from apps.traditions.services import season_for
+
+        return season_for(self.service_date, seasons=seasons)
+
     def slot_outline(self):
         """The template's Song Slots in order, each with the setlist items filling it.
 

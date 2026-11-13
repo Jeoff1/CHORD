@@ -3,6 +3,7 @@ from apps.traditions.services import term
 SECTION_LABELS = {
     "overview": "Overview",
     "church": "Church profile",
+    "church-calendar": "Church calendar",
     "accounts": "Account administration",
     "profile": "Access & profile",
     "members": "Members",
@@ -44,6 +45,8 @@ def application_shell(request):
             section = "songs"
         else:
             section = "choir"
+    elif app_name == "traditions" and url_name != "church-profile":
+        section = "church-calendar"
     else:
         section = {
             "members": "members",
