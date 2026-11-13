@@ -60,7 +60,9 @@ Phase 7A tickets 01-02. App: `apps.traditions`. Route: `/church/`.
   idempotent (keyed by username, member name, song title + songbook, plan
   title, record type + member + date). Accounts get unusable passwords unless
   `--password` is given; emails use `example.com`; metadata-only songbooks get
-  titles only (INC uses placeholder titles).
+  titles only (INC uses placeholder titles). It refuses a database whose
+  Church Profile has a non-demo name or that has non-demo members, unless
+  `--force` is given. Seeding another Tradition keeps earlier demo data.
 
 ## Not yet
 
