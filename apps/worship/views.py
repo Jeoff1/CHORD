@@ -648,6 +648,12 @@ class SongResourceCreateView(AuthenticatedPermissionRequiredMixin, CreateView):
             )
         return self.song
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        # Bind the song before validation so model rules see it.
+        kwargs["instance"] = SongResource(song=self.get_song())
+        return kwargs
+
     def form_valid(self, form):
         self.object = save_song_resource(
             form=form,

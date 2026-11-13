@@ -5,6 +5,7 @@ from django.db.models import Q
 from apps.events.models import Event
 from apps.events.services import visible_events_for
 from apps.members.models import Member
+from apps.traditions.services import allowed_songbooks
 
 from .models import (
     ChoirAnnouncement,
@@ -13,8 +14,10 @@ from .models import (
     Rehearsal,
     RehearsalAttendance,
     Song,
+    Songbook,
     SongResource,
     WorshipPlan,
+    default_songbook_id,
 )
 from .services import sync_plan_participants, sync_song_assignments
 from .spotify import normalize_spotify_track
@@ -165,6 +168,8 @@ class SongForm(forms.ModelForm):
         fields = (
             "title",
             "artist",
+            "songbook",
+            "metadata_only",
             "default_key",
             "tempo_bpm",
             "category",
@@ -176,9 +181,21 @@ class SongForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["songbook"].required = False
+        self.fields[
+            "songbook"
+        ].help_text = "Leave blank to use your tradition's default songbook."
         if self.instance.pk:
             self.fields["theme_list"].initial = self.instance.theme_text
             self.fields["spotify_track"].initial = self.instance.spotify_url
+
+    def clean_songbook(self):
+        songbook = self.cleaned_data["songbook"]
+        if songbook is None:
+            songbook = allowed_songbooks().order_by(
+                "metadata_only", "name"
+            ).first() or Songbook.objects.get(pk=default_songbook_id())
+        return songbook
 
     def clean_theme_list(self):
         raw_themes = self.cleaned_data["theme_list"]
@@ -313,9 +330,12 @@ class PlanSongForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         style_chord_fields(self.fields)
         self.plan = plan
+        self.fields["song"].queryset = Song.objects.filter(
+            songbook__in=allowed_songbooks()
+        ).select_related("songbook")
         self.fields[
             "song"
-        ].help_text = "Choose an existing song from the authorized library."
+        ].help_text = "Choose a song from your tradition's allowed songbooks."
         self.fields[
             "planned_key"
         ].help_text = "Optional service key; leave blank to use the song's default key."

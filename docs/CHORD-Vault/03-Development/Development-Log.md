@@ -546,3 +546,15 @@ See [[../03-Modules/Church-Profile-Traditions]].
 - Tests use plain role-code strings; a new access matrix checks every common
   and preset role's full permission set under each of the three Traditions.
 - Verification: full suite, Ruff lint/format, migration check.
+
+## 2026-11-13 - Phase 7A ticket 05: Songbooks and metadata-only songs
+
+- New `Songbook` model with Tradition allow-lists; `Song` gains a required
+  `songbook` and a `metadata_only` flag (migration `worship/0004_songbooks`
+  seeds three presets and moves existing songs to General Library).
+- Setlist song choices come from `services.allowed_songbooks()`.
+- Metadata-only songs reject lyric and sheet resources; the resource create
+  view now binds the song before validation so model rules apply.
+- Built test-first at the test-client and tradition-config seams
+  (`apps/worship/tests_songbooks.py`, 12 tests).
+- Verification: full suite (196 tests), Ruff lint/format, migration check.

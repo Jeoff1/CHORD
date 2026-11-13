@@ -9,6 +9,7 @@ from .models import (
     RehearsalAttendance,
     Song,
     SongAssignment,
+    Songbook,
     SongResource,
     WorshipPlan,
 )
@@ -75,10 +76,25 @@ class SongResourceInline(admin.TabularInline):
         return False
 
 
+@admin.register(Songbook)
+class SongbookAdmin(admin.ModelAdmin):
+    list_display = ("name", "code", "metadata_only")
+    list_filter = ("metadata_only", "traditions")
+    search_fields = ("name", "code")
+    filter_horizontal = ("traditions",)
+
+
 @admin.register(Song)
 class SongAdmin(admin.ModelAdmin):
-    list_display = ("title", "artist", "category", "default_key", "tempo_bpm")
-    list_filter = ("category",)
+    list_display = (
+        "title",
+        "artist",
+        "songbook",
+        "category",
+        "default_key",
+        "tempo_bpm",
+    )
+    list_filter = ("songbook", "category", "metadata_only")
     search_fields = ("title", "artist")
     readonly_fields = ("public_id", "created_at", "updated_at")
     inlines = (SongResourceInline,)

@@ -215,6 +215,38 @@ class ChoirAnnouncement(models.Model):
         return self.title
 
 
+class Songbook(models.Model):
+    """A hymnal or song library a Song belongs to (see GLOSSARY.md)."""
+
+    DEFAULT_CODE = "general"
+
+    code = models.SlugField(max_length=50, unique=True)
+    name = models.CharField(max_length=150, unique=True)
+    metadata_only = models.BooleanField(
+        default=False,
+        help_text="Store titles and metadata only; refuse lyric and sheet resources.",
+    )
+    traditions = models.ManyToManyField(
+        "traditions.Tradition",
+        blank=True,
+        related_name="songbooks",
+        help_text="Traditions whose setlists may use this songbook.",
+    )
+
+    class Meta:
+        ordering = ("name",)
+
+    def __str__(self):
+        return self.name
+
+
+def default_songbook_id():
+    songbook, _ = Songbook.objects.get_or_create(
+        code=Songbook.DEFAULT_CODE, defaults={"name": "General Library"}
+    )
+    return songbook.pk
+
+
 class Song(models.Model):
     class Category(models.TextChoices):
         CONTEMPORARY = "contemporary", "Contemporary worship"
@@ -234,6 +266,16 @@ class Song(models.Model):
     )
     category = models.CharField(max_length=24, choices=Category.choices)
     themes = models.JSONField(default=list, blank=True)
+    songbook = models.ForeignKey(
+        Songbook,
+        on_delete=models.PROTECT,
+        default=default_songbook_id,
+        related_name="songs",
+    )
+    metadata_only = models.BooleanField(
+        default=False,
+        help_text="Store metadata only; refuse lyric and sheet resources.",
+    )
     notes = models.TextField(blank=True)
     spotify_track_id = models.CharField(
         max_length=22,
@@ -270,6 +312,10 @@ class Song(models.Model):
             ("view_song_library", "Can view the worship song library"),
             ("view_song_resources", "Can view authorized song resources"),
         )
+
+    @property
+    def is_metadata_only(self):
+        return self.metadata_only or self.songbook.metadata_only
 
     @property
     def theme_text(self):
@@ -357,10 +403,25 @@ class SongResource(models.Model):
             )
         ]
 
+    LYRIC_AND_SHEET_TYPES = frozenset(
+        {ResourceType.CHORD_SHEET, ResourceType.LEAD_SHEET, ResourceType.LYRICS}
+    )
+
     def clean(self):
         if bool(self.file) == bool(self.external_url):
             raise ValidationError(
                 "Provide either one uploaded file or one external URL."
+            )
+        if (
+            self.song_id
+            and self.resource_type in self.LYRIC_AND_SHEET_TYPES
+            and self.song.is_metadata_only
+        ):
+            raise ValidationError(
+                {
+                    "resource_type": "This song is metadata only; lyrics and "
+                    "sheets cannot be stored."
+                }
             )
 
     @property

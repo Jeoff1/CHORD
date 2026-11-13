@@ -42,7 +42,16 @@ Phase 7A tickets 01-02. App: `apps.traditions`. Route: `/church/`.
   permission backend and the assignable roles on the account form
   (`services.roles_in_effect()`, `services.users_with_permission()`); an inactive Tradition's roles grant nothing but stay assigned.
 
+- **Songbooks** (ticket 05): `worship.Songbook` (code, name, `metadata_only`,
+  M2M `traditions`). Presets: General Library (Alliance, Roman Catholic),
+  Catholic Hymnal (Roman Catholic, metadata only), INC Hymnal (Iglesia Ni
+  Cristo, metadata only). `Song.songbook` is required (existing songs migrated
+  to General Library); a blank song-form choice falls back to the Tradition's
+  first allowed full-content songbook (metadata-only books sort last). `Song.metadata_only` marks a single song.
+  `services.allowed_songbooks()` limits setlist song choices server-side.
+  Songs where `is_metadata_only` is true refuse lyrics, chord-sheet and
+  lead-sheet `SongResource`s (file or link); reference audio is still allowed.
+
 ## Not yet
 
-Songbooks, themes, templates,
-calendar, and records arrive in tickets 03-13. See [[../01-Project/Phase-7A-Spec]].
+Themes, templates, calendar, and records arrive in tickets 06-13. See [[../01-Project/Phase-7A-Spec]].

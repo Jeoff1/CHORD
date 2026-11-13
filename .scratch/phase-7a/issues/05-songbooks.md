@@ -4,10 +4,10 @@
 
 **Blocked by:** 01
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Songbook model; Song gains a Songbook and a metadata-only flag
-- [ ] Existing songs migrate to a default Songbook
-- [ ] Setlist song choices are filtered by allowed Songbooks, server-side
-- [ ] Metadata-only songs reject lyric and sheet SongResource uploads
-- [ ] The tradition-config service returns allowed Songbooks and is tested directly
+- [x] Songbook model; Song gains a Songbook and a metadata-only flag
+- [x] Existing songs migrate to a default Songbook
+- [x] Setlist song choices are filtered by allowed Songbooks, server-side
+- [x] Metadata-only songs reject lyric and sheet SongResource uploads
+- [x] The tradition-config service returns allowed Songbooks and is tested directly
