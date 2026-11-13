@@ -4,10 +4,10 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Chord tokens transpose by semitones within the existing safe ChordPro subset
-- [ ] The default offset is the planned key minus the song's default key
-- [ ] The viewer can adjust the offset with a query parameter
-- [ ] Resource security and preview permissions are unchanged
-- [ ] Tests extend the existing Phase 6 ChordPro tests
+- [x] Chord tokens transpose by semitones within the existing safe ChordPro subset
+- [x] The default offset is the planned key minus the song's default key
+- [x] The viewer can adjust the offset with a query parameter
+- [x] Resource security and preview permissions are unchanged
+- [x] Tests extend the existing Phase 6 ChordPro tests
