@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}{{ record.record_type.name }} record | CHORD{% endblock %}
+{% block content %}
+  <div class="chord-page-heading">
+    <div>
+      <p class="chord-eyebrow">{{ record.record_type.name }}</p>
+      <h1>{{ record.display_name }}</h1>
+      <p><a href="{% url 'records:list' %}">Church records</a> / Record {{ record.public_id|stringformat:"s"|slice:":8"|upper }}</p>
+    </div>
+    <div class="chord-page-actions">
+      <a class="btn btn-outline-primary" href="{% url 'records:list' %}">Back to records</a>
+      {% if perms.records.manage_church_records and perms.records.change_churchrecord %}
+        <a class="btn btn-primary" href="{% url 'records:edit' record.public_id %}">Edit record</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <section class="chord-panel" aria-labelledby="record-heading">
+    <div class="chord-panel__header"><h2 id="record-heading">Record details</h2></div>
+    <dl class="chord-definition-grid">
+      <div><dt>Type</dt><dd>{{ record.record_type.name }}</dd></div>
+      <div><dt>Date</dt><dd>{{ record.date|date:"d F Y" }}</dd></div>
+      <div><dt>Member</dt><dd>{% if record.member %}<a href="{% url 'members:detail' record.member.public_id %}">{{ record.member.full_name }}</a>{% else %}Not a member{% endif %}</dd></div>
+      {% if not record.member %}<div><dt>Name</dt><dd>{{ record.name }}</dd></div>{% endif %}
+      <div><dt>Officiant</dt><dd>{{ record.officiant|default:"—" }}</dd></div>
+      <div><dt>Place</dt><dd>{{ record.place|default:"—" }}</dd></div>
+      <div class="chord-definition-grid__full"><dt>Notes</dt><dd>{{ record.notes|linebreaksbr|default:"—" }}</dd></div>
+    </dl>
+  </section>
+
+  {% if audit_events is not None %}
+  <section class="chord-panel" aria-labelledby="audit-heading">
+    <div class="chord-panel__header">
+      <div>
+        <h2 id="audit-heading">Audit trail</h2>
+        <p class="chord-panel__note">Field names only; values are never copied into the log.</p>
+      </div>
+    </div>
+    <ul class="list-unstyled mb-0">
+      {% for event in audit_events %}
+        <li>{{ event.occurred_at|date:"d M Y H:i" }} · <strong>{{ event.get_action_display }}</strong> by {{ event.actor.username|default:"system" }}{% if event.fields_changed %} · {{ event.fields_changed|join:", " }}{% endif %}</li>
+      {% empty %}
+        <li class="text-muted">No audit events recorded.</li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+{% endblock %}

@@ -14,6 +14,7 @@ SECTION_LABELS = {
     "choir": "Choir",
     "songs": "Song library",
     "plans": "Service plans",
+    "records": "Church records",
 }
 
 
@@ -53,6 +54,7 @@ def application_shell(request):
             "ministries": "ministries",
             "events": "events",
             "giving": "giving",
+            "records": "records",
             "traditions": "church",
         }.get(app_name, "")
 

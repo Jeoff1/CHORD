@@ -12,6 +12,7 @@ MODULES = {
     "events": "Calendar & attendance",
     "giving": "Giving records",
     "worship": "Choir, songs & service plans",
+    "records": "Church records",
 }
 
 # Every term a Tradition may rename; presets supply their own values.

@@ -619,3 +619,19 @@ See [[../03-Modules/Church-Profile-Traditions]].
 - Plan detail and the plan list show the derived Season (`WorshipPlan.season()`);
   the list resolves all plans against one Season query.
 - Tests: `apps/traditions/tests_calendar.py` (19 tests).
+
+## 2026-11-13 - Phase 7A ticket 10: Church Records
+
+- New `apps.records` app (migrations `records/0001_church_records`,
+  `0002_preset_record_types`): `ChurchRecordType` per Tradition (Catholic
+  sacraments; Alliance Baby Dedication, Baptism, Marriage, Funeral; INC Child
+  Dedication, Baptism, Marriage, Funeral), `ChurchRecord` (member link or
+  free-text name, officiant, place, date, notes) and `ChurchRecordAuditEvent`
+  mirroring the member and contribution audits (field names only).
+- Confidentiality: `records.view_church_records` and
+  `records.manage_church_records`, granted only to Church Administrator (and
+  the preset roles that reuse its permissions).
+- `records` is a gateable module, enabled by default for every preset.
+- `/records/` list with name search, type and date-range filters; add, detail
+  (with audit trail) and edit views; sidebar link.
+- Tests: `apps/records/tests.py` (16 tests).

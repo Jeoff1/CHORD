@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}{% if object %}Edit{% else %}Add{% endif %} church record | CHORD{% endblock %}
+{% block content %}
+  <p class="chord-eyebrow"><a href="{% url 'records:list' %}">Church records</a></p>
+  <h1 class="h3">{% if object %}Edit {{ object.record_type.name }} record{% else %}Add church record{% endif %}</h1>
+  <p class="text-muted">Link a member, or enter a name for someone who is not a member.</p>
+  <form method="post" class="card card-body shadow-sm">
+    {% csrf_token %}
+    {% for error in form.non_field_errors %}<div class="alert alert-danger">{{ error }}</div>{% endfor %}
+    {% for field in form %}
+      {% include "includes/form_field.html" %}
+    {% endfor %}
+    <div>
+      <button class="btn btn-primary" type="submit">Save record</button>
+    </div>
+  </form>
+{% endblock %}
