@@ -61,7 +61,8 @@ See [[../04-Testing/Phases-1-3-QA-Audit]].
   at the queryset level for participant accounts.
 - Store normalized worship themes as a bounded JSON string list. This supports
   future recommendation inputs without implementing an ML engine or premature
-  taxonomy tables.
+  taxonomy tables. *Superseded by Phase 7A ticket 06: song themes are now a
+  relation to the controlled `traditions.Theme` vocabulary.*
 - Store licensed uploads outside public media, require an authorization
   reference, validate extension and size, and stream files only through a
   permission-protected view.

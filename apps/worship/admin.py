@@ -97,6 +97,7 @@ class SongAdmin(admin.ModelAdmin):
     list_filter = ("songbook", "category", "metadata_only")
     search_fields = ("title", "artist")
     readonly_fields = ("public_id", "created_at", "updated_at")
+    filter_horizontal = ("themes",)
     inlines = (SongResourceInline,)
 
 

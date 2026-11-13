@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import ChurchProfile, Tradition
+from .models import ChurchProfile, Theme, Tradition
 
 
 @admin.register(Tradition)
@@ -19,3 +19,10 @@ class ChurchProfileAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+@admin.register(Theme)
+class ThemeAdmin(admin.ModelAdmin):
+    list_display = ("name", "code", "tradition")
+    list_filter = ("tradition",)
+    search_fields = ("name", "code")

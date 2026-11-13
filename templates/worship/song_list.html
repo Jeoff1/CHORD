@@ -5,7 +5,7 @@
   <form method="get" class="row g-2 mb-3" role="search">
     <div class="col-lg-4"><label class="visually-hidden" for="song-search">Search</label><input id="song-search" class="form-control" type="search" name="q" value="{{ query }}" placeholder="Title or artist"></div>
     <div class="col-lg-3"><label class="visually-hidden" for="song-category">Category</label><select id="song-category" class="form-select" name="category"><option value="">All categories</option>{% for value, label in category_choices %}<option value="{{ value }}"{% if selected_category == value %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
-    <div class="col-lg-2"><label class="visually-hidden" for="song-theme">Theme</label><input id="song-theme" class="form-control" name="theme" value="{{ selected_theme }}" placeholder="Theme"></div>
+    <div class="col-lg-2"><label class="visually-hidden" for="song-theme">Theme</label><select id="song-theme" class="form-select" name="theme"><option value="">All themes</option>{% for theme in theme_choices %}<option value="{{ theme.code }}"{% if theme.code == selected_theme %} selected{% endif %}>{{ theme.name }}</option>{% endfor %}</select></div>
     <div class="col-lg-2"><label class="visually-hidden" for="song-sort">Sort</label><select id="song-sort" class="form-select" name="sort">{% for option in sort_options %}<option value="{{ option }}"{% if selected_sort == option %} selected{% endif %}>{{ option|capfirst }}</option>{% endfor %}</select></div>
     <div class="col-lg-1"><button class="btn btn-outline-primary w-100" type="submit">Go</button></div>
   </form>

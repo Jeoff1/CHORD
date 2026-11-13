@@ -558,3 +558,18 @@ See [[../03-Modules/Church-Profile-Traditions]].
 - Built test-first at the test-client and tradition-config seams
   (`apps/worship/tests_songbooks.py`, 12 tests).
 - Verification: full suite (196 tests), Ruff lint/format, migration check.
+
+## 2026-11-13 - Phase 7A ticket 06: Controlled Themes for songs
+
+- New `traditions.Theme` (common when `tradition` is blank, else
+  tradition-scoped), seeded by `traditions/0006_themes`; the tradition-config
+  service exposes `available_themes()` (common + active Tradition).
+- `Song.themes` is now an M2M to Theme. Migration `worship/0005_controlled_themes`
+  renames the old JSON list to `legacy_themes`, tags matching strings (common
+  and active-Tradition Themes only) and keeps unmatched strings there.
+- `manage.py report_unmatched_themes` lists songs needing manual tagging.
+- Song form offers available Themes as checkboxes and keeps a song's Themes
+  from other Traditions on edit; song list filters by Theme code.
+- Tests: `apps/worship/tests_themes.py` (11 tests, incl. a real migration run).
+- Verification: full suite, Ruff lint/format, migration check.
+

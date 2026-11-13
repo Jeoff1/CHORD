@@ -50,3 +50,48 @@ class ChurchProfile(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class ThemeQuerySet(models.QuerySet):
+    def available_for(self, tradition):
+        """The common Themes plus ``tradition``'s own Themes."""
+        return self.filter(
+            models.Q(tradition__isnull=True) | models.Q(tradition=tradition)
+        )
+
+
+class Theme(models.Model):
+    """A controlled-vocabulary topic; common when it has no Tradition (see GLOSSARY.md)."""
+
+    code = models.SlugField(max_length=50)
+    name = models.CharField(max_length=100)
+    tradition = models.ForeignKey(
+        Tradition,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="themes",
+        help_text="Leave blank for a common Theme shared by every Tradition.",
+    )
+
+    objects = ThemeQuerySet.as_manager()
+
+    class Meta:
+        ordering = ["name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["tradition", "code"], name="theme_code_unique_per_tradition"
+            ),
+            models.UniqueConstraint(
+                fields=["code"],
+                condition=models.Q(tradition__isnull=True),
+                name="common_theme_code_unique",
+            ),
+        ]
+
+    @property
+    def is_common(self):
+        return self.tradition_id is None
+
+    def __str__(self):
+        return self.name

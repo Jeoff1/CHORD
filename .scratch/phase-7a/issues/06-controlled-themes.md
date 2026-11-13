@@ -4,10 +4,10 @@
 
 **Blocked by:** 01
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Theme model, either common or tradition-scoped
-- [ ] Song themes become a relation to Theme
-- [ ] The migration maps matching legacy strings, and a management command reports unmatched ones
-- [ ] Song forms offer common Themes plus the active Tradition's Themes
-- [ ] Tests cover migration matching and theme options per Tradition
+- [x] Theme model, either common or tradition-scoped
+- [x] Song themes become a relation to Theme
+- [x] The migration maps matching legacy strings, and a management command reports unmatched ones
+- [x] Song forms offer common Themes plus the active Tradition's Themes
+- [x] Tests cover migration matching and theme options per Tradition

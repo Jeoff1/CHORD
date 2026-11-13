@@ -56,6 +56,14 @@ def allowed_songbooks(profile=None):
     return Songbook.objects.filter(traditions=tradition)
 
 
+def available_themes(profile=None):
+    """Themes on offer: the common list plus the active Tradition's own Themes."""
+    from .models import Theme
+
+    tradition = (profile or get_church_profile()).tradition
+    return Theme.objects.available_for(tradition)
+
+
 def list_traditions():
     return list(Tradition.objects.all())
 

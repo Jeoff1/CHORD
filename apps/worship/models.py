@@ -265,7 +265,14 @@ class Song(models.Model):
         validators=(MinValueValidator(20), MaxValueValidator(300)),
     )
     category = models.CharField(max_length=24, choices=Category.choices)
-    themes = models.JSONField(default=list, blank=True)
+    themes = models.ManyToManyField(
+        "traditions.Theme", blank=True, related_name="songs"
+    )
+    legacy_themes = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="Free-string themes no controlled Theme matched; tag them by hand.",
+    )
     songbook = models.ForeignKey(
         Songbook,
         on_delete=models.PROTECT,
@@ -319,7 +326,7 @@ class Song(models.Model):
 
     @property
     def theme_text(self):
-        return ", ".join(self.themes)
+        return ", ".join(theme.name for theme in self.themes.all())
 
     @property
     def spotify_url(self):
