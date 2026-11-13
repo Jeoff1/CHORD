@@ -32,7 +32,7 @@
 
 ### Issue tracker
 
-Issues live in GitHub Issues on `Jeoff1/CHORD` (via the `gh` CLI). See `docs/agents/issue-tracker.md`.
+Tickets live as local Markdown files in `.scratch/<feature>/issues/` (not GitHub Issues). Mark a ticket `done` in the same commit as its implementation. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 
