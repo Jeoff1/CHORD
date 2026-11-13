@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import ChurchProfile, Theme, Tradition
+from .models import ChurchProfile, ServiceTemplate, SongSlot, Theme, Tradition
 
 
 @admin.register(Tradition)
@@ -26,3 +26,15 @@ class ThemeAdmin(admin.ModelAdmin):
     list_display = ("name", "code", "tradition")
     list_filter = ("tradition",)
     search_fields = ("name", "code")
+
+
+class SongSlotInline(admin.TabularInline):
+    model = SongSlot
+    extra = 0
+
+
+@admin.register(ServiceTemplate)
+class ServiceTemplateAdmin(admin.ModelAdmin):
+    list_display = ("name", "code", "tradition")
+    list_filter = ("tradition",)
+    inlines = (SongSlotInline,)

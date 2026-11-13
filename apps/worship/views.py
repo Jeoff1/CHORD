@@ -920,7 +920,9 @@ class WorshipPlanDetailView(
             .prefetch_related(
                 Prefetch(
                     "setlist_items",
-                    queryset=PlanSong.objects.select_related("song").prefetch_related(
+                    queryset=PlanSong.objects.select_related(
+                        "song", "song_slot"
+                    ).prefetch_related(
                         Prefetch("assignments", queryset=assignment_queryset),
                         "song__resources",
                         "song__themes",
@@ -961,6 +963,7 @@ class WorshipPlanDetailView(
                 ),
                 "participant_count": len(participations),
                 "setlist_count": len(setlist_items),
+                "slot_outline": self.object.slot_outline(),
             }
         )
         return context
@@ -1036,6 +1039,7 @@ class PlanSongCreateView(AuthenticatedPermissionRequiredMixin, CreateView):
             song=form.cleaned_data["song"],
             planned_key=form.cleaned_data["planned_key"],
             notes=form.cleaned_data["notes"],
+            song_slot=form.cleaned_data.get("song_slot"),
         )
         messages.success(self.request, "The song was added to the setlist.")
         return HttpResponseRedirect(self.get_success_url())

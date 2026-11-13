@@ -70,13 +70,14 @@ def sync_plan_participants(*, plan, enrollments):
 
 
 @transaction.atomic
-def add_plan_song(*, plan, song, planned_key="", notes=""):
+def add_plan_song(*, plan, song, planned_key="", notes="", song_slot=None):
     WorshipPlan.objects.select_for_update().get(pk=plan.pk)
     last_position = plan.setlist_items.aggregate(last=Max("position"))["last"] or 0
     return PlanSong.objects.create(
         plan=plan,
         song=song,
         position=last_position + 1,
+        song_slot=song_slot,
         planned_key=planned_key,
         notes=notes,
     )

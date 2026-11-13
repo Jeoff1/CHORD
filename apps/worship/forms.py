@@ -5,8 +5,12 @@ from django.db.models import Q
 from apps.events.models import Event
 from apps.events.services import visible_events_for
 from apps.members.models import Member
-from apps.traditions.models import Theme
-from apps.traditions.services import allowed_songbooks, available_themes
+from apps.traditions.models import ServiceTemplate, SongSlot, Theme
+from apps.traditions.services import (
+    allowed_songbooks,
+    available_service_templates,
+    available_themes,
+)
 
 from .models import (
     ChoirAnnouncement,
@@ -269,6 +273,7 @@ class WorshipPlanForm(forms.ModelForm):
             "service_datetime",
             "location",
             "service_theme",
+            "service_template",
             "sermon_title",
             "scripture_reference",
             "status",
@@ -303,6 +308,17 @@ class WorshipPlanForm(forms.ModelForm):
         theme_field.queryset = themes
         # New plans need a theme; plans saved before Service Themes existed stay valid.
         theme_field.required = not self.instance.pk or bool(current_theme_id)
+        template_field = self.fields["service_template"]
+        templates = available_service_templates()
+        current_template_id = self.instance.service_template_id
+        if current_template_id:
+            templates = ServiceTemplate.objects.filter(
+                Q(pk__in=templates.values("pk")) | Q(pk=current_template_id)
+            )
+        template_field.queryset = templates
+        template_field.help_text = (
+            "Optional. A Service Template lays out the plan's Song Slots."
+        )
         available_filter = Q(status=ChoirEnrollment.Status.ACTIVE)
         if self.instance.pk:
             available_filter |= Q(plan_participations__plan=self.instance)
@@ -338,6 +354,11 @@ class WorshipPlanForm(forms.ModelForm):
         plan = super().save(commit=False)
         if commit:
             plan.save()
+            if "service_template" in self.changed_data:
+                # Slots belong to the old template; the songs stay in the setlist.
+                plan.setlist_items.exclude(
+                    song_slot__template_id=plan.service_template_id
+                ).exclude(song_slot__isnull=True).update(song_slot=None)
             sync_plan_participants(
                 plan=plan,
                 enrollments=self.cleaned_data["choir_participants"],
@@ -348,18 +369,27 @@ class WorshipPlanForm(forms.ModelForm):
 class PlanSongForm(forms.ModelForm):
     class Meta:
         model = PlanSong
-        fields = ("song", "planned_key", "notes")
+        fields = ("song", "song_slot", "planned_key", "notes")
 
     def __init__(self, *args, plan, **kwargs):
         super().__init__(*args, **kwargs)
         style_chord_fields(self.fields)
         self.plan = plan
+        self.instance.plan = plan
         self.fields["song"].queryset = Song.objects.filter(
             songbook__in=allowed_songbooks()
         ).select_related("songbook")
         self.fields[
             "song"
         ].help_text = "Choose a song from your tradition's allowed songbooks."
+        slot_field = self.fields["song_slot"]
+        if plan.service_template_id:
+            slot_field.queryset = SongSlot.objects.filter(
+                template_id=plan.service_template_id
+            )
+            slot_field.help_text = "Optional. The Song Slot this song fills."
+        else:
+            del self.fields["song_slot"]
         self.fields[
             "planned_key"
         ].help_text = "Optional service key; leave blank to use the song's default key."

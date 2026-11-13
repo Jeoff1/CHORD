@@ -59,8 +59,13 @@ validation without changing stored data.
 - `worship_worshipplan` - service date/time, location, preparation status,
   notes, creator, setlist, and choir participation; Service Theme (nullable
   PROTECT FK to `traditions_theme`, required for new plans by `WorshipPlan.clean()`),
-  sermon title and scripture reference.
-- `worship_plansong` - ordered setlist through model with planned key and notes.
+  sermon title and scripture reference; optional Service Template (nullable
+  PROTECT FK to `traditions_servicetemplate`).
+- `worship_plansong` - ordered setlist through model with planned key and notes;
+  optional Song Slot (nullable PROTECT FK to `traditions_songslot`). Position
+  stays the authoritative order.
+- `traditions_servicetemplate` / `traditions_songslot` - each Tradition's
+  service structures and their ordered, named Song Slots (seeded per preset).
 - `worship_planchoirparticipation` - unique plan/enrollment participation.
 - `worship_songassignment` - unique plan-song/enrollment responsibility with
   assignment metadata.

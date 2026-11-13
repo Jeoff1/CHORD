@@ -153,3 +153,11 @@ class ModuleScopedPerms:
 
     def has_perms(self, perms):
         return all(self.has_perm(perm) for perm in perms)
+
+
+def available_service_templates(profile=None):
+    """Service Templates the active Tradition offers for new worship plans."""
+    from .models import ServiceTemplate
+
+    tradition = (profile or get_church_profile()).tradition
+    return ServiceTemplate.objects.filter(tradition=tradition)
