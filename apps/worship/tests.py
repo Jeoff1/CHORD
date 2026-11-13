@@ -539,6 +539,7 @@ class WorshipPlanningWorkflowTests(TestCase):
             reverse("worship:plan-add"),
             {
                 "title": "Evening Worship",
+                "service_theme": Theme.objects.get(code="grace", tradition=None).pk,
                 "service_datetime": future_datetime(3).strftime("%Y-%m-%dT%H:%M"),
                 "location": "Main hall",
                 "status": WorshipPlan.Status.PREPARING,
@@ -767,6 +768,7 @@ class WorshipPlanningWorkflowTests(TestCase):
             {
                 "event": event.pk,
                 "title": "Event-linked plan",
+                "service_theme": Theme.objects.get(code="grace", tradition=None).pk,
                 "service_datetime": "",
                 "location": "",
                 "status": WorshipPlan.Status.PREPARING,

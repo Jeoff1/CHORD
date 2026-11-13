@@ -5,6 +5,7 @@ from django.db.models import Q
 from apps.events.models import Event
 from apps.events.services import visible_events_for
 from apps.members.models import Member
+from apps.traditions.models import Theme
 from apps.traditions.services import allowed_songbooks, available_themes
 
 from .models import (
@@ -267,6 +268,9 @@ class WorshipPlanForm(forms.ModelForm):
             "title",
             "service_datetime",
             "location",
+            "service_theme",
+            "sermon_title",
+            "scripture_reference",
             "status",
             "preparation_notes",
             "choir_participants",
@@ -289,6 +293,16 @@ class WorshipPlanForm(forms.ModelForm):
             "event"
         ].help_text = "Optional. A linked worship-service event supplies the canonical date, time, and location."
         self.fields["service_datetime"].required = False
+        theme_field = self.fields["service_theme"]
+        themes = available_themes()
+        current_theme_id = self.instance.service_theme_id
+        if current_theme_id:
+            themes = Theme.objects.filter(
+                Q(pk__in=themes.values("pk")) | Q(pk=current_theme_id)
+            )
+        theme_field.queryset = themes
+        # New plans need a theme; plans saved before Service Themes existed stay valid.
+        theme_field.required = not self.instance.pk or bool(current_theme_id)
         available_filter = Q(status=ChoirEnrollment.Status.ACTIVE)
         if self.instance.pk:
             available_filter |= Q(plan_participations__plan=self.instance)

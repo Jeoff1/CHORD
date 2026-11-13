@@ -57,7 +57,9 @@ validation without changing stored data.
 - `worship_songresource` - one licensed uploaded file or external URL with a
   required authorization reference. Files use protected storage.
 - `worship_worshipplan` - service date/time, location, preparation status,
-  notes, creator, setlist, and choir participation.
+  notes, creator, setlist, and choir participation; Service Theme (nullable
+  PROTECT FK to `traditions_theme`, required by the form for new plans),
+  sermon title and scripture reference.
 - `worship_plansong` - ordered setlist through model with planned key and notes.
 - `worship_planchoirparticipation` - unique plan/enrollment participation.
 - `worship_songassignment` - unique plan-song/enrollment responsibility with

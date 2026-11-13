@@ -484,6 +484,16 @@ class WorshipPlan(models.Model):
         default=Status.DRAFT,
     )
     preparation_notes = models.TextField(blank=True)
+    # Required for new plans (enforced by WorshipPlanForm); null for older plans.
+    service_theme = models.ForeignKey(
+        "traditions.Theme",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="worship_plans",
+    )
+    sermon_title = models.CharField(max_length=200, blank=True)
+    scripture_reference = models.CharField(max_length=120, blank=True)
     songs = models.ManyToManyField(
         Song, through="PlanSong", related_name="worship_plans"
     )
