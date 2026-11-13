@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Edit {{ object.name }} dates | CHORD{% endblock %}
+{% block content %}
+  <p class="chord-eyebrow"><a href="{% url 'traditions:calendar' %}">Church calendar</a></p>
+  <h1 class="h3">{{ object.name }}</h1>
+  <p class="text-muted">{{ object.tradition.name }} · Correct the dates for this year.</p>
+  <form method="post" class="card card-body shadow-sm">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {% for field in form %}
+      {% include "includes/form_field.html" %}
+    {% endfor %}
+    <div>
+      <button class="btn btn-primary" type="submit">Save dates</button>
+    </div>
+  </form>
+{% endblock %}

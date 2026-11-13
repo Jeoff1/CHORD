@@ -1,6 +1,14 @@
 from django.contrib import admin
 
-from .models import ChurchProfile, ServiceTemplate, SongSlot, Theme, Tradition
+from .models import (
+    ChurchProfile,
+    Occasion,
+    Season,
+    ServiceTemplate,
+    SongSlot,
+    Theme,
+    Tradition,
+)
 
 
 @admin.register(Tradition)
@@ -38,3 +46,10 @@ class ServiceTemplateAdmin(admin.ModelAdmin):
     list_display = ("name", "code", "tradition")
     list_filter = ("tradition",)
     inlines = (SongSlotInline,)
+
+
+@admin.register(Season, Occasion)
+class CalendarEntryAdmin(admin.ModelAdmin):
+    list_display = ("name", "tradition", "start_date", "end_date")
+    list_filter = ("tradition",)
+    date_hierarchy = "start_date"

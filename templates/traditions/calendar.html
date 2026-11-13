@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Church calendar | CHORD{% endblock %}
+{% block content %}
+  <div class="chord-page-heading">
+    <div><p class="chord-eyebrow">{{ tradition.name }}</p><h1>Church calendar</h1><p>Seasons and Occasions for this church's Tradition. Edit dates when movable feasts change each year.</p></div>
+  </div>
+  <section class="chord-panel" aria-labelledby="calendar-seasons-heading">
+    <div class="chord-panel__header"><div><h2 id="calendar-seasons-heading">Seasons</h2><p class="chord-panel__note">A worship plan shows the Season its date falls in.</p></div></div>
+    <dl class="chord-summary-list">
+      {% for season in seasons %}
+        <div><dt>{{ season.name }}</dt><dd>{{ season.start_date|date:"d M Y" }} – {{ season.end_date|date:"d M Y" }}{% if perms.traditions.change_season %} · <a href="{% url 'traditions:season-edit' season.pk %}">Edit dates</a>{% endif %}</dd></div>
+      {% empty %}
+        <div class="chord-empty-state">This Tradition has no Seasons.</div>
+      {% endfor %}
+    </dl>
+  </section>
+  <section class="chord-panel" aria-labelledby="calendar-occasions-heading">
+    <div class="chord-panel__header"><div><h2 id="calendar-occasions-heading">Occasions</h2></div></div>
+    <dl class="chord-summary-list">
+      {% for occasion in occasions %}
+        <div><dt>{{ occasion.name }}</dt><dd>{{ occasion.start_date|date:"d M Y" }}{% if occasion.end_date != occasion.start_date %} – {{ occasion.end_date|date:"d M Y" }}{% endif %}{% if perms.traditions.change_occasion %} · <a href="{% url 'traditions:occasion-edit' occasion.pk %}">Edit dates</a>{% endif %}</dd></div>
+      {% empty %}
+        <div class="chord-empty-state">This Tradition has no Occasions.</div>
+      {% endfor %}
+    </dl>
+  </section>
+{% endblock %}

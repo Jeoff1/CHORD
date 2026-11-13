@@ -15,7 +15,7 @@ from django.views.generic import (
 
 from apps.accounts.mixins import AuthenticatedPermissionRequiredMixin
 from apps.events.services import visible_events_for
-from apps.traditions.services import available_themes
+from apps.traditions.services import available_themes, church_calendar
 
 from .chordpro import key_offset, parse_chordpro, wrap_semitones
 from .forms import (
@@ -871,6 +871,9 @@ class WorshipPlanListView(
             selected_timing = "upcoming"
         now = timezone.now()
         scoped_plans = WorshipPlanQuerysetMixin.get_queryset(self)
+        seasons = list(church_calendar()["seasons"])
+        for plan in context["plans"]:
+            plan.derived_season = plan.season(seasons)
         context.update(
             {
                 "query": self.request.GET.get("q", ""),
@@ -943,6 +946,7 @@ class WorshipPlanDetailView(
         assignment_count = sum(len(item.assignments.all()) for item in setlist_items)
         context.update(
             {
+                "season": self.object.season(),
                 "assignment_count": assignment_count,
                 "can_manage_assignments": can_manage_assignments,
                 "can_view_full_team": can_view_full_team,

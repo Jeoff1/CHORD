@@ -161,3 +161,24 @@ def available_service_templates(profile=None):
 
     tradition = (profile or get_church_profile()).tradition
     return ServiceTemplate.objects.filter(tradition=tradition)
+
+
+def church_calendar(profile=None):
+    """The active Tradition's Seasons and Occasions, in date order."""
+    from .models import Occasion, Season
+
+    tradition = (profile or get_church_profile()).tradition
+    return {
+        "seasons": Season.objects.filter(tradition=tradition),
+        "occasions": Occasion.objects.filter(tradition=tradition),
+    }
+
+
+def season_for(day, profile=None, seasons=None):
+    """The active Tradition's Season containing ``day``, or None (always for INC).
+
+    Pass ``seasons`` (from ``church_calendar``) to resolve many dates in one query.
+    """
+    if seasons is None:
+        seasons = church_calendar(profile)["seasons"]
+    return next((s for s in seasons if s.start_date <= day <= s.end_date), None)

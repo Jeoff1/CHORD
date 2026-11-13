@@ -603,3 +603,19 @@ See [[../03-Modules/Church-Profile-Traditions]].
   setlist rows, so `PlanSong.song` stays required and position ordering is
   unchanged.
 - Tests: `apps/worship/tests_service_templates.py` (11 tests). `PlanSong.clean()` refuses a slot from another template; changing a plan's template clears stale slots.
+
+## 2026-11-13 - Phase 7A ticket 09: Church Calendar
+
+- New `traditions.Season` and `traditions.Occasion` (migration
+  `traditions/0008_church_calendar`) seeded for the 2026-27 church year:
+  Catholic Advent, Christmas, Lent, Easter, Ordinary Time plus key occasions;
+  Alliance holidays and a Missions Conference; INC Year-End Thanksgiving and
+  Church Anniversary, with no Seasons.
+- `services.church_calendar()` and `services.season_for(date)`; the latter
+  returns None outside any Season and always for INC.
+- `/church/calendar/` (church administrators) lists the active Tradition's
+  entries; date-only edit forms for Seasons and Occasions. Church
+  Administrator gains `change_/view_season` and `change_/view_occasion`.
+- Plan detail and the plan list show the derived Season (`WorshipPlan.season()`);
+  the list resolves all plans against one Season query.
+- Tests: `apps/traditions/tests_calendar.py` (19 tests).

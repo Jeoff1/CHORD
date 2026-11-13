@@ -36,8 +36,12 @@ ROLE_PERMISSIONS = {
     "church_administrator": {
         "traditions": {
             "change_churchprofile",
+            "change_occasion",
+            "change_season",
             "manage_church_profile",
             "view_churchprofile",
+            "view_occasion",
+            "view_season",
             "view_tradition",
         },
         "accounts": {
