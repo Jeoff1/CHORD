@@ -5,7 +5,7 @@ from django.db.models import Q
 from apps.events.models import Event
 from apps.events.services import visible_events_for
 from apps.members.models import Member
-from apps.traditions.services import allowed_songbooks
+from apps.traditions.services import allowed_songbooks, available_themes
 
 from .models import (
     ChoirAnnouncement,
@@ -157,11 +157,6 @@ class SongForm(forms.ModelForm):
             "22-character track ID."
         ),
     )
-    theme_list = forms.CharField(
-        required=False,
-        label="Worship themes",
-        help_text="Comma-separated themes, for example: grace, communion, hope.",
-    )
 
     class Meta:
         model = Song
@@ -173,20 +168,33 @@ class SongForm(forms.ModelForm):
             "default_key",
             "tempo_bpm",
             "category",
-            "theme_list",
+            "themes",
             "spotify_track",
             "notes",
         )
-        widgets = {"notes": forms.Textarea(attrs={"rows": 4})}
+        widgets = {
+            "notes": forms.Textarea(attrs={"rows": 4}),
+            "themes": forms.CheckboxSelectMultiple,
+        }
+        labels = {"themes": "Worship themes"}
+
+    MAX_THEMES = 12
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["themes"].queryset = available_themes()
+        self.fields["themes"].help_text = "Common themes plus your tradition's own."
+        if self.instance.pk and self.instance.legacy_themes:
+            self.fields["themes"].help_text += (
+                " Untagged legacy themes: "
+                + ", ".join(self.instance.legacy_themes)
+                + "."
+            )
         self.fields["songbook"].required = False
         self.fields[
             "songbook"
         ].help_text = "Leave blank to use your tradition's default songbook."
         if self.instance.pk:
-            self.fields["theme_list"].initial = self.instance.theme_text
             self.fields["spotify_track"].initial = self.instance.spotify_url
 
     def clean_songbook(self):
@@ -197,18 +205,11 @@ class SongForm(forms.ModelForm):
             ).first() or Songbook.objects.get(pk=default_songbook_id())
         return songbook
 
-    def clean_theme_list(self):
-        raw_themes = self.cleaned_data["theme_list"]
-        themes = []
-        for item in raw_themes.split(","):
-            theme = " ".join(item.strip().lower().split())
-            if theme and theme not in themes:
-                themes.append(theme)
-        if len(themes) > 12:
-            raise forms.ValidationError("Use no more than 12 worship themes.")
-        if any(len(theme) > 50 for theme in themes):
+    def clean_themes(self):
+        themes = self.cleaned_data["themes"]
+        if len(themes) > self.MAX_THEMES:
             raise forms.ValidationError(
-                "Each worship theme must be 50 characters or fewer."
+                f"Use no more than {self.MAX_THEMES} worship themes."
             )
         return themes
 
@@ -217,11 +218,20 @@ class SongForm(forms.ModelForm):
 
     def save(self, commit=True):
         song = super().save(commit=False)
-        song.themes = self.cleaned_data["theme_list"]
         song.spotify_track_id = self.cleaned_data["spotify_track"]
         if commit:
             song.save()
+            self._save_m2m()
         return song
+
+    def _save_m2m(self):
+        # Keep Themes this form does not offer (another Tradition's) on the song.
+        kept = []
+        if self.instance.pk:
+            offered = self.fields["themes"].queryset
+            kept = list(self.instance.themes.exclude(pk__in=offered))
+        super()._save_m2m()
+        self.instance.themes.add(*kept)
 
 
 class SongResourceForm(forms.ModelForm):

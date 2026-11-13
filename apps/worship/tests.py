@@ -12,6 +12,7 @@ from django.utils import timezone
 from apps.accounts.models import Role, UserRole
 from apps.events.models import Event
 from apps.members.models import Member
+from apps.traditions.models import Theme
 
 from .models import (
     ChoirAnnouncement,
@@ -72,16 +73,10 @@ class WorshipModelTests(TestCase):
             rehearsal.full_clean()
         self.assertIn("ends_at", error.exception.message_dict)
 
-    def test_song_tempo_validation_and_structured_themes(self):
-        song = Song(
-            title="Metadata",
-            category=Song.Category.HYMN,
-            tempo_bpm=301,
-            themes=["hope", "grace"],
-        )
+    def test_song_tempo_validation(self):
+        song = Song(title="Metadata", category=Song.Category.HYMN, tempo_bpm=301)
         with self.assertRaises(ValidationError):
             song.full_clean()
-        self.assertEqual(song.theme_text, "hope, grace")
 
     def test_resource_requires_exactly_one_source(self):
         song = Song.objects.create(title="Licensed", category=Song.Category.HYMN)
@@ -438,7 +433,10 @@ class SongLibraryWorkflowTests(TestCase):
                 "default_key": "G",
                 "tempo_bpm": "78",
                 "category": Song.Category.CONTEMPORARY,
-                "theme_list": " Grace, hope, grace ",
+                "themes": [
+                    Theme.objects.get(code=code, tradition=None).pk
+                    for code in ("grace", "hope")
+                ],
                 "notes": "",
             },
         )
@@ -446,7 +444,7 @@ class SongLibraryWorkflowTests(TestCase):
         self.assertRedirects(
             response, reverse("worship:song-detail", args=(song.public_id,))
         )
-        self.assertEqual(song.themes, ["grace", "hope"])
+        self.assertEqual(song.theme_text, "Grace, Hope")
         self.assertEqual(song.created_by, self.leader)
 
     def test_song_search_filter_and_sort(self):
@@ -454,14 +452,12 @@ class SongLibraryWorkflowTests(TestCase):
             title="Alpha Hope",
             artist="Zulu",
             category=Song.Category.HYMN,
-            themes=["hope"],
-        )
+        ).themes.add(Theme.objects.get(code="hope", tradition=None))
         Song.objects.create(
             title="Beta Joy",
             artist="Alpha",
             category=Song.Category.GOSPEL,
-            themes=["joy"],
-        )
+        ).themes.add(Theme.objects.get(code="joy", tradition=None))
         self.client.force_login(self.choir_member)
         response = self.client.get(
             reverse("worship:song-list"),

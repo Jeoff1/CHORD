@@ -15,6 +15,7 @@ from django.views.generic import (
 
 from apps.accounts.mixins import AuthenticatedPermissionRequiredMixin
 from apps.events.services import visible_events_for
+from apps.traditions.services import available_themes
 
 from .chordpro import key_offset, parse_chordpro, wrap_semitones
 from .forms import (
@@ -547,8 +548,8 @@ class SongListView(AuthenticatedPermissionRequiredMixin, ListView):
         if category in Song.Category.values:
             queryset = queryset.filter(category=category)
         if theme:
-            queryset = queryset.filter(themes__contains=[theme])
-        return queryset.order_by(
+            queryset = queryset.filter(themes__in=available_themes().filter(code=theme))
+        return queryset.prefetch_related("themes").order_by(
             *self.SORT_OPTIONS.get(sort, self.SORT_OPTIONS["title"])
         )
 
@@ -562,6 +563,7 @@ class SongListView(AuthenticatedPermissionRequiredMixin, ListView):
                 "query": self.request.GET.get("q", ""),
                 "selected_category": self.request.GET.get("category", ""),
                 "selected_theme": self.request.GET.get("theme", ""),
+                "theme_choices": available_themes(),
                 "selected_sort": self.request.GET.get("sort", "title"),
                 "sort_options": self.SORT_OPTIONS.keys(),
                 "pagination_query": params.urlencode(),
@@ -919,6 +921,7 @@ class WorshipPlanDetailView(
                     queryset=PlanSong.objects.select_related("song").prefetch_related(
                         Prefetch("assignments", queryset=assignment_queryset),
                         "song__resources",
+                        "song__themes",
                     ),
                 ),
                 "choir_participations__enrollment__member",
