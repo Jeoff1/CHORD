@@ -95,3 +95,46 @@ class Theme(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class ServiceTemplate(models.Model):
+    """A Tradition's structure for a service, with ordered Song Slots (see GLOSSARY.md)."""
+
+    tradition = models.ForeignKey(
+        Tradition, on_delete=models.CASCADE, related_name="service_templates"
+    )
+    code = models.SlugField(max_length=50)
+    name = models.CharField(max_length=100)
+
+    class Meta:
+        ordering = ["tradition__name", "name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["tradition", "code"],
+                name="service_template_code_unique_per_tradition",
+            )
+        ]
+
+    def __str__(self):
+        return self.name
+
+
+class SongSlot(models.Model):
+    """A named position in a Service Template that a song fills (see GLOSSARY.md)."""
+
+    template = models.ForeignKey(
+        ServiceTemplate, on_delete=models.CASCADE, related_name="slots"
+    )
+    name = models.CharField(max_length=100)
+    position = models.PositiveSmallIntegerField()
+
+    class Meta:
+        ordering = ["template", "position"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["template", "position"], name="song_slot_position_unique"
+            )
+        ]
+
+    def __str__(self):
+        return self.name

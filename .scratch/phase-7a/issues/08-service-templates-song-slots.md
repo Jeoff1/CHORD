@@ -4,10 +4,10 @@
 
 **Blocked by:** 01, 05
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Each Tradition preset has Service Templates with ordered Song Slots
-- [ ] WorshipPlan gains an optional Service Template, and PlanSong gains an optional Song Slot
-- [ ] Position ordering stays authoritative
-- [ ] Creating a plan from a template pre-builds its slots
-- [ ] Tests cover plans with and without a template
+- [x] Each Tradition preset has Service Templates with ordered Song Slots
+- [x] WorshipPlan gains an optional Service Template, and PlanSong gains an optional Song Slot
+- [x] Position ordering stays authoritative
+- [x] Creating a plan from a template pre-builds its slots (derived from the template by `WorshipPlan.slot_outline()` and shown as open slots on plan detail, not stored as empty setlist rows)
+- [x] Tests cover plans with and without a template

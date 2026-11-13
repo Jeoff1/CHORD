@@ -56,5 +56,7 @@ Phase 7A tickets 01-02. App: `apps.traditions`. Route: `/church/`.
 
 Themes (ticket 06): a common list plus each Tradition's own, served by
 `services.available_themes()`; songs are tagged from it, and each new
-worship plan picks a required Service Theme from it (ticket 07). Templates, calendar,
-and records arrive in tickets 08-13. See [[../01-Project/Phase-7A-Spec]].
+worship plan picks a required Service Theme from it (ticket 07). Service Templates
+(ticket 08): each preset has templates with ordered Song Slots (Mass; Worship
+Service; Pagsamba), served by `services.available_service_templates()`.
+Calendar and records arrive in tickets 09-13. See [[../01-Project/Phase-7A-Spec]].

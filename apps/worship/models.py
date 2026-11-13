@@ -492,6 +492,13 @@ class WorshipPlan(models.Model):
         on_delete=models.PROTECT,
         related_name="worship_plans",
     )
+    service_template = models.ForeignKey(
+        "traditions.ServiceTemplate",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="worship_plans",
+    )
     sermon_title = models.CharField(max_length=200, blank=True)
     scripture_reference = models.CharField(max_length=120, blank=True)
     songs = models.ManyToManyField(
@@ -528,6 +535,20 @@ class WorshipPlan(models.Model):
                 {"service_theme": "Choose a Service Theme for a new worship plan."}
             )
 
+    def slot_outline(self):
+        """The template's Song Slots in order, each with the setlist items filling it.
+
+        Empty for a plan without a Service Template. Setlist position stays the
+        authoritative order; this only groups items under their slots.
+        """
+        if not self.service_template_id:
+            return []
+        items = list(self.setlist_items.all())
+        return [
+            (slot, [item for item in items if item.song_slot_id == slot.pk])
+            for slot in self.service_template.slots.all()
+        ]
+
     def __str__(self):
         return f"{self.title} - {timezone.localtime(self.service_datetime):%Y-%m-%d}"
 
@@ -540,6 +561,13 @@ class PlanSong(models.Model):
     )
     song = models.ForeignKey(Song, on_delete=models.PROTECT, related_name="plan_items")
     position = models.PositiveSmallIntegerField()
+    song_slot = models.ForeignKey(
+        "traditions.SongSlot",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="plan_items",
+    )
     planned_key = models.CharField(max_length=8, blank=True)
     notes = models.CharField(max_length=250, blank=True)
 
@@ -559,6 +587,15 @@ class PlanSong(models.Model):
                 name="plan_song_position_positive",
             ),
         ]
+
+    def clean(self):
+        super().clean()
+        if self.song_slot_id and (
+            self.song_slot.template_id != self.plan.service_template_id
+        ):
+            raise ValidationError(
+                {"song_slot": "Choose a Song Slot from this plan's Service Template."}
+            )
 
     def __str__(self):
         return f"{self.plan}: {self.position}. {self.song}"

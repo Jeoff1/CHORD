@@ -587,3 +587,19 @@ See [[../03-Modules/Church-Profile-Traditions]].
   impossible because pre-existing plans legitimately have none.
 - Plan list shows the theme; plan detail shows theme, sermon and scripture.
 - Tests: `apps/worship/tests_service_theme.py` (7 HTTP-client tests, 3 model/admin tests).
+
+## 2026-11-13 - Phase 7A ticket 08: Service Templates and Song Slots
+
+- New `traditions.ServiceTemplate` and `traditions.SongSlot` (migration
+  `traditions/0007_service_templates`, seeding Mass: Entrance, Offertory,
+  Communion, Recessional; Alliance Worship Service: generic slots; INC
+  Pagsamba: hymn slots).
+- `WorshipPlan.service_template` and `PlanSong.song_slot` (both optional,
+  PROTECT; migration `worship/0007_service_template_song_slot`).
+- The plan form offers the active Tradition's templates; the add-song form
+  offers the plan template's slots. `WorshipPlan.slot_outline()` lays out the
+  template's slots with the items filling each ("Open" when empty) on plan
+  detail. Slots are derived from the template rather than stored as empty
+  setlist rows, so `PlanSong.song` stays required and position ordering is
+  unchanged.
+- Tests: `apps/worship/tests_service_templates.py` (11 tests). `PlanSong.clean()` refuses a slot from another template; changing a plan's template clears stale slots.
