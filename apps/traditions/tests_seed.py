@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.core.management import CommandError, call_command
 from django.test import TestCase
 
+from apps.accounts.models import UserRole
 from apps.members.models import Member
 from apps.records.models import ChurchRecord
 from apps.traditions import services
@@ -12,7 +13,16 @@ from apps.worship.models import PlanSong, Song, SongResource, WorshipPlan
 from .demo import DEMO_CHURCHES, DEMO_EMAIL_DOMAIN
 
 TRADITIONS = ("roman-catholic", "alliance", "iglesia-ni-cristo")
-MODELS = (get_user_model(), Member, Song, WorshipPlan, PlanSong, ChurchRecord)
+MODELS = (
+    get_user_model(),
+    UserRole,
+    Member,
+    Song,
+    Song.themes.through,
+    WorshipPlan,
+    PlanSong,
+    ChurchRecord,
+)
 
 
 def seed(code, *args):
@@ -104,3 +114,41 @@ class SeedTraditionTests(TestCase):
     def test_unknown_tradition_is_rejected(self):
         with self.assertRaises(CommandError):
             seed("lutheran")
+
+    def test_switching_traditions_and_back_creates_no_duplicates(self):
+        for code in TRADITIONS:
+            seed(code)
+        before = counts()
+        for code in TRADITIONS:
+            seed(code)
+        self.assertEqual(counts(), before)
+
+
+class SeedGuardTests(TestCase):
+    def test_refuses_a_database_with_a_real_church_profile(self):
+        profile = services.get_church_profile()
+        profile.name = "Grace Community Church"
+        profile.save()
+        with self.assertRaisesMessage(CommandError, "Grace Community Church"):
+            seed("alliance")
+        self.assertEqual(services.get_church_profile().name, "Grace Community Church")
+        self.assertFalse(WorshipPlan.objects.exists())
+
+    def test_refuses_a_database_with_real_members(self):
+        Member.objects.create(first_name="Real", last_name="Person")
+        with self.assertRaisesMessage(CommandError, "1 member"):
+            seed("alliance")
+        self.assertEqual(Member.objects.count(), 1)
+
+    def test_force_seeds_anyway(self):
+        Member.objects.create(first_name="Real", last_name="Person")
+        seed("alliance", "--force")
+        self.assertEqual(
+            services.get_church_profile().name,
+            DEMO_CHURCHES["alliance"]["church_name"],
+        )
+
+    def test_reseeding_a_demo_database_needs_no_force(self):
+        seed("roman-catholic")
+        seed("alliance")
+        self.assertEqual(services.get_active_tradition().code, "alliance")

@@ -215,6 +215,26 @@ DEMO_CHURCHES = {
 }
 
 SERVICE_TIME = time(9, 0)
+FRESH_CHURCH_NAME = "My Church"  # ChurchProfile.name default
+
+
+def real_data_found():
+    """Reasons this database looks like a real church's, empty when it is safe to seed.
+
+    Seeding overwrites the Church Profile, so a renamed profile or members
+    without a demo email mean someone's real data could be replaced.
+    """
+    reasons = []
+    profile = get_church_profile()
+    demo_names = {demo["church_name"] for demo in DEMO_CHURCHES.values()}
+    if profile.name not in demo_names | {FRESH_CHURCH_NAME}:
+        reasons.append(f"the Church Profile is named {profile.name!r}")
+    real_members = Member.objects.exclude(
+        email__iendswith=f"@{DEMO_EMAIL_DOMAIN}"
+    ).count()
+    if real_members:
+        reasons.append(f"{real_members} member(s) are not demo members")
+    return reasons
 
 
 @transaction.atomic

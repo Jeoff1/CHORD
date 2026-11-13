@@ -67,3 +67,13 @@ rendered and inspected; authenticated application screenshot comparison remains
 a manual follow-up. Generic service items, approval/version history, team
 sharing, conflicts, notifications, automatic song selection, and Phase 8
 recommendation behavior remain outside this milestone.
+
+## Phase 7A ticket 12: demo churches (2026-11-13)
+
+`apps/traditions/tests_seed.py` (11 tests) covers `seed_tradition` for all
+three presets: a complete church per Tradition; no duplicates when re-run, or
+when switching Traditions and back (users, role assignments, members, songs,
+song-theme links, plans, setlist items, records); metadata-only songbooks hold
+no resources or notes; no usable passwords or non-`example.com` emails; and the
+real-data guard (refuses a renamed Church Profile or non-demo members unless
+`--force`). Full suite: 275 tests passed.
