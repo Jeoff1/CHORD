@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Church records | CHORD{% endblock %}
+{% block content %}
+  <div class="chord-page-heading">
+    <div>
+      <p class="chord-eyebrow">Confidential registry</p>
+      <h1>Church records</h1>
+      <p>{{ active_tradition.name }} record types · visible to authorized roles only.</p>
+    </div>
+    {% if perms.records.manage_church_records and perms.records.add_churchrecord %}
+      <div class="chord-page-actions">
+        <a class="btn btn-primary" href="{% url 'records:add' %}">Add record</a>
+      </div>
+    {% endif %}
+  </div>
+
+  <form class="chord-directory-filters" method="get" role="search">
+    <div class="chord-directory-filters__search">
+      <label class="visually-hidden" for="record-search">Search records</label>
+      <input id="record-search" class="form-control" type="search" name="q" value="{{ query }}" placeholder="Search by name">
+    </div>
+    <div>
+      <label class="visually-hidden" for="type-filter">Record type</label>
+      <select id="type-filter" class="form-select" name="type">
+        <option value="">All types</option>
+        {% for record_type in record_types %}
+          <option value="{{ record_type.pk }}"{% if selected_type == record_type.pk|stringformat:"s" %} selected{% endif %}>{{ record_type.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="visually-hidden" for="date-from">From date</label>
+      <input id="date-from" class="form-control" type="date" name="date_from" value="{{ date_from }}">
+    </div>
+    <div>
+      <label class="visually-hidden" for="date-to">To date</label>
+      <input id="date-to" class="form-control" type="date" name="date_to" value="{{ date_to }}">
+    </div>
+    <button class="btn btn-outline-primary" type="submit">Apply filters</button>
+    {% if query or selected_type or date_from or date_to %}
+      <a class="btn btn-link" href="{% url 'records:list' %}">Clear</a>
+    {% endif %}
+  </form>
+
+  <section class="chord-panel" aria-labelledby="records-heading">
+    <div class="chord-panel__header">
+      <div>
+        <h2 id="records-heading">Records</h2>
+        <p class="chord-panel__note">{{ page_obj.paginator.count }} record{{ page_obj.paginator.count|pluralize }} found · newest first</p>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr><th>Name</th><th>Type</th><th>Date</th><th>Officiant</th><th><span class="visually-hidden">Actions</span></th></tr>
+        </thead>
+        <tbody>
+          {% for record in records %}
+            <tr>
+              <td><a href="{% url 'records:detail' record.public_id %}"><strong>{{ record.display_name }}</strong></a></td>
+              <td>{{ record.record_type.name }}</td>
+              <td>{{ record.date|date:"d M Y" }}</td>
+              <td>{{ record.officiant|default:"—" }}</td>
+              <td class="text-end"><a class="btn btn-sm btn-outline-primary" href="{% url 'records:detail' record.public_id %}">View</a></td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="5"><div class="chord-empty-state">No church records match these filters.</div></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% include "includes/pagination.html" %}
+  </section>
+{% endblock %}

@@ -120,7 +120,7 @@ class ModuleToggleServiceTests(TestCase):
     def test_presets_enable_every_module_by_default(self):
         self.assertEqual(
             services.enabled_modules(),
-            {"members", "ministries", "events", "giving", "worship"},
+            {"members", "ministries", "events", "giving", "worship", "records"},
         )
 
     def test_override_disables_a_module_and_survives_tradition_switch(self):

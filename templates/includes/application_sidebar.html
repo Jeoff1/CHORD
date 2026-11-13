@@ -46,6 +46,9 @@
       {% if perms.worship.view_worship_plans %}
         <a class="chord-nav-link{% if shell_nav_section == 'plans' %} is-active{% endif %}" href="{% url 'worship:plan-list' %}"{% if shell_nav_section == 'plans' %} aria-current="page"{% endif %}>{{ tradition_terms.service }} plans</a>
       {% endif %}
+      {% if perms.records.view_church_records %}
+        <a class="chord-nav-link{% if shell_nav_section == 'records' %} is-active{% endif %}" href="{% url 'records:list' %}"{% if shell_nav_section == 'records' %} aria-current="page"{% endif %}>Church records</a>
+      {% endif %}
       {% if perms.giving.manage_giving %}
         <a class="chord-nav-link{% if shell_nav_section == 'giving' %} is-active{% endif %}" href="{% url 'giving:contribution-list' %}"{% if shell_nav_section == 'giving' %} aria-current="page"{% endif %}>Giving records</a>
       {% elif perms.giving.view_own_contributions %}

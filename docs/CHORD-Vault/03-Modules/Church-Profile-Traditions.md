@@ -64,4 +64,5 @@ Church Calendar (ticket 09): `traditions.Season` and `traditions.Occasion`
 (Catholic seasons; Alliance holidays and occasions; INC occasions only).
 `services.season_for(date)` resolves the active Tradition's Season (none for
 INC); `/church/calendar/` lists entries and lets church administrators edit
-dates for movable feasts. No lectionary. Records arrive in tickets 10-13. See [[../01-Project/Phase-7A-Spec]].
+dates for movable feasts. No lectionary. Church Records (ticket 10) live in
+the separate `records` app and gateable module; see the Development Log. See [[../01-Project/Phase-7A-Spec]].

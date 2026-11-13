@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "apps.giving.apps.GivingConfig",
     "apps.worship.apps.WorshipConfig",
     "apps.traditions.apps.TraditionsConfig",
+    "apps.records.apps.RecordsConfig",
 ]
 
 MIDDLEWARE = [

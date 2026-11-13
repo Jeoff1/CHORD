@@ -101,6 +101,15 @@ ROLE_PERMISSIONS = {
             "view_fund",
             "view_own_contributions",
         },
+        "records": {
+            "add_churchrecord",
+            "change_churchrecord",
+            "manage_church_records",
+            "view_church_records",
+            "view_churchrecord",
+            "view_churchrecordauditevent",
+            "view_churchrecordtype",
+        },
         "worship": {
             "add_choirannouncement",
             "add_choirenrollment",

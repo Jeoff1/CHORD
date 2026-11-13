@@ -70,6 +70,10 @@ validation without changing stored data.
   Tradition's dated Seasons (non-overlapping per Tradition, enforced by
   `Season.clean()`) and Occasions. A plan's Season is derived from its date,
   not stored.
+- `records_churchrecordtype` / `records_churchrecord` /
+  `records_churchrecordauditevent` - Church Records: per-Tradition record types
+  (seeded per preset), confidential records linking a member or a free-text
+  name, and a field-names-only audit trail.
 - `worship_planchoirparticipation` - unique plan/enrollment participation.
 - `worship_songassignment` - unique plan-song/enrollment responsibility with
   assignment metadata.
