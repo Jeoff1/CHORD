@@ -573,3 +573,14 @@ See [[../03-Modules/Church-Profile-Traditions]].
 - Tests: `apps/worship/tests_themes.py` (11 tests, incl. a real migration run).
 - Verification: full suite, Ruff lint/format, migration check.
 
+
+## 2026-11-13 - Phase 7A ticket 07: Service Theme on worship plans
+
+- `WorshipPlan` gains `service_theme` (FK to `traditions.Theme`, nullable,
+  PROTECT), `sermon_title` and `scripture_reference` (migration
+  `worship/0006_service_theme`).
+- `WorshipPlanForm` offers `available_themes()` (plus the plan's current
+  Theme) and requires a Service Theme for new plans and for plans that already
+  have one; older plans without a theme stay editable.
+- Plan list shows the theme; plan detail shows theme, sermon and scripture.
+- Tests: `apps/worship/tests_service_theme.py` (7 HTTP-client tests).

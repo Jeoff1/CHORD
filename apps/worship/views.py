@@ -800,7 +800,9 @@ class SongResourcePreviewView(AuthenticatedPermissionRequiredMixin, View):
 
 def visible_worship_plans(user):
     """Worship plans the user may see: all for managers, else their choir plans."""
-    queryset = WorshipPlan.objects.select_related("created_by", "event")
+    queryset = WorshipPlan.objects.select_related(
+        "created_by", "event", "service_theme"
+    )
     if user.has_perm("worship.manage_worship_plans") or user.has_perm(
         "worship.manage_choir"
     ):

@@ -4,10 +4,10 @@
 
 **Blocked by:** 06
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] WorshipPlan gains a Service Theme (required for new plans), a sermon title and a scripture reference
-- [ ] Existing plans remain valid without a theme
-- [ ] Plan forms validate the required theme
-- [ ] The theme is shown on plan screens
-- [ ] HTTP-client tests cover validation and display
+- [x] WorshipPlan gains a Service Theme (required for new plans), a sermon title and a scripture reference
+- [x] Existing plans remain valid without a theme
+- [x] Plan forms validate the required theme
+- [x] The theme is shown on plan screens
+- [x] HTTP-client tests cover validation and display
