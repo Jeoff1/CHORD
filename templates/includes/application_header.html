@@ -2,13 +2,12 @@
   <div class="chord-application-header__start">
     <button class="chord-menu-button" type="button" data-sidebar-toggle aria-controls="application-sidebar" aria-expanded="false">Menu</button>
     <nav class="chord-breadcrumb" aria-label="Breadcrumb">
-      <a href="{% url 'accounts:dashboard' %}">CHORD</a>
+      <a href="{% url 'accounts:dashboard' %}">{{ church_profile.name|default:"CHORD" }}</a>
       <span aria-hidden="true">/</span>
       <span aria-current="page">{{ shell_section_label }}</span>
     </nav>
   </div>
   <div class="chord-application-header__end">
-    {% if church_profile %}<span class="chord-church-identity">{{ church_profile.name }} &middot; {{ active_tradition.name }}</span>{% endif %}
     <time datetime="{% now 'Y-m-d' %}">{% now "D, d M Y" %}</time>
     <a class="chord-profile-shortcut" href="{% url 'accounts:profile' %}" aria-label="Open your profile">
       {% include "includes/user_avatar.html" %}
