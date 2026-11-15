@@ -1,14 +1,22 @@
 {% if is_paginated %}
-  <nav aria-label="Pagination">
-    <ul class="pagination justify-content-center">
+  {% with page_obj.paginator as paginator %}
+  <nav class="chord-pagination-bar" aria-label="Pagination">
+    <p class="chord-pagination-bar__summary">Showing {{ page_obj.start_index }}&ndash;{{ page_obj.end_index }} of {{ paginator.count }} &middot; Page {{ page_obj.number }} of {{ paginator.num_pages }}</p>
+    <ul class="pagination">
       {% if page_obj.has_previous %}
         <li class="page-item">
           <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if pagination_query %}&amp;{{ pagination_query }}{% elif query %}&amp;q={{ query|urlencode }}{% if selected_status %}&amp;status={{ selected_status|urlencode }}{% endif %}{% endif %}">Previous</a>
         </li>
       {% endif %}
-      <li class="page-item disabled">
-        <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
-      </li>
+      {% for number in paginator.page_range %}
+        {% if number == page_obj.number %}
+          <li class="page-item active"><span class="page-link" aria-current="page">{{ number }}</span></li>
+        {% elif number >= page_obj.number|add:"-2" and number <= page_obj.number|add:"2" %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ number }}{% if pagination_query %}&amp;{{ pagination_query }}{% elif query %}&amp;q={{ query|urlencode }}{% if selected_status %}&amp;status={{ selected_status|urlencode }}{% endif %}{% endif %}">{{ number }}</a>
+          </li>
+        {% endif %}
+      {% endfor %}
       {% if page_obj.has_next %}
         <li class="page-item">
           <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if pagination_query %}&amp;{{ pagination_query }}{% elif query %}&amp;q={{ query|urlencode }}{% if selected_status %}&amp;status={{ selected_status|urlencode }}{% endif %}{% endif %}">Next</a>
@@ -16,4 +24,5 @@
       {% endif %}
     </ul>
   </nav>
+  {% endwith %}
 {% endif %}
