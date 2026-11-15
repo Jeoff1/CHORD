@@ -4,9 +4,9 @@
 
 **Blocked by:** 07, 08, 09
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] One service query returns the plan's theme, season, allowed songbooks and slot, and is tested directly
-- [ ] No ranking, similarity or ML code is added (Phase 8 stays locked)
-- [ ] Vault updated: roadmap, Home status, module notes, Phase 7A test results
-- [ ] GLOSSARY.md reflects the final vocabulary
+- [x] One service query returns the plan's theme, season, allowed songbooks and slot, and is tested directly
+- [x] No ranking, similarity or ML code is added (Phase 8 stays locked)
+- [x] Vault updated: roadmap, Home status, module notes, Phase 7A test results
+- [x] GLOSSARY.md reflects the final vocabulary

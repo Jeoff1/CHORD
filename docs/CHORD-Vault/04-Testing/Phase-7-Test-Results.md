@@ -77,3 +77,13 @@ song-theme links, plans, setlist items, records); metadata-only songbooks hold
 no resources or notes; no usable passwords or non-`example.com` emails; and the
 real-data guard (refuses a renamed Church Profile or non-demo members unless
 `--force`). Full suite: 275 tests passed.
+
+## Phase 7A ticket 13: Phase 8 inputs and close-out (2026-11-15)
+
+`apps/traditions/tests_slot_context.py` (3 tests) covers
+`services.slot_context()`: one call returns the plan's Service Theme, derived
+Season (Lent for a March 2027 Mass), allowed Songbooks and target Song Slot;
+Season is None outside every Season; a Song Slot from another Service Template
+raises `ValueError`. Full suite: 278 tests passed in 138.166 seconds;
+`manage.py check`, `makemigrations --check`, `ruff check .` and
+`ruff format --check .` (201 files) all pass. **Phase 7A is complete.**

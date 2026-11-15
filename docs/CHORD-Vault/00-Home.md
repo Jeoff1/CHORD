@@ -48,6 +48,6 @@ now use the Phase 7.2 shell. Existing object access, transactional ordering,
 participant synchronization, and resource security remain authoritative. All
 149 tests, PostgreSQL test-database execution, migration consistency, Django
 checks, Ruff lint, and Ruff formatting passed on 2026-11-10. Remaining screen
-groups and reports are separate milestones. Next: **Phase 7A Multi-Tradition Support** (planned; remaining Phase 7
-screens paused). Machine learning is reserved for
+groups and reports are separate milestones. **Phase 7A Multi-Tradition Support** is complete (2026-11-15). Next: remaining
+Phase 7 screen groups. Machine learning is reserved for
 Phase 8 and is neither implemented nor in progress.

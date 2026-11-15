@@ -11,3 +11,4 @@
 - **Occasion** — A Church Calendar event that is not a season (e.g. INC anniversary).
 - **Church Record** — A sacramental or church record (baptism, wedding, dedication…) whose types depend on the Tradition.
 - **Worship Plan** — An existing model: a planned service with a setlist.
+- **Slot Context** — The Service Theme, Season, allowed Songbooks and target Song Slot for one Song Slot of a Worship Plan; the input bundle reserved for Phase 8. Avoid: recommendation, query features.
