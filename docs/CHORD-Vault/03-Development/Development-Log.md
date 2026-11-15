@@ -635,3 +635,13 @@ See [[../03-Modules/Church-Profile-Traditions]].
 - `/records/` list with name search, type and date-range filters; add, detail
   (with audit trail) and edit views; sidebar link.
 - Tests: `apps/records/tests.py` (16 tests).
+
+## 2026-11-15 - Phase 7A ticket 13: Phase 8 inputs and close-out
+
+- `services.slot_context(plan, song_slot)` returns a frozen `SlotContext`
+  (Service Theme, Season, allowed Songbooks, Song Slot) in one call; it rejects
+  a slot outside the plan's Service Template. Context only: no ranking,
+  similarity or ML code (Phase 8 stays locked).
+- Vault roadmap, Home status, Church Profile and Traditions module note, and
+  Phase 7 test results updated; GLOSSARY.md gains **Slot Context**.
+- Tests: `apps/traditions/tests_slot_context.py` (3 tests). Phase 7A complete.

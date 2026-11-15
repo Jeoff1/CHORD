@@ -1,5 +1,7 @@
 """Tradition-config service: the single interface for asking about the active Tradition."""
 
+from dataclasses import dataclass
+
 from .models import ChurchProfile, Tradition
 
 DEFAULT_TRADITION_CODE = "alliance"
@@ -183,3 +185,32 @@ def season_for(day, profile=None, seasons=None):
     if seasons is None:
         seasons = church_calendar(profile)["seasons"]
     return next((s for s in seasons if s.start_date <= day <= s.end_date), None)
+
+
+@dataclass(frozen=True)
+class SlotContext:
+    """What a worship plan's Song Slot asks of a song: future Phase 8 input.
+
+    Pure context; nothing here ranks or scores songs.
+    """
+
+    service_theme: object  # Theme or None (older plans)
+    season: object  # Season or None (always None for INC)
+    songbooks: object  # QuerySet of allowed Songbooks
+    song_slot: object  # SongSlot
+
+
+def slot_context(plan, song_slot, profile=None):
+    """Service Theme, Season, allowed Songbooks and target slot for one plan slot.
+
+    Raises ValueError if ``song_slot`` is not in the plan's Service Template.
+    """
+    if song_slot.template_id != plan.service_template_id:
+        raise ValueError("Song Slot is not part of this plan's Service Template.")
+    profile = profile or get_church_profile()
+    return SlotContext(
+        service_theme=plan.service_theme,
+        season=season_for(plan.service_date, profile),
+        songbooks=allowed_songbooks(profile),
+        song_slot=song_slot,
+    )
